@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КХЛ Карточки</title>
+    <style>
+        body {
+            background-color: #0f172a; /* Темно-синий фон */
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 2px solid #e11d48; /* Красная рамка КХЛ */
+            border-radius: 20px;
+            padding: 20px;
+            width: 280px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(225, 29, 72, 0.2);
+            position: relative;
+        }
+        .season-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #e11d48;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
+        .player-img {
+            width: 120px;
+            height: 120px;
+            background-color: #334155;
+            border-radius: 50%;
+            margin: 10px auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            border: 3px solid #475569;
+        }
+        .name { font-size: 22px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        .club { color: #cbd5e1; font-size: 14px; margin-bottom: 5px; }
+        .position { color: #e11d48; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            border-top: 1px solid #334155;
+            padding-top: 15px;
+        }
+        .stat { 
+            font-size: 12px; 
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+        .stat span { font-size: 16px; font-weight: bold; color: white; }
+        
+        .btn-open {
+            margin-top: 25px;
+            padding: 15px 30px;
+            background-color: #e11d48;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4);
+        }
+        .btn-open:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+    <h2>Твой первый игрок КХЛ</h2>
+
+    <div class="card">
+        <div class="season-badge">2016/17</div>
+        <div class="player-img">🏒</div>
+        <div class="name">С. Мозякин</div>
+        <div class="club">Металлург Мг</div>
+        <div class="position">Нападающий</div>
+        
+        <div class="stats">
+            <div class="stat">СКО <span>85</span></div>
+            <div class="stat">БРС <span>98</span></div>
+            <div class="stat">ПАС <span>95</span></div>
+            <div class="stat">СИЛ <span>80</span></div>
+        </div>
+    </div>
+
+    <button class="btn-open" onclick="alert('Скоро тут будет открываться бокс с карточками!')">Открыть пак (50 🪙)</button>
+
+</body>
+</html>
