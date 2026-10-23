@@ -9,7 +9,8 @@
         h2 { margin-top: 0; }
         .card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #e11d48; border-radius: 20px; padding: 20px; width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.2); position: relative; transition: border-color 0.3s; flex-shrink: 0; }
         .season-badge { position: absolute; top: 10px; right: 10px; background-color: #e11d48; color: white; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 10px; }
-        .player-img { width: 100px; height: 100px; background-color: #334155; border-radius: 50%; margin: 10px auto 15px; display: flex; align-items: center; justify-content: center; font-size: 45px; border: 3px solid #475569; }
+        .player-img { width: 100px; height: 100px; background-color: #334155; border-radius: 50%; margin: 10px auto 15px; display: flex; align-items: center; justify-content: center; font-size: 45px; border: 3px solid #475569; overflow: hidden; }
+        .player-img img { width: 100%; height: 100%; object-fit: cover; }
         .name { font-size: 22px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
         .club { color: #cbd5e1; font-size: 14px; margin-bottom: 5px; }
         .position { color: #e11d48; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
@@ -155,38 +156,42 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         const PLAYERS = [
-            { 
-                name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", 
-                sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", img: "🏒",
-                reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
-                playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
-            },
-            { 
-                name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", 
-                sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", img: "🏒",
-                reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
-                playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
-            },
-            { 
-    name: "П. Дацюк 2", club: "СКА", season: "2016/17", pos: "Нападающий", 
-    sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", img: "🏒",
-    reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
-    playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
-},
-{ 
-    name: "А. Овечкин 2", club: "Динамо М", season: "2012/13", pos: "Нападающий", 
-    sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", img: "🏒",
-    reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
-    playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
-},
-{ 
-    name: "И. Ковальчук 2", club: "СКА", season: "2015/16", pos: "Нападающий", 
-    sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", img: "🏒",
-    reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
-    playoff_stats: null 
-            }
-        ];
-
+    { 
+        name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", 
+        sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", 
+        img: "https://i.ibb.co/3s4q6R1/hockey-player-1.png", // Ссылка на картинку
+        reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
+        playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
+    },
+    { 
+        name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", 
+        sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", 
+        img: "https://i.ibb.co/3s4q6R1/hockey-player-1.png", 
+        reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
+        playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
+    },
+    { 
+        name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", 
+        sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", 
+        img: "https://i.ibb.co/3s4q6R1/hockey-player-1.png", 
+        reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
+        playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
+    },
+    { 
+        name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", 
+        sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", 
+        img: "https://i.ibb.co/3s4q6R1/hockey-player-1.png", 
+        reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
+        playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
+    },
+    { 
+        name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", 
+        sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", 
+        img: "https://i.ibb.co/3s4q6R1/hockey-player-1.png", 
+        reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
+        playoff_stats: null 
+    }
+];
         let tg = window.Telegram.WebApp;
         tg.expand();
         
@@ -273,8 +278,7 @@ function buyPack(season, price) {
     document.getElementById('si').innerText = player.si;
     document.getElementById('end').innerText = player.end;
     document.getElementById('skate').innerText = player.skate;
-    document.getElementById('img').innerText = player.img;
-
+    document.getElementById('img').innerHTML = <img src="${player.img}" alt="${player.name}">;
     const borderColor = player.rarity === "Легендарная" ? "#fbbf24" : (player.rarity === "Эпическая" ? "#a855f7" : "#e11d48");
     document.getElementById('playerCard').style.borderColor = borderColor;
 
@@ -362,7 +366,7 @@ function buyPack(season, price) {
             document.getElementById('d-si').innerText = player.si;
             document.getElementById('d-end').innerText = player.end;
             document.getElementById('d-skate').innerText = player.skate;
-            document.getElementById('d-img').innerText = player.img;
+            document.getElementById('d-img').innerHTML = <img src="${player.img}" alt="${player.name}">;
 
             const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
             const sellPrice = overall * 2;
