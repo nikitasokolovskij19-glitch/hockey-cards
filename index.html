@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>КХЛ Карточки</title>
     <style>
-        /* ... стили остаются без изменений ... */
-        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #e11d48; border-radius: 20px; padding: 20px; width: 280px; text-align: center; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.2); position: relative; }
+        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #e11d48; border-radius: 20px; padding: 20px; width: 280px; text-align: center; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.2); position: relative; transition: border-color 0.3s; }
         .season-badge { position: absolute; top: 10px; right: 10px; background-color: #e11d48; color: white; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 10px; }
         .player-img { width: 120px; height: 120px; background-color: #334155; border-radius: 50%; margin: 10px auto 15px; display: flex; align-items: center; justify-content: center; font-size: 50px; border: 3px solid #475569; }
         .name { font-size: 22px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
@@ -18,10 +17,14 @@
         .stat span { font-size: 16px; font-weight: bold; color: white; }
         .btn-open { margin-top: 25px; padding: 15px 30px; background-color: #e11d48; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4); }
         .btn-open:active { transform: scale(0.95); }
+        .btn-bonus { margin-top: 10px; padding: 10px; background-color: #10b981; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; display: none; }
+        .coins-display { margin-bottom: 15px; font-size: 18px; font-weight: bold; color: #fbbf24; }
     </style>
 </head>
 <body>
     <h2>Твой первый игрок КХЛ</h2>
+    <div class="coins-display">Баланс: <span id="coinDisplay">100</span> 🪙</div>
+    
     <div class="card" id="playerCard">
         <div class="season-badge" id="season">2016/17</div>
         <div class="player-img" id="img">🏒</div>
@@ -35,45 +38,59 @@
             <div class="stat">СИЛ <span id="si">80</span></div>
         </div>
     </div>
+    
     <button class="btn-open" id="openPackBtn">Открыть пак (50 🪙)</button>
+    <button class="btn-bonus" id="bonusBtn">🎁 Получить бонус (+50 🪙)</button>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // БАЗА ИГРОКОВ ПРЯМО НА САЙТЕ
         const PLAYERS = [
-            { name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", overall: 98, sc: 85, br: 98, ps: 95, si: 80, rarity: "Легендарная", img: "🏒" },
-            { name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", overall: 96, sc: 88, br: 85, ps: 99, si: 75, rarity: "Эпическая", img: "🏒" },
-            { name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", overall: 95, sc: 99, br: 94, ps: 70, si: 85, rarity: "Эпическая", img: "🏒" },
-            { name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", overall: 92, sc: 90, br: 88, ps: 85, si: 70, rarity: "Золотая", img: "🏒" },
-            { name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", overall: 90, sc: 92, br: 90, ps: 75, si: 80, rarity: "Золотая", img: "🏒" }
+            { name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", sc: 85, br: 98, ps: 95, si: 80, rarity: "Легендарная", img: "🏒" },
+            { name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", sc: 88, br: 85, ps: 99, si: 75, rarity: "Эпическая", img: "🏒" },
+            { name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", sc: 99, br: 94, ps: 70, si: 85, rarity: "Эпическая", img: "🏒" },
+            { name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", sc: 90, br: 88, ps: 85, si: 70, rarity: "Золотая", img: "🏒" },
+            { name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", sc: 92, br: 90, ps: 75, si: 80, rarity: "Золотая", img: "🏒" }
         ];
 
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Переменная для хранения баланса (пока в памяти сайта)
-        let userCoins = 100; 
+        // Загружаем баланс из памяти телефона (если играл раньше) или ставим 100
+        let userCoins = parseInt(localStorage.getItem('khl_coins')) || 100;
+        let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
+        
+        const coinDisplay = document.getElementById('coinDisplay');
+        const openPackBtn = document.getElementById('openPackBtn');
+        const bonusBtn = document.getElementById('bonusBtn');
         const packPrice = 50;
 
-        document.getElementById('openPackBtn').addEventListener('click', function() {
+        // Функция обновления интерфейса (баланс и кнопки)
+        function updateUI() {
+            coinDisplay.innerText = userCoins;
+            localStorage.setItem('khl_coins', userCoins); // Сохраняем
+            
             if (userCoins < packPrice) {
-                alert("У тебя не хватает монет!");
-                return;
+                openPackBtn.style.display = 'none';
+                bonusBtn.style.display = 'block';
+            } else {
+                openPackBtn.style.display = 'block';
+                bonusBtn.style.display = 'none';
             }
+        }
 
-            // Списываем монеты
+        // Кнопка "Открыть пак"
+        openPackBtn.addEventListener('click', function() {
             userCoins -= packPrice;
+            updateUI();
             
-            // Меняем текст кнопки на время анимации
-            this.innerText = "Открываем...";
+            openPackBtn.innerText = "Открываем...";
             
-            // Выбираем случайного игрока
             const randomIndex = Math.floor(Math.random() * PLAYERS.length);
             const player = PLAYERS[randomIndex];
+            collection.push(player); // Добавляем в коллекцию
+            localStorage.setItem('khl_collection', JSON.stringify(collection)); // Сохраняем коллекцию
 
-            // Небольшая задержка для эффекта
             setTimeout(() => {
-                // Меняем карточку на экране
                 document.getElementById('name').innerText = player.name;
                 document.getElementById('club').innerText = player.club;
                 document.getElementById('season').innerText = player.season;
@@ -84,21 +101,27 @@
                 document.getElementById('si').innerText = player.si;
                 document.getElementById('img').innerText = player.img;
 
-                // Возвращаем кнопку обратно
-                this.innerText = `Открыть пак (50 🪙)`;
-                
-                // Можно добавить визуальное свечение в зависимости от редкости
-                const cardElement = document.getElementById('playerCard');
-                cardElement.style.borderColor = player.rarity === "Легендарная" ? "#fbbf24" : "#e11d48";
-                
-                // Показываем алерт с редкостью (пока вместо базы данных)
+                // Красим рамку в зависимости от редкости
+                const borderColor = player.rarity === "Легендарная" ? "#fbbf24" : (player.rarity === "Эпическая" ? "#a855f7" : "#e11d48");
+                document.getElementById('playerCard').style.borderColor = borderColor;
+
+                openPackBtn.innerText = `Открыть пак (50 🪙)`;
                 alert(`Тебе выпал: ${player.name} (${player.rarity})!`);
                 
-            }, 500); // 0.5 секунды задержки
+                // Если монет не хватает, показываем кнопку бонуса
+                updateUI();
+            }, 500);
         });
 
-        // Отправляем данные боту, чтобы он знал, что мы открыли пак (в будущем пригодится)
-        // tg.sendData("open_pack"); 
+        // Кнопка "Получить бонус"
+        bonusBtn.addEventListener('click', function() {
+            userCoins += 50;
+            updateUI();
+            alert("Ты получил 50 монет! Приходи завтра за новым бонусом.");
+        });
+
+        // При запуске сразу обновляем интерфейс
+        updateUI();
     </script>
 </body>
 </html>
