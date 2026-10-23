@@ -6,7 +6,7 @@
     <title>КХЛ Карточки</title>
     <style>
         body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; height: 100vh; margin: 0; overflow-y: auto; overflow-x: hidden; }
-        
+        h2 { margin-top: 0; }
         .card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #e11d48; border-radius: 20px; padding: 20px; width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.2); position: relative; transition: border-color 0.3s; flex-shrink: 0; }
         .season-badge { position: absolute; top: 10px; right: 10px; background-color: #e11d48; color: white; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 10px; }
         .player-img { width: 100px; height: 100px; background-color: #334155; border-radius: 50%; margin: 10px auto 15px; display: flex; align-items: center; justify-content: center; font-size: 45px; border: 3px solid #475569; }
@@ -36,7 +36,6 @@
         
         .btn-nav { margin-top: 15px; background-color: #3b82f6; color: white; border: none; padding: 12px; border-radius: 10px; width: 300px; font-weight: bold; cursor: pointer; }
 
-        /* --- СТИЛИ ДЛЯ ПЕРЕВОРОТА И СТАТИСТИКИ --- */
         #detailView { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.95); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
         
         .flip-card { background-color: transparent; width: 300px; height: 480px; perspective: 1000px; cursor: pointer; }
@@ -94,7 +93,6 @@
         <div class="collection-list" id="collectionList"></div>
         <button class="btn-nav" id="backToShopBtn">⬅ Назад в магазин</button>
     </div>
-
     <div id="detailView">
         <div class="flip-card" id="flipCard">
             <div class="flip-card-inner">
@@ -128,38 +126,39 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        2const PLAYERS = [
-    { 
-        name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", 
-        sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", img: "🏒",
-        reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
-        playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
-    },
-    { 
-        name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", 
-        sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", img: "🏒",
-        reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
-        playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
-    },
-    { 
-        name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", 
-        sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", img: "🏒",
-        reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
-        playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
-    },
-    { 
-        name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", 
-        sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", img: "🏒",
-        reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
-        playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
-    },
-    { 
-        name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", 
-        sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", img: "🏒",
-        reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
-        playoff_stats: null 
-    }
-];
+        const PLAYERS = [
+            { 
+                name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", 
+                sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", img: "🏒",
+                reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
+                playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
+            },
+            { 
+                name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", 
+                sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", img: "🏒",
+                reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
+                playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
+            },
+            { 
+                name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", 
+                sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", img: "🏒",
+                reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
+                playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
+            },
+            { 
+                name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", 
+                sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", img: "🏒",
+                reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
+                playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
+            },
+            { 
+                name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", 
+                sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", img: "🏒",
+                reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
+                playoff_stats: null 
+            }
+        ];
+
         let tg = window.Telegram.WebApp;
         tg.expand();
 
@@ -295,7 +294,6 @@
             const sellPrice = overall * 2;
             document.getElementById('detailSellBtn').innerText = `Продать одну (${sellPrice} 🪙)`;
 
-            // Отрисовка статистики
             const backSide = document.getElementById('detailBack');
             let html = `
                 <h3 style="margin-top: 0; font-size: 18px; color: white;">${player.name}</h3>
@@ -320,7 +318,7 @@
                         <div class="back-stat-row"><span>Очки:</span> <span>${player.playoff_stats.points}</span></div>
                         <div class="back-stat-row"><span>Штраф:</span> <span>${player.playoff_stats.penalty}</span></div>
                     </div>
-               `;
+                `;
             } else {
                 html += `<div style="height: 40px;"></div>`;
             }
@@ -336,14 +334,12 @@
             this.classList.toggle('flipped');
         });
 
-        // Закрытие окна карточки
         document.getElementById('closeDetailBtn').addEventListener('click', function() {
             detailView.style.display = 'none';
-            document.getElementById('flipCard').classList.remove('flipped'); // Сбрасываем переворот
-            renderCollection(); // Обновляем список
+            document.getElementById('flipCard').classList.remove('flipped');
+            renderCollection();
         });
 
-        // Кнопка "Продать" внутри карточки
         document.getElementById('detailSellBtn').addEventListener('click', function() {
             if (!currentViewPlayer) return;
 
@@ -365,9 +361,9 @@
                     const stillHave = collection.some(p => p.name === currentViewPlayer.name && p.season === currentViewPlayer.season);
                     if (stillHave) {
                         currentViewPlayer.count -= 1;
-                        openDetailView(currentViewPlayer); // Обновляем текущую карточку
+                        openDetailView(currentViewPlayer);
                     } else {
-                        detailView.style.display = 'none'; // Закрываем, если карточек больше нет
+                        detailView.style.display = 'none';
                         document.getElementById('flipCard').classList.remove('flipped');
                     }
                     renderCollection();
