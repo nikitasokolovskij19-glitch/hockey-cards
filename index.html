@@ -436,52 +436,50 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     const groupedArray = Object.values(grouped);
 
     // 3. Сортируем по рейтингу
-    groupedArray.sort((a, b) => {
-        const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
-        const ovrB = Math.round((b.sc + b.br + b.ps + b.si + b.end + b.skate) / 6);
-        return ovrB - ovrA; 
+groupedArray.sort((a, b) => {
+    const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
+    const ovrB = Math.round((b.sc + b.br + b.ps + b.si + b.end + b.skate) / 6);
+    return ovrB - ovrA; 
+});
+
+if (groupedArray.length === 0) { 
+    list.innerHTML = '<p style="text-align:center; color:#aaa;">Игроков нет.</p>'; 
+} else {
+    groupedArray.forEach(player => { // <--- ВАЖНО: именно groupedArray
+        const div = document.createElement('div');
+        // ... (определение редкости)
+        
+        const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+        
+        div.className = `mini-card ${rarityClass}`;
+        div.innerHTML = `
+            <div style="flex: 1;">
+                <div style="font-weight: bold; display: flex; align-items: center;">
+                    ${player.name} 
+                    <!-- ВОТ ЭТА СТРОКА ОТВЕЧАЕТ ЗА СЧЕТЧИК -->
+                    ${player.count > 1 ? `<span style="background: #e11d48; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">x${player.count}</span>` : ''}
+                </div>
+                <div style="font-size: 12px; color: #aaa;">${player.pos} • ${player.number || ''}</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
+                <button class="open-card-btn" data-name="${player.name}" data-season="${player.season}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">Открыть</button>
+            </div>
+        `;
+        list.appendChild(div);
     });
 
-    if (groupedArray.length === 0) { 
-        list.innerHTML = '<p style="text-align:center; color:#aaa;">Игроков нет.</p>'; 
-    } else {
-        groupedArray.forEach(player => {
-            const div = document.createElement('div');
-            let rarityClass = 'common';
-            if (player.rarity_num === 2) rarityClass = 'rare';
-            if (player.rarity_num === 3) rarityClass = 'super-rare';
-            if (player.rarity_num === 4) rarityClass = 'legendary';
-            if (player.rarity_num === 5) rarityClass = 'epic';
-            
-            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-            
-            div.className = `mini-card ${rarityClass}`;
-            div.innerHTML = `
-                <div style="flex: 1;">
-                    <div style="font-weight: bold; display: flex; align-items: center;">
-                        ${player.name} 
-                        ${player.count > 1 ? `<span style="background: #e11d48; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">x${player.count}</span>` : ''}
-                    </div>
-                    <div style="font-size: 12px; color: #aaa;">${player.pos} • ${player.number || ''}</div>
-                </div>
-                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-                    <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
-                    <button class="open-card-btn" data-name="${player.name}" data-season="${player.season}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">Открыть</button>
-                </div>
-            `;
-            list.appendChild(div);
+    document.querySelectorAll('#innerCollectionList .open-card-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation(); 
+            const name = this.getAttribute('data-name');
+            const ssn = this.getAttribute('data-season');
+            // Ищем в groupedArray, а не в collection
+            const playerToOpen = groupedArray.find(p => p.name === name && p.season === ssn);
+            if (playerToOpen) openDetailView(playerToOpen);
         });
-
-        document.querySelectorAll('#innerCollectionList .open-card-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation(); 
-                const name = this.getAttribute('data-name');
-                const ssn = this.getAttribute('data-season');
-                const playerToOpen = groupedArray.find(p => p.name === name && p.season === ssn);
-                if (playerToOpen) openDetailView(playerToOpen);
-            });
-        });
-    }
+    });
+}
 
     document.getElementById('backToMainCollectionBtn').innerText = teamName ? "⬅ Назад к сезонам команды" : "⬅ Назад к сезонам";
     document.getElementById('backToMainCollectionBtn').onclick = () => {
