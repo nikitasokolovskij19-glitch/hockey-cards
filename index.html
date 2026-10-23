@@ -654,7 +654,7 @@ function renderTeamSeasons(teamName) {
             document.getElementById('flipCard').classList.remove('flipped');
         });
 
-        document.getElementById('detailSellBtn').addEventListener('click', function() {
+                document.getElementById('detailSellBtn').addEventListener('click', function() {
             if (!currentViewPlayer) return;
             const overall = Math.round((currentViewPlayer.sc + currentViewPlayer.br + currentViewPlayer.ps + currentViewPlayer.si + currentViewPlayer.end + currentViewPlayer.skate) / 6);
             const sellPrice = overall * 2;
@@ -665,24 +665,40 @@ function renderTeamSeasons(teamName) {
                     collection.splice(index, 1);
                     localStorage.setItem('khl_collection', JSON.stringify(collection));
                     userCoins += sellPrice;
-                    // Обновление профиля
-function updateProfile() {
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        const firstName = tg.initDataUnsafe.user.first_name || "Игрок";
-        document.getElementById('user-name').innerText = firstName;
-    }
-    
-    // Считаем общий рейтинг коллекции
-    let totalRating = 0;
-    collection.forEach(p => {
-        totalRating += Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
-    });
-    document.getElementById('user-rating').innerText = totalRating;
-}
+                    updateUI();
+                    alert(`Карточка продана! Вы получили ${sellPrice} 🪙`);
+                    detailView.style.display = 'none';
+                    document.getElementById('flipCard').classList.remove('flipped');
+                    
+                    if (document.getElementById('innerCollectionView').style.display === 'block') {
+                        const titleParts = document.getElementById('innerCollectionTitle').innerText.split(' • ');
+                        if (titleParts.length === 2) renderSeasonPlayers(titleParts[0], titleParts[1]);
+                        else renderSeasonPlayers(null, titleParts[0].replace('Сезон ', ''));
+                    }
+                    renderCollection();
+                }
+            }
+        }); // <--- ЗДЕСЬ ЗАКРЫВАЕТСЯ ФУНКЦИЯ ПРОДАЖИ
 
-// Вызываем обновление профиля при загрузке
-updateProfile();
-            // Загрузка базы игроков из файла
+        // Обновление профиля
+        function updateProfile() {
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const firstName = tg.initDataUnsafe.user.first_name || "Игрок";
+                document.getElementById('user-name').innerText = firstName;
+            }
+            
+            // Считаем общий рейтинг коллекции
+            let totalRating = 0;
+            collection.forEach(p => {
+                totalRating += Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
+            });
+            document.getElementById('user-rating').innerText = totalRating;
+        }
+        
+        // Вызываем обновление профиля при загрузке
+        updateProfile(); // <--- УБРАЛИ ЦИФРУ 2
+
+        // Загрузка базы игроков из файла
         fetch('players.json')
             .then(response => {
                 if (!response.ok) throw new Error('Ошибка сети');
