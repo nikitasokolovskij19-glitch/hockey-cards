@@ -425,10 +425,11 @@ list.innerHTML = '';
 // 1. Фильтруем игроков
 let playersToShow = teamName ? collection.filter(p => p.club === teamName && p.season === season) : collection.filter(p => p.season === season);
 
-// 2. Группируем дубликаты
+// 2. Группируем дубликаты (жесткая группировка)
 const grouped = {};
 playersToShow.forEach(player => {
-    const key = `${player.name}_${player.season}`;
+    const shortName = player.name.substring(0, 5).toLowerCase();
+    const key = `${shortName}_${player.season}`;
     if (!grouped[key]) {
         grouped[key] = { ...player, count: 0 };
     }
