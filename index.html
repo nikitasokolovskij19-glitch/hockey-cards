@@ -158,22 +158,30 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
 .team-logo-btn { 
     background: rgba(30, 41, 59, 0.6); 
     border: 1px solid rgba(255,255,255,0.05); 
-    border-radius: 20px; padding: 15px; 
+    border-radius: 16px; /* Чуть меньше скругление */
+    padding: 10px; /* Уменьшили внутренний отступ */
     display: flex; flex-direction: column; align-items: center; justify-content: center; 
     cursor: pointer; transition: all 0.3s; aspect-ratio: 1 / 1; 
     backdrop-filter: blur(5px);
 }
-.team-logo-btn:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-.team-logo-btn:active { transform: scale(0.95); }
 
 .team-logo-img { 
-    width: 65px; height: 65px; 
+    width: 45px; /* Уменьшили с 65px */
+    height: 45px; 
     background: linear-gradient(135deg, #ffffff, #e2e8f0); 
     border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-    font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 12px; 
+    font-size: 12px; /* Уменьшили шрифт */
+    font-weight: 800; color: #0f172a; margin-bottom: 8px; /* Уменьшили отступ */
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
-.team-name-text { font-size: 13px; font-weight: 700; text-align: center; color: #cbd5e1; }
+
+.team-name-text { 
+    font-size: 10px; /* Уменьшили шрифт названия */
+    font-weight: 700; 
+    text-align: center; 
+    color: #cbd5e1; 
+    line-height: 1.2;
+}
 
 /* --- СПИСКИ (Сезоны и Игроки) --- */
 .season-btn { 
