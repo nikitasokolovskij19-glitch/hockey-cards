@@ -135,8 +135,11 @@
         
         .mini-card { background-color: #1e293b; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #e11d48; cursor: pointer; transition: 0.2s; position: relative; z-index: 99; }
         .mini-card:active { transform: scale(0.98); }
-        .mini-card.legendary { border-left-color: #fbbf24; }
-        .mini-card.epic { border-left-color: #a855f7; }
+        .mini-card.common { border-left-color: #9ca3af; } /* Серый (40-59) */
+.mini-card.rare { border-left-color: #a3e635; } /* Салатовый (60-74) */
+.mini-card.super-rare { border-left-color: #3b82f6; } /* Синий (75-84) */
+.mini-card.legendary { border-left-color: #fbbf24; } /* Желтый (85-94) */
+.mini-card.epic { border-left-color: #be123c; } /* Бордовый (95-99) */
         
         .count-badge { background-color: #e11d48; color: white; font-size: 12px; font-weight: bold; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
         
@@ -277,42 +280,63 @@
         };
 
         const PLAYERS = [
-            { 
-                name: "Сергей Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", number: "#10", logo: "ММг",
-                sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", 
-                img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-                reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
-                playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
-            },
-            { 
-                name: "Павел Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", number: "#13", logo: "СКА",
-                sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", 
-                img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-                reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
-                playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
-            },
-            { 
-                name: "Александр Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", number: "#32", logo: "Дин",
-                sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", 
-                img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-                reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
-                playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
-            },
-            { 
-                name: "Данис Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", number: "#25", logo: "АБ",
-                sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", 
-                img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-                reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
-                playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
-            },
-            { 
-                name: "Илья Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", number: "#17", logo: "СКА",
-                sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", 
-                img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-                reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
-                playoff_stats: null 
-            }
-        ];
+    { 
+        name: "Сергей Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", number: "#10", logo: "ММг",
+        sc: 90, br: 99, ps: 97, si: 85, end: 92, skate: 94, rarity: "Эпическая", rarity_num: 5,
+        img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
+        reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
+        playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
+    },
+    { 
+        name: "Павел Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", number: "#13", logo: "СКА",
+        sc: 92, br: 88, ps: 99, si: 80, end: 90, skate: 95, rarity: "Эпическая", rarity_num: 5,
+        img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
+        reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
+        playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
+    },
+    { 
+        name: "Александр Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", number: "#32", logo: "Дин",
+        sc: 99, br: 96, ps: 75, si: 90, end: 93, skate: 88, rarity: "Легендарная", rarity_num: 4,
+        img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
+        reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
+        playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
+    },
+    { 
+        name: "Данис Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", number: "#25", logo: "АБ",
+        sc: 92, br: 90, ps: 88, si: 75, end: 85, skate: 90, rarity: "Легендарная", rarity_num: 4,
+        img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
+        reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
+        playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
+    },
+    { 
+        name: "Илья Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", number: "#17", logo: "СКА",
+        sc: 94, br: 92, ps: 78, si: 85, end: 88, skate: 89, rarity: "Легендарная", rarity_num: 4,
+        img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
+        reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
+        playoff_stats: null 
+    },
+    { 
+        name: "Тестовый Супер", club: "Тест", season: "2016/17", pos: "Тест", number: "#1", logo: "ТСТ",
+        sc: 80, br: 80, ps: 80, si: 80, end: 80, skate: 80, rarity: "Супер редкая", rarity_num: 3,
+        img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
+        reg_stats: { games: 10, goals: 10, assists: 10, points: 20, penalty: 0 },
+        playoff_stats: null 
+    },
+    { 
+        name: "Тестовый Редкий", club: "Тест", season: "2016/17", pos: "Тест", number: "#2", logo: "ТСТ",
+        sc: 70, br: 70, ps: 70, si: 70, end: 70, skate: 70, rarity: "Редкая", rarity_num: 2,
+        img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
+        reg_stats: { games: 10, goals: 10, assists: 10, points: 20, penalty: 0 },
+        playoff_stats: null 
+    },
+    { 
+        name: "Тестовый Обычный", club: "Тест", season: "2016/17", pos: "Тест", number: "#3", logo: "ТСТ",
+        sc: 50, br: 50, ps: 50, si: 50, end: 50, skate: 50, rarity: "Обычная", rarity_num: 1,
+        img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
+        reg_stats: { games: 10, goals: 10, assists: 10, points: 20, penalty: 0 },
+        playoff_stats: null 
+    }
+];
 
         let tg = window.Telegram.WebApp;
         tg.expand();
@@ -373,71 +397,95 @@
 
         // --- ФУНКЦИЯ ПОКУПКИ ПАКА ---
         function buyPack(season, price) {
-            if (userCoins < price) {
-                alert("У тебя не хватает монет!");
-                return;
-            }
+    if (userCoins < price) {
+        alert("У тебя не хватает монет!");
+        return;
+    }
 
-            const availablePlayers = PLAYERS.filter(p => p.season === season);
+    // 1. Бросаем кубик (от 0 до 100) для определения редкости
+    const roll = Math.random() * 100; 
+    let targetRarityNum = 1; // По умолчанию Обычная
 
-            if (availablePlayers.length === 0) {
-                alert("В этом сезоне пока нет игроков в базе. Попробуй другой!");
-                return;
-            }
+    // Твои шансы: Обычные 60%, Редкие 25%, Супер редкие 10%, Легендарные 4.5%, Эпические 0.5%
+    if (roll > 99.5) targetRarityNum = 5;        // 0.5% Эпическая
+    else if (roll > 95) targetRarityNum = 4;     // 4.5% Легендарная
+    else if (roll > 85) targetRarityNum = 3;     // 10% Супер редкая
+    else if (roll > 60) targetRarityNum = 2;     // 25% Редкая
+    else targetRarityNum = 1;                    // 60% Обычная
 
-            userCoins -= price;
-            updateUI();
+    // 2. Ищем игроков этого сезона и этой редкости
+    let availablePlayers = PLAYERS.filter(p => p.season === season && p.rarity_num === targetRarityNum);
 
-            const randomIndex = Math.floor(Math.random() * availablePlayers.length);
-            const player = availablePlayers[randomIndex];
-            
-            collection.push(player);
-            localStorage.setItem('khl_collection', JSON.stringify(collection));
+    // Если в этом сезоне нет игроков нужной редкости, берем любого из этого сезона
+    if (availablePlayers.length === 0) {
+        availablePlayers = PLAYERS.filter(p => p.season === season);
+    }
 
-            packsView.style.display = 'none';
+    if (availablePlayers.length === 0) {
+        alert("В этом сезоне пока нет игроков!");
+        return;
+    }
 
-            // Заполняем карточку для показа
-            document.getElementById('r-name').innerText = player.name;
-            document.getElementById('r-club').innerText = player.club;
-            document.getElementById('r-season').innerText = player.season;
-            document.getElementById('r-position').innerText = player.pos;
-            document.getElementById('r-sc').innerText = player.sc;
-            document.getElementById('r-br').innerText = player.br;
-            document.getElementById('r-ps').innerText = player.ps;
-            document.getElementById('r-si').innerText = player.si;
-            document.getElementById('r-end').innerText = player.end;
-            document.getElementById('r-skate').innerText = player.skate;
-            
-            document.getElementById('r-number').innerText = player.number || "";
-            document.getElementById('r-clubLogo').innerText = player.logo || "КХЛ";
-            
-            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-            document.getElementById('r-overall').innerText = overall;
-            
-            document.getElementById('r-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
+    userCoins -= price;
+    updateUI();
 
-            const borderColor = player.rarity === "Легендарная" ? "#fbbf24" : (player.rarity === "Эпическая" ? "#a855f7" : "#e11d48");
-            document.getElementById('revealCard').style.borderColor = borderColor;
+    // 3. Выбираем случайного игрока из подходящих
+    const randomIndex = Math.floor(Math.random() * availablePlayers.length);
+    const player = availablePlayers[randomIndex];
+    
+    collection.push(player);
+    localStorage.setItem('khl_collection', JSON.stringify(collection));
 
-            // Показываем окно с анимацией
-            const revealView = document.getElementById('revealView');
-            revealView.style.display = 'flex';
-            
-            const revealCard = document.getElementById('revealCard');
-            const revealText = document.getElementById('revealText');
-            const closeBtn = document.getElementById('closeRevealBtn');
-            
-            revealCard.style.transform = 'scale(0)';
-            revealText.style.opacity = '0';
-            revealText.style.transform = 'translateY(-50px)';
-            closeBtn.style.opacity = '0';
+    packsView.style.display = 'none';
 
-            setTimeout(() => {
-                revealCard.style.transform = 'scale(1)';
-                revealText.style.opacity = '1';
-                revealText.style.transform = 'translateY(0)';
-                closeBtn.style.opacity = '1';
-            }, 100);
+    // 4. Заполняем карточку
+    document.getElementById('r-name').innerText = player.name;
+    document.getElementById('r-club').innerText = player.club;
+    document.getElementById('r-season').innerText = player.season;
+    document.getElementById('r-position').innerText = player.pos;
+    document.getElementById('r-sc').innerText = player.sc;
+    document.getElementById('r-br').innerText = player.br;
+    document.getElementById('r-ps').innerText = player.ps;
+    document.getElementById('r-si').innerText = player.si;
+    document.getElementById('r-end').innerText = player.end;
+    document.getElementById('r-skate').innerText = player.skate;
+    
+    document.getElementById('r-number').innerText = player.number || "";
+    document.getElementById('r-clubLogo').innerText = player.logo || "КХЛ";
+    
+    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+    document.getElementById('r-overall').innerText = overall;
+    
+    document.getElementById('r-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
+
+    // 5. Красим рамку в зависимости от редкости (те самые цвета)
+    let borderColor = "#9ca3af"; // Серый
+    if (player.rarity_num === 2) borderColor = "#a3e635"; // Салатовый
+    if (player.rarity_num === 3) borderColor = "#3b82f6"; // Синий
+    if (player.rarity_num === 4) borderColor = "#fbbf24"; // Желтый
+    if (player.rarity_num === 5) borderColor = "#be123c"; // Бордовый
+
+    document.getElementById('revealCard').style.borderColor = borderColor;
+
+    // 6. Анимация появления
+    const revealView = document.getElementById('revealView');
+    revealView.style.display = 'flex';
+    
+    const revealCard = document.getElementById('revealCard');
+    const revealText = document.getElementById('revealText');
+    const closeBtn = document.getElementById('closeRevealBtn');
+    
+    revealCard.style.transform = 'scale(0)';
+    revealText.style.opacity = '0';
+    revealText.style.transform = 'translateY(-50px)';
+    closeBtn.style.opacity = '0';
+
+    setTimeout(() => {
+        revealCard.style.transform = 'scale(1)';
+        revealText.style.opacity = '1';
+        revealText.style.transform = 'translateY(0)';
+        closeBtn.style.opacity = '1';
+    }, 100);
         }
 
         document.getElementById('closeRevealBtn').addEventListener('click', function() {
@@ -461,9 +509,11 @@
 
             groupedArray.forEach(player => {
                 const div = document.createElement('div');
-                let rarityClass = '';
-                if (player.rarity === 'Легендарная') rarityClass = 'legendary';
-                if (player.rarity === 'Эпическая') rarityClass = 'epic';
+                let rarityClass = 'common';
+if (player.rarity_num === 2) rarityClass = 'rare';
+if (player.rarity_num === 3) rarityClass = 'super-rare';
+if (player.rarity_num === 4) rarityClass = 'legendary';
+if (player.rarity_num === 5) rarityClass = 'epic';
 
                 const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
 
