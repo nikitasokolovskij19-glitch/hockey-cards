@@ -207,19 +207,48 @@
   function updateUI() {
     coinDisplay.innerText = userCoins;
     localStorage.setItem('khl_coins', userCoins);
-    if (userCoins < packPrice) {
-        document.getElementById('goToPacksBtn').style.display = 'none';
-        bonusBtn.style.display = 'block';
-    } else {
-        document.getElementById('goToPacksBtn').style.display = 'block';
+    
+    // Проверяем, когда игрок последний раз брал бонус
+    const lastBonusDate = localStorage.getItem('khl_last_bonus_date');
+    
+    // Получаем текущую дату по Минскому времени (UTC+3)
+    const now = new Date();
+    const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000)); // Сдвиг на +3 часа
+    const currentDateStr = mskTime.toISOString().split('T')[0]; // Получаем строку вида "2026-10-24"
+
+    const bonusBtn = document.getElementById('bonusBtn');
+    const goToPacksBtn = document.getElementById('goToPacksBtn');
+
+    // Если сегодня бонус уже брали, показываем кнопку "Выбрать пак"
+    if (lastBonusDate === currentDateStr) {
         bonusBtn.style.display = 'none';
+        goToPacksBtn.style.display = 'block';
+    } else {
+        // Если не брали, показываем зеленую кнопку бонуса
+        // (Но если монет достаточно, можно оставить и кнопку паков, тут решай сам. 
+        // Для простоты: если бонус доступен, показываем его, если монет мало).
+        if (userCoins < packPrice) {
+            goToPacksBtn.style.display = 'none';
+            bonusBtn.style.display = 'block';
+            bonusBtn.innerText = "🎁 Получить бонус (+50 🪙)";
+        } else {
+            // Если монет хватает, можно скрыть бонус, но лучше дать забрать его в любой момент
+            goToPacksBtn.style.display = 'block';
+            bonusBtn.style.display = 'block'; 
+        }
     }
 }
 
+// Обработчик кнопки бонуса
 bonusBtn.addEventListener('click', function() {
+    const now = new Date();
+    const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+    const currentDateStr = mskTime.toISOString().split('T')[0];
+
     userCoins += 50;
+    localStorage.setItem('khl_last_bonus_date', currentDateStr); // Запоминаем дату получения
     updateUI();
-    alert("Ты получил 50 монет!");
+    alert("Ты получил 50 монет! Следующий бонус будет доступен после 00:00 по Минску.");
 });
 
 document.getElementById('goToPacksBtn').addEventListener('click', function() {
