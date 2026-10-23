@@ -383,6 +383,34 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             });
             container.appendChild(grid);
         }
+    
+    function renderTeamSeasons(teamName) {
+    document.getElementById('collectionContent').style.display = 'none';
+    document.getElementById('innerCollectionView').style.display = 'block';
+    document.getElementById('innerCollectionTitle').innerText = teamName;
+    const list = document.getElementById('innerCollectionList');
+    list.innerHTML = '';
+
+    const teamPlayers = collection.filter(p => p.club === teamName);
+    const uniqueSeasons = [];
+    teamPlayers.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
+    uniqueSeasons.sort((a, b) => b.localeCompare(a));
+
+    uniqueSeasons.forEach(season => {
+        const count = teamPlayers.filter(p => p.season === season).length;
+        const btn = document.createElement('div');
+        btn.className = 'season-btn';
+        btn.innerHTML = `<div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div><div style="color: #fbbf24; font-weight: bold;">${count} игроков</div>`;
+        btn.addEventListener('click', () => { renderSeasonPlayers(teamName, season); });
+        list.appendChild(btn);
+    });
+
+    document.getElementById('backToMainCollectionBtn').innerText = "⬅ Назад к командам";
+    document.getElementById('backToMainCollectionBtn').onclick = () => {
+        document.getElementById('innerCollectionView').style.display = 'none';
+        document.getElementById('collectionContent').style.display = 'block';
+    };
+    }
 
         function renderSeasonPlayers(teamName, season) {
     document.getElementById('collectionContent').style.display = 'none';
