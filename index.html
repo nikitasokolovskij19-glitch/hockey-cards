@@ -337,11 +337,14 @@
             this.classList.toggle('flipped');
         });
 
+        // Закрытие окна карточки
         document.getElementById('closeDetailBtn').addEventListener('click', function() {
             detailView.style.display = 'none';
-            renderCollection();
+            document.getElementById('flipCard').classList.remove('flipped'); // Сбрасываем переворот
+            renderCollection(); // Обновляем список
         });
 
+        // Кнопка "Продать" внутри карточки
         document.getElementById('detailSellBtn').addEventListener('click', function() {
             if (!currentViewPlayer) return;
 
@@ -363,9 +366,10 @@
                     const stillHave = collection.some(p => p.name === currentViewPlayer.name && p.season === currentViewPlayer.season);
                     if (stillHave) {
                         currentViewPlayer.count -= 1;
-                        openDetailView(currentViewPlayer);
+                        openDetailView(currentViewPlayer); // Обновляем текущую карточку
                     } else {
-                        detailView.style.display = 'none';
+                        detailView.style.display = 'none'; // Закрываем, если карточек больше нет
+                        document.getElementById('flipCard').classList.remove('flipped');
                     }
                     renderCollection();
                 }
