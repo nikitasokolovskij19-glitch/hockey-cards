@@ -1,12 +1,12 @@
-2<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>КХЛ Карточки</title>
     <style>
-        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; height: 100vh; margin: 0; overflow-y: auto; }
-        h2 { margin-top: 0; }
+        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; height: 100vh; margin: 0; overflow-y: auto; overflow-x: hidden; }
+        
         .card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #e11d48; border-radius: 20px; padding: 20px; width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.2); position: relative; transition: border-color 0.3s; flex-shrink: 0; }
         .season-badge { position: absolute; top: 10px; right: 10px; background-color: #e11d48; color: white; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 10px; }
         .player-img { width: 100px; height: 100px; background-color: #334155; border-radius: 50%; margin: 10px auto 15px; display: flex; align-items: center; justify-content: center; font-size: 45px; border: 3px solid #475569; }
@@ -14,7 +14,6 @@
         .club { color: #cbd5e1; font-size: 14px; margin-bottom: 5px; }
         .position { color: #e11d48; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
         
-        /* Обновленная сетка на 6 характеристик (3 колонки) */
         .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; border-top: 1px solid #334155; padding-top: 15px; }
         .stat { font-size: 11px; color: #94a3b8; display: flex; flex-direction: column; align-items: center; }
         .stat span { font-size: 16px; font-weight: bold; color: white; margin-top: 2px; }
@@ -27,15 +26,44 @@
         
         #collectionView { display: none; width: 100%; max-width: 320px; flex-direction: column; align-items: center; }
         .collection-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; }
-        .mini-card { background-color: #1e293b; padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #e11d48; }
+        
+        .mini-card { background-color: #1e293b; padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #e11d48; cursor: pointer; transition: 0.2s; }
+        .mini-card:active { transform: scale(0.98); }
         .mini-card.legendary { border-left-color: #fbbf24; }
         .mini-card.epic { border-left-color: #a855f7; }
+        
+        .count-badge { background-color: #e11d48; color: white; font-size: 12px; font-weight: bold; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
+        
         .btn-nav { margin-top: 15px; background-color: #3b82f6; color: white; border: none; padding: 12px; border-radius: 10px; width: 300px; font-weight: bold; cursor: pointer; }
+
+        /* --- СТИЛИ ДЛЯ ПЕРЕВОРОТА И СТАТИСТИКИ --- */
+        #detailView { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.95); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
+        
+        .flip-card { background-color: transparent; width: 300px; height: 480px; perspective: 1000px; cursor: pointer; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 20px; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+        
+        .flip-card-front { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #e11d48; justify-content: center; }
+        
+        .flip-card-back { background: linear-gradient(145deg, #0f172a, #1e293b); border: 2px solid #3b82f6; transform: rotateY(180deg); color: white; justify-content: center; }
+        
+        .stats-section { width: 100%; margin-bottom: 10px; }
+        .stats-header { font-size: 14px; color: #3b82f6; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid #334155; padding-bottom: 4px; text-align: left; }
+        
+        .back-stat-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; color: #cbd5e1; }
+        .back-stat-row span:last-child { font-weight: bold; color: white; }
+        
+        .divider { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #3b82f6, transparent); margin: 10px 0; }
+        
+        .detail-buttons { margin-top: 20px; display: flex; gap: 10px; }
+        .btn-sell { background-color: #ef4444; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-close { background-color: #64748b; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- ГЛАВНЫЙ ЭКРАН (Магазин) -->
     <div id="shopView" style="display: flex; flex-direction: column; align-items: center;">
         <h2>Твой первый игрок КХЛ</h2>
         <div class="coins-display">Баланс: <span id="coinDisplay">100</span> 🪙</div>
@@ -61,60 +89,91 @@
         <button class="btn-nav" id="viewCollectionBtn">📂 Моя коллекция</button>
     </div>
 
-    <!-- ЭКРАН КОЛЛЕКЦИИ -->
     <div id="collectionView">
         <h2>Моя коллекция</h2>
         <div class="collection-list" id="collectionList"></div>
         <button class="btn-nav" id="backToShopBtn">⬅ Назад в магазин</button>
     </div>
 
+    <div id="detailView">
+        <div class="flip-card" id="flipCard">
+            <div class="flip-card-inner">
+                <div class="flip-card-front" id="detailFront">
+                    <div class="season-badge" id="d-season">2016/17</div>
+                    <div class="player-img" id="d-img">🏒</div>
+                    <div class="name" id="d-name">С. Мозякин</div>
+                    <div class="club" id="d-club">Металлург Мг</div>
+                    <div class="position" id="d-pos">Нападающий</div>
+                    <div class="stats">
+                        <div class="stat">СКО <span id="d-sc">85</span></div>
+                        <div class="stat">БРС <span id="d-br">98</span></div>
+                        <div class="stat">ПАС <span id="d-ps">95</span></div>
+                        <div class="stat">СИЛ <span id="d-si">80</span></div>
+                        <div class="stat">ВЫН <span id="d-end">88</span></div>
+                        <div class="stat">КАТ <span id="d-skate">90</span></div>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>
+                </div>
+                <div class="flip-card-back" id="detailBack">
+                    <!-- Сюда JS будет вставлять статистику -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="detail-buttons">
+            <button class="btn-sell" id="detailSellBtn">Продать одну (X 🪙)</button>
+            <button class="btn-close" id="closeDetailBtn">Закрыть</button>
+        </div>
+    </div>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Добавили end (выносливость) и skate (катание)
         const PLAYERS = [
-    { 
-        name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", 
-        sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", img: "🏒",
-        reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
-        playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
-    },
-    { 
-        name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", 
-        sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", img: "🏒",
-        reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
-        playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
-    },
-    { 
-        name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", 
-        sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", img: "🏒",
-        reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
-        playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
-    },
-    { 
-        name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", 
-        sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", img: "🏒",
-        reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
-        playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
-    },
-    { 
-        name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", 
-        sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", img: "🏒",
-        reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
-        playoff_stats: null // Пример игрока без плей-офф
-    }
-];
+            { 
+                name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", 
+                sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", img: "🏒",
+                reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
+                playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
+            },
+            { 
+                name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", 
+                sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", img: "🏒",
+                reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
+                playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
+            },
+            { 
+                name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", 
+                sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", img: "🏒",
+                reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
+                playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
+            },
+            { 
+                name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", 
+                sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", img: "🏒",
+                reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
+                playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
+            },
+            { 
+                name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", 
+                sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", img: "🏒",
+                reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
+                playoff_stats: null // Пример игрока без плей-офф
+            }
+        ];
 
         let tg = window.Telegram.WebApp;
         tg.expand();
 
         let userCoins = parseInt(localStorage.getItem('khl_coins')) || 100;
         let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
-        
+        let currentViewPlayer = null;
+
         const coinDisplay = document.getElementById('coinDisplay');
         const openPackBtn = document.getElementById('openPackBtn');
         const bonusBtn = document.getElementById('bonusBtn');
         const shopView = document.getElementById('shopView');
         const collectionView = document.getElementById('collectionView');
+        const detailView = document.getElementById('detailView');
         const collectionList = document.getElementById('collectionList');
         const packPrice = 50;
 
@@ -134,7 +193,6 @@
         openPackBtn.addEventListener('click', function() {
             userCoins -= packPrice;
             updateUI();
-            
             openPackBtn.innerText = "Открываем...";
             
             const randomIndex = Math.floor(Math.random() * PLAYERS.length);
@@ -182,60 +240,137 @@
         });
 
         function renderCollection() {
-    collectionList.innerHTML = ''; 
-    const reversedCollection = [...collection].reverse();
+            collectionList.innerHTML = ''; 
+            const grouped = {};
+            collection.forEach(player => {
+                const key = `${player.name}_${player.season}`;
+                if (!grouped[key]) {
+                    grouped[key] = { ...player, count: 0 };
+                }
+                grouped[key].count += 1;
+            });
 
-    reversedCollection.forEach((player, index) => {
-        const div = document.createElement('div');
-        let rarityClass = '';
-        if (player.rarity === 'Легендарная') rarityClass = 'legendary';
-        if (player.rarity === 'Эпическая') rarityClass = 'epic';
+            const groupedArray = Object.values(grouped);
 
-        const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-        
-        // Цена продажи зависит от рейтинга (например, 2 монеты за 1 очко рейтинга)
-        const sellPrice = overall * 2;
+            groupedArray.forEach(player => {
+                const div = document.createElement('div');
+                let rarityClass = '';
+                if (player.rarity === 'Легендарная') rarityClass = 'legendary';
+                if (player.rarity === 'Эпическая') rarityClass = 'epic';
 
-        div.className = `mini-card ${rarityClass}`;
-        div.innerHTML = `
-            <div style="flex: 1;">
-                <div style="font-weight: bold;">${player.name}</div>
-                <div style="font-size: 12px; color: #aaa;">${player.club} • ${player.season}</div>
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-                <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
-                <button class="sell-btn" data-index="${collection.length - 1 - index}" style="background: #e11d48; color: white; border: none; padding: 4px 8px; border-radius: 5px; font-size: 10px; cursor: pointer;">Продать (${sellPrice} 🪙)</button>
-            </div>
-        `;
-        collectionList.appendChild(div);
-    });
+                const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
 
-    // Добавляем обработчики для кнопок "Продать"
-    document.querySelectorAll('.sell-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const originalIndex = parseInt(this.getAttribute('data-index'));
-            sellCard(originalIndex);
+                div.className = `mini-card ${rarityClass}`;
+                div.innerHTML = `
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; display: flex; align-items: center;">
+                            ${player.name} 
+                            ${player.count > 1 ? `<span class="count-badge">x${player.count}</span>` : ''}
+                        </div>
+                        <div style="font-size: 12px; color: #aaa;">${player.club} • ${player.season}</div>
+                    </div>
+                    <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
+                `;
+                
+                div.addEventListener('click', () => openDetailView(player));
+                collectionList.appendChild(div);
+            });
+        }
+
+        function openDetailView(player) {
+            currentViewPlayer = player;
+            
+            document.getElementById('d-name').innerText = player.name;
+            document.getElementById('d-club').innerText = player.club;
+            document.getElementById('d-season').innerText = player.season;
+            document.getElementById('d-pos').innerText = player.pos;
+            document.getElementById('d-sc').innerText = player.sc;
+            document.getElementById('d-br').innerText = player.br;
+            document.getElementById('d-ps').innerText = player.ps;
+            document.getElementById('d-si').innerText = player.si;
+            document.getElementById('d-end').innerText = player.end;
+            document.getElementById('d-skate').innerText = player.skate;
+            document.getElementById('d-img').innerText = player.img;
+
+            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+            const sellPrice = overall * 2;
+            document.getElementById('detailSellBtn').innerText = `Продать одну (${sellPrice} 🪙)`;
+
+            // Отрисовка статистики
+            const backSide = document.getElementById('detailBack');
+            let html = `
+                <h3 style="margin-top: 0; font-size: 18px; color: white;">${player.name}</h3>
+                <div class="stats-section">
+                    <div class="stats-header">Регулярный чемпионат</div>
+                    <div class="back-stat-row"><span>Игры:</span> <span>${player.reg_stats.games}</span></div>
+                    <div class="back-stat-row"><span>Голы:</span> <span>${player.reg_stats.goals}</span></div>
+                    <div class="back-stat-row"><span>Пасы:</span> <span>${player.reg_stats.assists}</span></div>
+                    <div class="back-stat-row"><span>Очки:</span> <span>${player.reg_stats.points}</span></div>
+                    <div class="back-stat-row"><span>Штраф:</span> <span>${player.reg_stats.penalty}</span></div>
+                </div>
+            `;
+
+            if (player.playoff_stats) {
+                html += `
+                    <div class="divider"></div>
+                    <div class="stats-section">
+                        <div class="stats-header" style="color: #e11d48;">Плей-офф</div>
+                        <div class="back-stat-row"><span>Игры:</span> <span>${player.playoff_stats.games}</span></div>
+                        <div class="back-stat-row"><span>Голы:</span> <span>${player.playoff_stats.goals}</span></div>
+                        <div class="back-stat-row"><span>Пасы:</span> <span>${player.playoff_stats.assists}</span></div>
+                        <div class="back-stat-row"><span>Очки:</span> <span>${player.playoff_stats.points}</span></div>
+                        <div class="back-stat-row"><span>Штраф:</span> <span>${player.playoff_stats.penalty}</span></div>
+                    </div>
+               `;
+            } else {
+                html += `<div style="height: 40px;"></div>`;
+            }
+
+            html += `<div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
+            backSide.innerHTML = html;
+
+            detailView.style.display = 'flex';
+            document.getElementById('flipCard').classList.remove('flipped');
+        }
+
+        document.getElementById('flipCard').addEventListener('click', function() {
+            this.classList.toggle('flipped');
         });
-    });
-}
 
-// Функция продажи карточки
-function sellCard(index) {
-    const player = collection[index];
-    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-    const sellPrice = overall * 2;
+        document.getElementById('closeDetailBtn').addEventListener('click', function() {
+            detailView.style.display = 'none';
+            renderCollection();
+        });
 
-    if (confirm(`Вы уверены, что хотите продать ${player.name} за ${sellPrice} монет?`)) {
-        collection.splice(index, 1); // Удаляем из массива
-        localStorage.setItem('khl_collection', JSON.stringify(collection)); // Сохраняем
-        
-        userCoins += sellPrice;
-        updateUI(); // Обновляем баланс
-        
-        renderCollection(); // Перерисовываем список
-        alert(`Карточка продана! Вы получили ${sellPrice} 🪙`);
-    }
-}
+        document.getElementById('detailSellBtn').addEventListener('click', function() {
+            if (!currentViewPlayer) return;
+
+            const overall = Math.round((currentViewPlayer.sc + currentViewPlayer.br + currentViewPlayer.ps + currentViewPlayer.si + currentViewPlayer.end + currentViewPlayer.skate) / 6);
+            const sellPrice = overall * 2;
+
+            if (confirm(`Вы уверены, что хотите продать ${currentViewPlayer.name} за ${sellPrice} монет?`)) {
+                const index = collection.findIndex(p => p.name === currentViewPlayer.name && p.season === currentViewPlayer.season);
+                
+                if (index !== -1) {
+                    collection.splice(index, 1);
+                    localStorage.setItem('khl_collection', JSON.stringify(collection));
+                    
+                    userCoins += sellPrice;
+                    updateUI();
+                    
+                    alert(`Карточка продана! Вы получили ${sellPrice} 🪙`);
+                    
+                    const stillHave = collection.some(p => p.name === currentViewPlayer.name && p.season === currentViewPlayer.season);
+                    if (stillHave) {
+                        currentViewPlayer.count -= 1;
+                        openDetailView(currentViewPlayer);
+                    } else {
+                        detailView.style.display = 'none';
+                    }
+                    renderCollection();
+                }
+            }
+        });
 
         updateUI();
     </script>
