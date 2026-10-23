@@ -217,17 +217,20 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
 }
 
 .club-logo { 
-    width: 50px; height: 50px; 
-    background: transparent; /* Убираем белый фон */
+    width: 60px; height: 60px; 
+    background: transparent; 
     border-radius: 50%; 
     display: flex; align-items: center; justify-content: center; 
-    overflow: hidden; /* Обрезаем всё, что вылезает */
+    overflow: hidden; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
 }
+
 .club-logo img {
     width: 100%;
     height: 100%;
     object-fit: contain; /* Картинка вписывается целиком */
+    /* Секретный трюк: увеличиваем картинку внутри круга, чтобы обрезать пустые поля */
+    transform: scale(1.3); 
 }
 
 .team-name-text { 
@@ -349,7 +352,7 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
     <h2 id="revealText" style="color: #fbbf24; margin-bottom: 20px; transform: translateY(-50px); opacity: 0; transition: 0.5s;">Тебе выпал...</h2>
     <div class="card" id="revealCard" style="transform: scale(0); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
     <div class="card-image-container">
-        <div class="season-badge" id="r-season" style="position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 10;">2016/17</div>
+        <div class="season-badge" id="r-season" style="position: absolute; top: 5px; left: 50%; transform: translateX(-50%); z-index: 10;">2016/17</div>
     <div class="overall-badge" id="r-overall">89</div>
     <div class="number-badge" id="r-number">#10</div>
     <div id="r-img" style="width: 100%; height: 100%;"></div>
@@ -369,6 +372,7 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
         <div class="stat">СИЛ <span id="r-si">80</span></div>
         <div class="stat">ВЫН <span id="r-end">88</span></div>
         <div class="stat">КАТ <span id="r-skate">90</span></div>
+        <div style="margin-top: 10px; font-size: 12px; color: #64748b; text-align: center;">Нажми, чтобы перевернуть</div>
     </div>
 </div>
             </div>
@@ -383,7 +387,7 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
             <div class="flip-card-front" id="detailFront">
                 <div class="card" style="width: 100%; height: 100%;">
                     <div class="card-image-container">
-                        <div class="season-badge" id="d-season" style="position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 10;">2016/17</div>
+                        <div class="season-badge" id="d-season" style="position: absolute; top: 5px; left: 50%; transform: translateX(-50%); z-index: 10;">2016/17</div>
                         <div class="overall-badge" id="d-overall">89</div>
                         <div class="number-badge" id="d-number">#10</div>
                         <div id="d-img" style="width: 100%; height: 100%;"></div>
@@ -402,6 +406,7 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
                             <div class="stat">СИЛ <span id="d-si">80</span></div>
                             <div class="stat">ВЫН <span id="d-end">88</span></div>
                             <div class="stat">КАТ <span id="d-skate">90</span></div>
+                            <div style="margin-top: 10px; font-size: 12px; color: #64748b; text-align: center;">Нажми, чтобы перевернуть</div>
                         </div>
                     </div>
                 </div>
