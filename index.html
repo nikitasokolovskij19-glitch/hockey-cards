@@ -72,12 +72,37 @@
     <script>
         // Добавили end (выносливость) и skate (катание)
         const PLAYERS = [
-            { name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", img: "🏒" },
-            { name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", img: "🏒" },
-            { name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", img: "🏒" },
-            { name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", img: "🏒" },
-            { name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", img: "🏒" }
-        ];
+    { 
+        name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", 
+        sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", img: "🏒",
+        reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
+        playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
+    },
+    { 
+        name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", 
+        sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", img: "🏒",
+        reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
+        playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
+    },
+    { 
+        name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", 
+        sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", img: "🏒",
+        reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
+        playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
+    },
+    { 
+        name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", 
+        sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", img: "🏒",
+        reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
+        playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
+    },
+    { 
+        name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", 
+        sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", img: "🏒",
+        reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
+        playoff_stats: null // Пример игрока без плей-офф
+    }
+];
 
         let tg = window.Telegram.WebApp;
         tg.expand();
