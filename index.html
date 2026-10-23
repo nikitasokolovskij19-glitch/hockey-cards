@@ -266,7 +266,29 @@
 
     <!-- Контейнер для отображения контента (команды или сезоны) -->
     <div id="collectionContent" style="width: 100%; max-width: 320px;"></div>
+<!-- ЭКРАН КОЛЛЕКЦИИ -->
+<div id="collectionView">
+    <h2>Моя коллекция</h2>
+    
+    <!-- Переключатель вкладок -->
+    <div style="...">
+        ...
+    </div>
 
+    <!-- Контейнер для отображения контента -->
+    <div id="collectionContent" style="width: 100%; max-width: 320px;"></div>
+
+    <!-- ⬇️ ВОТ СЮДА ВСТАВЬ НОВЫЙ БЛОК ⬇️ -->
+    <div id="innerCollectionView" style="display: none; width: 100%;">
+        <button id="backToMainCollectionBtn" style="background: none; border: none; color: #3b82f6; font-weight: bold; font-size: 16px; margin-bottom: 15px; cursor: pointer; text-align: left; width: 100%;">⬅ Назад</button>
+        <h3 id="innerCollectionTitle" style="text-align: center; margin-bottom: 15px;">Название</h3>
+        <div id="innerCollectionList" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
+    </div>
+    <!-- ⬆️ КОНЕЦ НОВОГО БЛОКА ⬆️ -->
+
+    <button class="btn-nav" id="backToShopBtn" style="margin-top: 20px;">⬅ Назад</button>
+</div>
+    
     <button class="btn-nav" id="backToShopBtn" style="margin-top: 20px;">⬅ Назад</button>
 </div>
 
@@ -637,7 +659,7 @@ function renderTeamsGrid(container) {
     container.appendChild(grid);
 }
 
-// Отрисовка списка сезонов
+// Отрисовка списка сезонов (общая вкладка)
 function renderSeasonsList(container) {
     const uniqueSeasons = [];
     collection.forEach(p => {
@@ -664,11 +686,92 @@ function renderSeasonsList(container) {
             <div style="color: #fbbf24; font-weight: bold;">${count} игроков</div>
         `;
         btn.addEventListener('click', () => {
-            // Пока просто алерт (переход внутрь сделаем на следующем шаге)
-            alert(`Выбран сезон: ${season}. Скоро здесь будет список игроков!`);
+            // Открываем игроков этого сезона (без привязки к команде)
+            renderSeasonPlayers(null, season);
         });
         container.appendChild(btn);
     });
+}
+
+// Универсальная функция показа игроков (для команды или для сезона)
+function renderSeasonPlayers(teamName, season) {
+    document.getElementById('collectionContent').style.display = 'none';
+    document.getElementById('innerCollectionView').style.display = 'block';
+    
+    const title = teamName ? `${teamName} • ${season}` : `Сезон ${season}`;
+    document.getElementById('innerCollectionTitle').innerText = title;
+    
+    const list = document.getElementById('innerCollectionList');
+    list.innerHTML = '';
+
+    // Фильтруем игроков: если команда задана - ищем по команде и сезону, иначе только по сезону
+    let playersToShow = [];
+    if (teamName) {
+        playersToShow = collection.filter(p => p.club === teamName && p.season === season);
+    } else {
+        playersToShow = collection.filter(p => p.season === season);
+    }
+
+    // Сортируем по общему рейтингу (от большего к меньшему)
+    playersToShow.sort((a, b) => {
+        const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
+        const ovrB = Math.round((b.sc + b.br + b.ps + b.si + b.end + b.skate) / 6);
+        return ovrB - ovrA; 
+    });
+
+    if (playersToShow.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:#aaa;">Игроков нет.</p>';
+    } else {
+        playersToShow.forEach(player => {
+            const div = document.createElement('div');
+            let rarityClass = 'common';
+            if (player.rarity_num === 2) rarityClass = 'rare';
+            if (player.rarity_num === 3) rarityClass = 'super-rare';
+            if (player.rarity_num === 4) rarityClass = 'legendary';
+            if (player.rarity_num === 5) rarityClass = 'epic';
+
+            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+
+            div.className = `mini-card ${rarityClass}`;
+            div.innerHTML = `
+                <div style="flex: 1;">
+                    <div style="font-weight: bold; display: flex; align-items: center;">
+                        ${player.name} 
+                    </div>
+                    <div style="font-size: 12px; color: #aaa;">${player.pos} • ${player.number || ''}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                    <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
+                    <button class="open-card-btn" data-name="${player.name}" data-season="${player.season}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">Открыть</button>
+                </div>
+            `;
+            
+            list.appendChild(div);
+        });
+
+        // Добавляем обработчики для кнопок "Открыть"
+        document.querySelectorAll('#innerCollectionList .open-card-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation(); 
+                const name = this.getAttribute('data-name');
+                const ssn = this.getAttribute('data-season');
+                const playerToOpen = collection.find(p => p.name === name && p.season === ssn);
+                if (playerToOpen) openDetailView(playerToOpen);
+            });
+        });
+    }
+
+    // Настройка кнопки "Назад"
+    document.getElementById('backToMainCollectionBtn').innerText = teamName ? "⬅ Назад к сезонам команды" : "⬅ Назад к сезонам";
+    document.getElementById('backToMainCollectionBtn').onclick = () => {
+        if (teamName) {
+            renderTeamSeasons(teamName); // Возвращаемся к сезонам команды
+        } else {
+            document.getElementById('innerCollectionView').style.display = 'none';
+            document.getElementById('collectionContent').style.display = 'block';
+            renderCollection(); // Возвращаемся к вкладкам
+        }
+    };
 }
 
         // --- ДЕТАЛЬНЫЙ ПРОСМОТР ---
