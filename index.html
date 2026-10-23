@@ -10,10 +10,16 @@
 
 body { 
     background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+    background-attachment: fixed; /* Фон зафиксирован */
+    background-size: cover; /* Растягиваем на весь экран */
     color: white; 
     font-family: 'Montserrat', sans-serif; 
     display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-    padding-top: 20px; height: 100vh; margin: 0; overflow-y: auto; overflow-x: hidden; 
+    padding-top: 20px; 
+    min-height: 100vh; /* Минимальная высота — весь экран */
+    margin: 0; 
+    overflow-y: auto; 
+    overflow-x: hidden; 
 }
 
 h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
@@ -58,7 +64,26 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
     text-shadow: 2px 2px 10px rgba(0,0,0,0.8); z-index: 10; 
 }
 
-.top-right-info { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 10; }
+.top-right-info { 
+    position: absolute; top: 15px; right: 15px; 
+    display: flex; flex-direction: column; align-items: center; /* Центрируем по вертикали */
+    gap: 10px; z-index: 10; 
+}
+
+.name { 
+    font-size: 24px; 
+    font-weight: 800; 
+    margin-bottom: 5px; 
+    text-transform: uppercase; 
+    text-align: center; 
+    text-shadow: 1px 1px 5px black;
+    white-space: nowrap; /* Запрещаем перенос строки */
+    overflow: hidden; /* Скрываем вылезающий текст */
+    text-overflow: clip; 
+    width: 100%;
+    /* Динамический размер шрифта, чтобы влезло в одну строку */
+    font-size: clamp(16px, 5vw, 24px); 
+}
 
 .season-badge { 
     background: linear-gradient(135deg, #e11d48, #be123c); 
@@ -157,9 +182,10 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
 .teams-grid { 
     display: flex; 
     flex-wrap: wrap; 
-    justify-content: center; /* Центрируем элементы */
-    gap: 15px; /* Отступы между карточками */
-    width: 100%;
+    justify-content: center; 
+    gap: 15px; 
+    width: 100%; 
+    padding: 0 10px; /* Отступы от краев экрана */
     padding-bottom: 50px; 
     box-sizing: border-box; 
 }
@@ -172,11 +198,16 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
     display: flex; flex-direction: column; align-items: center; justify-content: center; 
     cursor: pointer; transition: all 0.3s; 
     backdrop-filter: blur(5px);
-    
-    /* Расчет ширины: (100% - (отступы * количество_элементов)) / количество */
-    /* Для 2 в ряд (с учетом gap 15px): */
-    width: calc(50% - 8px); 
     aspect-ratio: 1 / 1;
+    
+    /* Жестко задаем ширину для 2 в ряд */
+    flex: 0 0 calc(50% - 8px); 
+    box-sizing: border-box;
+}
+
+/* Если команд больше 8, делаем их меньше (3 в ряд) */
+.teams-grid.many-teams .team-logo-btn {
+    flex: 0 0 calc(33.33% - 10px);
 }
 
 /* Если команд больше 8, делаем их меньше (3 в ряд) */
@@ -314,71 +345,52 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
 </div>
 
 <!-- ОКНО ВЫПАДЕНИЯ -->
-<div id="revealView">
-    <h2 id="revealText" style="color: #fbbf24; margin-bottom: 20px; transform: translateY(-50px); opacity: 0; transition: 0.5s;">Тебе выпал...</h2>
-    <div class="card" id="revealCard" style="transform: scale(0); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-        <div class="card-image-container">
-            <div class="overall-badge" id="r-overall">89</div>
-            <div class="number-badge" id="r-number">#10</div>
-            <div id="r-img" style="width: 100%; height: 100%;"></div>
-            <div class="top-right-info">
-                <div class="season-badge" id="r-season">2016/17</div>
-                <div class="club-logo" id="r-clubLogo">ММг</div>
-            </div>
-        </div>
-        <div class="card-info">
-            <div class="name" id="r-name">Сергей Мозякин</div>
-            <div class="club" id="r-club">Металлург Мг</div>
-            <div class="position" id="r-position">Нападающий</div>
-            <div class="stats">
-                <div class="stat">СКО <span id="r-sc">85</span></div>
-                <div class="stat">БРС <span id="r-br">98</span></div>
-                <div class="stat">ПАС <span id="r-ps">95</span></div>
-                <div class="stat">СИЛ <span id="r-si">80</span></div>
-                <div class="stat">ВЫН <span id="r-end">88</span></div>
-                <div class="stat">КАТ <span id="r-skate">90</span></div>
-            </div>
-        </div>
+<div class="card-image-container">
+    <div class="overall-badge" id="r-overall">89</div>
+    <div class="number-badge" id="r-number">#10</div>
+    <div id="r-img" style="width: 100%; height: 100%;"></div>
+    <div class="top-right-info">
+        <!-- Сезон по центру сверху -->
+        <div class="season-badge" id="r-season" style="position: absolute; top: -40px; right: 50%; transform: translateX(50%);">2016/17</div>
+        <!-- Логотип чуть выше и больше -->
+        <div class="club-logo" id="r-clubLogo" style="width: 60px; height: 60px; margin-top: 10px;">ММг</div>
     </div>
-    <button class="btn-nav" id="closeRevealBtn" style="margin-top: 30px; opacity: 0; transition: 0.5s;">Забрать в коллекцию</button>
+</div>
+<div class="card-info">
+    <div class="name" id="r-name" style="margin-top: 10px;">Сергей Мозякин</div>
+    <div class="position" id="r-position">Нападающий</div>
+    <div class="stats">
+        <div class="stat">СКО <span id="r-sc">85</span></div>
+        <div class="stat">БРС <span id="r-br">98</span></div>
+        <div class="stat">ПАС <span id="r-ps">95</span></div>
+        <div class="stat">СИЛ <span id="r-si">80</span></div>
+        <div class="stat">ВЫН <span id="r-end">88</span></div>
+        <div class="stat">КАТ <span id="r-skate">90</span></div>
+    </div>
 </div>
 
 <!-- ОКНО ПРОСМОТРА -->
-<div id="detailView">
-    <div class="flip-card" id="flipCard">
-        <div class="flip-card-inner">
-            <div class="flip-card-front" id="detailFront">
-                <div class="card" style="width: 100%; height: 100%;">
-                    <div class="card-image-container">
-                        <div class="overall-badge" id="d-overall">89</div>
-                        <div class="number-badge" id="d-number">#10</div>
-                        <div id="d-img" style="width: 100%; height: 100%;"></div>
-                        <div class="top-right-info">
-                            <div class="season-badge" id="d-season">2016/17</div>
-                            <div class="club-logo" id="d-clubLogo">ММг</div>
-                        </div>
-                    </div>
-                    <div class="card-info">
-                        <div class="name" id="d-name">Сергей Мозякин</div>
-                        <div class="club" id="d-club">Металлург Мг</div>
-                        <div class="position" id="d-pos">Нападающий</div>
-                        <div class="stats">
-                            <div class="stat">СКО <span id="d-sc">85</span></div>
-                            <div class="stat">БРС <span id="d-br">98</span></div>
-                            <div class="stat">ПАС <span id="d-ps">95</span></div>
-                            <div class="stat">СИЛ <span id="d-si">80</span></div>
-                            <div class="stat">ВЫН <span id="d-end">88</span></div>
-                            <div class="stat">КАТ <span id="d-skate">90</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="flip-card-back" id="detailBack"></div>
-        </div>
+<div class="card-image-container">
+    <div class="overall-badge" id="d-overall">89</div>
+    <div class="number-badge" id="d-number">#10</div>
+    <div id="d-img" style="width: 100%; height: 100%;"></div>
+    <div class="top-right-info">
+        <!-- Сезон по центру сверху -->
+        <div class="season-badge" id="d-season" style="position: absolute; top: -40px; right: 50%; transform: translateX(50%);">2016/17</div>
+        <!-- Логотип чуть выше и больше -->
+        <div class="club-logo" id="d-clubLogo" style="width: 60px; height: 60px; margin-top: 10px;">ММг</div>
     </div>
-    <div class="detail-buttons">
-        <button class="btn-sell" id="detailSellBtn">Продать одну (X 🪙)</button>
-        <button class="btn-close" id="closeDetailBtn">Закрыть</button>
+</div>
+<div class="card-info">
+    <div class="name" id="d-name" style="margin-top: 10px;">Сергей Мозякин</div>
+    <div class="position" id="d-pos">Нападающий</div>
+    <div class="stats">
+        <div class="stat">СКО <span id="d-sc">85</span></div>
+        <div class="stat">БРС <span id="d-br">98</span></div>
+        <div class="stat">ПАС <span id="d-ps">95</span></div>
+        <div class="stat">СИЛ <span id="d-si">80</span></div>
+        <div class="stat">ВЫН <span id="d-end">88</span></div>
+        <div class="stat">КАТ <span id="d-skate">90</span></div>
     </div>
 </div>
 
@@ -392,7 +404,7 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
     const PLAYERS = [
         { name: "Сергей Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", number: "#10", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/HC_Metallurg_Magnitogorsk_Logo.svg.png", sc: 90, br: 99, ps: 97, si: 85, end: 92, skate: 94, rarity: "Эпическая", rarity_num: 5, img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 }, playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 } },
         { name: "Павел Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", number: "#13", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/HC_SKA_Logo.svg.png", sc: 92, br: 88, ps: 99, si: 80, end: 90, skate: 95, rarity: "Эпическая", rarity_num: 5, img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 }, playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 } },
-        { name: "Александр Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", number: "#32", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/200.png", sc: 99, br: 96, ps: 75, si: 90, end: 93, skate: 88, rarity: "Легендарная", rarity_num: 4, img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 }, playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 } },
+        { name: "Александр Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", number: "#32", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/OHK_Dynamo_logo.svg.png", sc: 99, br: 96, ps: 75, si: 90, end: 93, skate: 88, rarity: "Легендарная", rarity_num: 4, img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 }, playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 } },
         { name: "Данис Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", number: "#25", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/200.png", sc: 92, br: 90, ps: 88, si: 75, end: 85, skate: 90, rarity: "Легендарная", rarity_num: 4, img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 }, playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 } },
         { name: "Илья Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", number: "#17", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/HC_SKA_Logo.svg.png", sc: 94, br: 92, ps: 78, si: 85, end: 88, skate: 89, rarity: "Легендарная", rarity_num: 4, img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 }, playoff_stats: null },
         { name: "Тестовый Супер", club: "Тест", season: "2016/17", pos: "Тест", number: "#1", logo: "ТСТ", sc: 80, br: 80, ps: 80, si: 80, end: 80, skate: 80, rarity: "Супер редкая", rarity_num: 3, img: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", reg_stats: { games: 10, goals: 10, assists: 10, points: 20, penalty: 0 }, playoff_stats: null },
