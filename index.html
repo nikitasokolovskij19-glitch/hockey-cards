@@ -417,7 +417,7 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
         document.getElementById('innerCollectionView').style.display = 'block';
 
 const title = teamName ? `${teamName} • ${season}` : `Сезон ${season}`;
-document.getElementById('innerCollectionTitle').innerText = title;
+document.getElementById('innerCollectionTitle').innerText = title + " | Найдено: " + playersToShow.length + ", Групп: " + groupedArray.length;
 
 const list = document.getElementById('innerCollectionList');
 list.innerHTML = '';
