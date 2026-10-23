@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+2<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -278,7 +278,7 @@ function buyPack(season, price) {
     document.getElementById('si').innerText = player.si;
     document.getElementById('end').innerText = player.end;
     document.getElementById('skate').innerText = player.skate;
-    document.getElementById('img').innerHTML = <img src="${player.img}" alt="${player.name}">;
+    document.getElementById('img').innerHTML = `<img src="${player.img}" alt="${player.name}">`;
     const borderColor = player.rarity === "Легендарная" ? "#fbbf24" : (player.rarity === "Эпическая" ? "#a855f7" : "#e11d48");
     document.getElementById('playerCard').style.borderColor = borderColor;
 
@@ -366,8 +366,7 @@ function buyPack(season, price) {
             document.getElementById('d-si').innerText = player.si;
             document.getElementById('d-end').innerText = player.end;
             document.getElementById('d-skate').innerText = player.skate;
-            document.getElementById('d-img').innerHTML = <img src="${player.img}" alt="${player.name}">;
-
+            document.getElementById('d-img').innerHTML = `<img src="${player.img}" alt="${player.name}">`;
             const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
             const sellPrice = overall * 2;
             document.getElementById('detailSellBtn').innerText = `Продать одну (${sellPrice} 🪙)`;
