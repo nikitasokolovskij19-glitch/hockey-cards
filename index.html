@@ -103,7 +103,7 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
 /* --- ИНФОРМАЦИЯ ОБ ИГРОКЕ --- */
 .card-info { position: relative; z-index: 20; background: linear-gradient(to top, #0f172a 85%, transparent); padding: 15px 20px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
 .name { font-size: 24px; font-weight: 800; margin-bottom: 2px; text-transform: uppercase; text-align: center; text-shadow: 1px 1px 5px black;}
-.club { color: #94a3b8; font-size: 15px; font-weight: 600; margin-bottom: 2px; text-align: center;}
+.club { display: none; }
 .position { color: #e11d48; font-size: 14px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
 
 /* --- ХАРАКТЕРИСТИКИ --- */
@@ -360,9 +360,9 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
     </div>
 </div>
 <div class="card-info">
-    <div class="name" id="r-name" style="margin-top: 10px;">Сергей Мозякин</div>
-    <div class="position" id="r-position">Нападающий</div>
-    <div class="stats">
+    <div class="name" id="r-name">Сергей Мозякин</div>
+<div class="club" id="r-club">Металлург Мг</div> <!-- ВОТ ЭТА СТРОЧКА -->
+<div class="position" id="r-position">Нападающий</div>
         <div class="stat">СКО <span id="r-sc">85</span></div>
         <div class="stat">БРС <span id="r-br">98</span></div>
         <div class="stat">ПАС <span id="r-ps">95</span></div>
@@ -393,9 +393,9 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
     </div>
 </div>
 <div class="card-info">
-    <div class="name" id="d-name" style="margin-top: 10px;">Сергей Мозякин</div>
-    <div class="position" id="d-pos">Нападающий</div>
-    <div class="stats">
+    <div class="name" id="d-name">Сергей Мозякин</div>
+<div class="club" id="d-club">Металлург Мг</div> <!-- ВОТ ЭТА СТРОЧКА -->
+<div class="position" id="d-pos">Нападающий</div>
         <div class="stat">СКО <span id="d-sc">85</span></div>
         <div class="stat">БРС <span id="d-br">98</span></div>
         <div class="stat">ПАС <span id="d-ps">95</span></div>
