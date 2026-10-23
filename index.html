@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+2<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -24,8 +24,29 @@
         
         .coins-display { margin-bottom: 15px; font-size: 18px; font-weight: bold; color: #fbbf24; }
         
-        #collectionView { display: none; width: 100%; max-width: 320px; flex-direction: column; align-items: center; padding-top: 20px; z-index: 10; position: relative; }
-        .collection-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; padding-bottom: 50px; }
+        #collectionView { 
+    display: none; 
+    width: 100%; 
+    flex-direction: column; 
+    align-items: center; 
+    padding-top: 20px; 
+    position: absolute; /* Убирает влияние соседних элементов */
+    top: 0;
+    left: 0;
+    background-color: #0f172a; /* Закрывает фон под собой */
+    min-height: 100vh;
+    z-index: 10;
+}
+.collection-list { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    margin-top: 15px; 
+    width: 100%; 
+    max-width: 320px;
+    position: relative;
+    z-index: 20;
+}
         
         .mini-card { background-color: #1e293b; padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #e11d48; cursor: pointer; transition: 0.2s; }
         .mini-card:active { transform: scale(0.98); }
@@ -233,16 +254,23 @@
         });
 
         document.getElementById('viewCollectionBtn').addEventListener('click', function() {
-            shopView.style.display = 'none';
-            collectionView.style.display = 'flex';
-            renderCollection();
-        });
+    // Полностью скрываем магазин, чтобы он не перекрывал клики
+    shopView.style.display = 'none'; 
+    shopView.style.visibility = 'hidden'; 
+    
+    collectionView.style.display = 'flex';
+    collectionView.style.visibility = 'visible';
+    renderCollection();
+});
 
         document.getElementById('backToShopBtn').addEventListener('click', function() {
-            collectionView.style.display = 'none';
-            shopView.style.display = 'flex';
-        });
-
+    collectionView.style.display = 'none';
+    collectionView.style.visibility = 'hidden';
+    
+    shopView.style.display = 'flex';
+    shopView.style.visibility = 'visible';
+});
+        
         function renderCollection() {
             collectionList.innerHTML = ''; 
             const grouped = {};
