@@ -412,30 +412,32 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     };
     }
 
-        function renderSeasonPlayers(teamName, season) {
-    document.getElementById('collectionContent').style.display = 'none';
-    document.getElementById('innerCollectionView').style.display = 'block';
-    const title = teamName ? `${teamName} • ${season}` : `Сезон ${season}`;
-    document.getElementById('innerCollectionTitle').innerText = title;
-    const list = document.getElementById('innerCollectionList');
-    list.innerHTML = '';
+    function renderSeasonPlayers(teamName, season) {
+        document.getElementById('collectionContent').style.display = 'none';
+        document.getElementById('innerCollectionView').style.display = 'block';
 
-    // 1. Фильтруем игроков
-    let playersToShow = teamName ? collection.filter(p => p.club === teamName && p.season === season) : collection.filter(p => p.season === season);
+const title = teamName ? `${teamName} • ${season}` : `Сезон ${season}`;
+document.getElementById('innerCollectionTitle').innerText = title;
 
-    // 2. Группируем дубликаты
-    const grouped = {};
-    playersToShow.forEach(player => {
-        const key = `${player.name}_${player.season}`;
-        if (!grouped[key]) {
-            grouped[key] = { ...player, count: 0 };
-        }
-        grouped[key].count += 1;
-    });
+const list = document.getElementById('innerCollectionList');
+list.innerHTML = '';
 
-    const groupedArray = Object.values(grouped);
+// 1. Фильтруем игроков
+let playersToShow = teamName ? collection.filter(p => p.club === teamName && p.season === season) : collection.filter(p => p.season === season);
 
-    // 3. Сортируем по рейтингу
+// 2. Группируем дубликаты
+const grouped = {};
+playersToShow.forEach(player => {
+    const key = `${player.name}_${player.season}`;
+    if (!grouped[key]) {
+        grouped[key] = { ...player, count: 0 };
+    }
+    grouped[key].count += 1;
+});
+
+const groupedArray = Object.values(grouped);
+
+// 3. Сортируем по рейтингу
 groupedArray.sort((a, b) => {
     const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
     const ovrB = Math.round((b.sc + b.br + b.ps + b.si + b.end + b.skate) / 6);
@@ -445,9 +447,13 @@ groupedArray.sort((a, b) => {
 if (groupedArray.length === 0) { 
     list.innerHTML = '<p style="text-align:center; color:#aaa;">Игроков нет.</p>'; 
 } else {
-    groupedArray.forEach(player => { // <--- ВАЖНО: именно groupedArray
+    groupedArray.forEach(player => {
         const div = document.createElement('div');
-        // ... (определение редкости)
+        let rarityClass = 'common';
+        if (player.rarity_num === 2) rarityClass = 'rare';
+        if (player.rarity_num === 3) rarityClass = 'super-rare';
+        if (player.rarity_num === 4) rarityClass = 'legendary';
+        if (player.rarity_num === 5) rarityClass = 'epic';
         
         const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
         
@@ -456,7 +462,6 @@ if (groupedArray.length === 0) {
             <div style="flex: 1;">
                 <div style="font-weight: bold; display: flex; align-items: center;">
                     ${player.name} 
-                    <!-- ВОТ ЭТА СТРОКА ОТВЕЧАЕТ ЗА СЧЕТЧИК -->
                     ${player.count > 1 ? `<span style="background: #e11d48; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">x${player.count}</span>` : ''}
                 </div>
                 <div style="font-size: 12px; color: #aaa;">${player.pos} • ${player.number || ''}</div>
@@ -474,24 +479,22 @@ if (groupedArray.length === 0) {
             e.stopPropagation(); 
             const name = this.getAttribute('data-name');
             const ssn = this.getAttribute('data-season');
-            // Ищем в groupedArray, а не в collection
             const playerToOpen = groupedArray.find(p => p.name === name && p.season === ssn);
             if (playerToOpen) openDetailView(playerToOpen);
         });
     });
 }
 
-    document.getElementById('backToMainCollectionBtn').innerText = teamName ? "⬅ Назад к сезонам команды" : "⬅ Назад к сезонам";
-    document.getElementById('backToMainCollectionBtn').onclick = () => {
-        if (teamName) renderTeamSeasons(teamName);
-        else {
-            document.getElementById('innerCollectionView').style.display = 'none';
-            document.getElementById('collectionContent').style.display = 'block';
-            renderCollection();
-        }
-    };
-        }
-
+document.getElementById('backToMainCollectionBtn').innerText = teamName ? "⬅ Назад к сезонам команды" : "⬅ Назад к сезонам";
+document.getElementById('backToMainCollectionBtn').onclick = () => {
+    if (teamName) renderTeamSeasons(teamName);
+    else {
+        document.getElementById('innerCollectionView').style.display = 'none';
+        document.getElementById('collectionContent').style.display = 'block';
+        renderCollection();
+    }
+};
+    }
         function renderSeasonsList(container) {
             const uniqueSeasons = [];
             collection.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
