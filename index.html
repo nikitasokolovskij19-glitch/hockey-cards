@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+2<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -157,29 +157,60 @@
         });
 
         function renderCollection() {
-            collectionList.innerHTML = ''; 
-            const reversedCollection = [...collection].reverse();
+    collectionList.innerHTML = ''; 
+    const reversedCollection = [...collection].reverse();
 
-            reversedCollection.forEach(player => {
-                const div = document.createElement('div');
-                let rarityClass = '';
-                if (player.rarity === 'Легендарная') rarityClass = 'legendary';
-                if (player.rarity === 'Эпическая') rarityClass = 'epic';
+    reversedCollection.forEach((player, index) => {
+        const div = document.createElement('div');
+        let rarityClass = '';
+        if (player.rarity === 'Легендарная') rarityClass = 'legendary';
+        if (player.rarity === 'Эпическая') rarityClass = 'epic';
 
-                // Считаем рейтинг по 6 характеристикам
-                const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+        const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+        
+        // Цена продажи зависит от рейтинга (например, 2 монеты за 1 очко рейтинга)
+        const sellPrice = overall * 2;
 
-                div.className = `mini-card ${rarityClass}`;
-                div.innerHTML = `
-                    <div>
-                        <div style="font-weight: bold;">${player.name}</div>
-                        <div style="font-size: 12px; color: #aaa;">${player.club} • ${player.season}</div>
-                    </div>
-                    <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
-                `;
-                collectionList.appendChild(div);
-            });
-        }
+        div.className = `mini-card ${rarityClass}`;
+        div.innerHTML = `
+            <div style="flex: 1;">
+                <div style="font-weight: bold;">${player.name}</div>
+                <div style="font-size: 12px; color: #aaa;">${player.club} • ${player.season}</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
+                <button class="sell-btn" data-index="${collection.length - 1 - index}" style="background: #e11d48; color: white; border: none; padding: 4px 8px; border-radius: 5px; font-size: 10px; cursor: pointer;">Продать (${sellPrice} 🪙)</button>
+            </div>
+        `;
+        collectionList.appendChild(div);
+    });
+
+    // Добавляем обработчики для кнопок "Продать"
+    document.querySelectorAll('.sell-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const originalIndex = parseInt(this.getAttribute('data-index'));
+            sellCard(originalIndex);
+        });
+    });
+}
+
+// Функция продажи карточки
+function sellCard(index) {
+    const player = collection[index];
+    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+    const sellPrice = overall * 2;
+
+    if (confirm(`Вы уверены, что хотите продать ${player.name} за ${sellPrice} монет?`)) {
+        collection.splice(index, 1); // Удаляем из массива
+        localStorage.setItem('khl_collection', JSON.stringify(collection)); // Сохраняем
+        
+        userCoins += sellPrice;
+        updateUI(); // Обновляем баланс
+        
+        renderCollection(); // Перерисовываем список
+        alert(`Карточка продана! Вы получили ${sellPrice} 🪙`);
+    }
+}
 
         updateUI();
     </script>
