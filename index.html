@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>КХЛ Карточки</title>
     <style>
-        /* ... (твои стили остаются без изменений) ... */
+        /* ... стили остаются без изменений ... */
         body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #e11d48; border-radius: 20px; padding: 20px; width: 280px; text-align: center; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.2); position: relative; }
         .season-badge { position: absolute; top: 10px; right: 10px; background-color: #e11d48; color: white; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 10px; }
@@ -24,7 +24,7 @@
     <h2>Твой первый игрок КХЛ</h2>
     <div class="card" id="playerCard">
         <div class="season-badge" id="season">2016/17</div>
-        <div class="player-img">🏒</div>
+        <div class="player-img" id="img">🏒</div>
         <div class="name" id="name">С. Мозякин</div>
         <div class="club" id="club">Металлург Мг</div>
         <div class="position" id="position">Нападающий</div>
@@ -39,55 +39,66 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // БАЗА ИГРОКОВ ПРЯМО НА САЙТЕ
+        const PLAYERS = [
+            { name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", overall: 98, sc: 85, br: 98, ps: 95, si: 80, rarity: "Легендарная", img: "🏒" },
+            { name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", overall: 96, sc: 88, br: 85, ps: 99, si: 75, rarity: "Эпическая", img: "🏒" },
+            { name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", overall: 95, sc: 99, br: 94, ps: 70, si: 85, rarity: "Эпическая", img: "🏒" },
+            { name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", overall: 92, sc: 90, br: 88, ps: 85, si: 70, rarity: "Золотая", img: "🏒" },
+            { name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", overall: 90, sc: 92, br: 90, ps: 75, si: 80, rarity: "Золотая", img: "🏒" }
+        ];
+
         let tg = window.Telegram.WebApp;
         tg.expand();
-        
-        // ID твоего бота (без @)
-        const BOT_USERNAME = 'ТВОЙ_ЮЗЕРНЕЙМ_БОТА'; 
-        // Сюда мы будем стучаться
-        const API_URL = `https://api.telegram.org/botТВОЙ_ТОКЕН/getUpdates`; // Мы это исправим в шаге 2
 
-        document.getElementById('openPackBtn').addEventListener('click', async function() {
-            this.innerText = "Загрузка...";
+        // Переменная для хранения баланса (пока в памяти сайта)
+        let userCoins = 100; 
+        const packPrice = 50;
+
+        document.getElementById('openPackBtn').addEventListener('click', function() {
+            if (userCoins < packPrice) {
+                alert("У тебя не хватает монет!");
+                return;
+            }
+
+            // Списываем монеты
+            userCoins -= packPrice;
             
-            // Отправляем данные боту через метод sendData
-            tg.sendData("open_pack");
+            // Меняем текст кнопки на время анимации
+            this.innerText = "Открываем...";
             
-            // Ждем 1 секунду и просим бота дать нам нового игрока
+            // Выбираем случайного игрока
+            const randomIndex = Math.floor(Math.random() * PLAYERS.length);
+            const player = PLAYERS[randomIndex];
+
+            // Небольшая задержка для эффекта
             setTimeout(() => {
-                fetchPlayerFromBot();
-            }, 1000);
+                // Меняем карточку на экране
+                document.getElementById('name').innerText = player.name;
+                document.getElementById('club').innerText = player.club;
+                document.getElementById('season').innerText = player.season;
+                document.getElementById('position').innerText = player.pos;
+                document.getElementById('sc').innerText = player.sc;
+                document.getElementById('br').innerText = player.br;
+                document.getElementById('ps').innerText = player.ps;
+                document.getElementById('si').innerText = player.si;
+                document.getElementById('img').innerText = player.img;
+
+                // Возвращаем кнопку обратно
+                this.innerText = `Открыть пак (50 🪙)`;
+                
+                // Можно добавить визуальное свечение в зависимости от редкости
+                const cardElement = document.getElementById('playerCard');
+                cardElement.style.borderColor = player.rarity === "Легендарная" ? "#fbbf24" : "#e11d48";
+                
+                // Показываем алерт с редкостью (пока вместо базы данных)
+                alert(`Тебе выпал: ${player.name} (${player.rarity})!`);
+                
+            }, 500); // 0.5 секунды задержки
         });
 
-        function fetchPlayerFromBot() {
-            // Настоящий запрос к серверу (будет работать после настройки в FPS.ms)
-            fetch('https://ТВОЙ_СЕРВЕР_АДРЕС/api/open_pack', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: tg.initDataUnsafe.user.id })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    document.getElementById('name').innerText = data.player.name;
-                    document.getElementById('club').innerText = data.player.club;
-                    document.getElementById('season').innerText = data.player.season;
-                    document.getElementById('sc').innerText = data.player.sc;
-                    document.getElementById('br').innerText = data.player.br;
-                    document.getElementById('ps').innerText = data.player.ps;
-                    document.getElementById('si').innerText = data.player.si;
-                    this.innerText = "Открыть пак (50 🪙)";
-                } else {
-                    alert(data.message || "Ошибка!");
-                }
-            })
-            .catch(err => {
-                // Здесь мы ловим ошибку, так как у нас пока нет бэкенда для этого
-                console.log("Ошибка соединения, используем заглушку");
-                alert("Пак открыт! Но мы пока не настроили сервер, чтобы это показать на экране. Смотри ответ в чате бота!");
-                document.getElementById('openPackBtn').innerText = "Открыть пак (50 🪙)";
-            });
-        }
+        // Отправляем данные боту, чтобы он знал, что мы открыли пак (в будущем пригодится)
+        // tg.sendData("open_pack"); 
     </script>
 </body>
 </html>
