@@ -137,7 +137,7 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
 .btn-season span.price { color: #fbbf24; font-weight: 800; }
 
 #collectionView { display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 20px; }
-#collectionContent { width: 100%; max-width: 320px; }
+#collectionContent { width: 100%; max-width: 320px; margin: 0 auto; }
 #innerCollectionView { display: none; width: 100%; max-width: 320px; }
 
 .tab-btn { 
@@ -154,15 +154,35 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
 }
 
 /* --- СЕТКА КОМАНД --- */
-.teams-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; padding-bottom: 50px; }
+.teams-grid { 
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: center; /* Центрируем элементы */
+    gap: 15px; /* Отступы между карточками */
+    width: 100%;
+    padding-bottom: 50px; 
+    box-sizing: border-box; 
+}
+
 .team-logo-btn { 
     background: rgba(30, 41, 59, 0.6); 
     border: 1px solid rgba(255,255,255,0.05); 
-    border-radius: 16px; /* Чуть меньше скругление */
-    padding: 10px; /* Уменьшили внутренний отступ */
+    border-radius: 16px; 
+    padding: 10px; 
     display: flex; flex-direction: column; align-items: center; justify-content: center; 
-    cursor: pointer; transition: all 0.3s; aspect-ratio: 1 / 1; 
+    cursor: pointer; transition: all 0.3s; 
     backdrop-filter: blur(5px);
+    
+    /* Расчет ширины: (100% - (отступы * количество_элементов)) / количество */
+    /* Для 2 в ряд (с учетом gap 15px): */
+    width: calc(50% - 8px); 
+    aspect-ratio: 1 / 1;
+}
+
+/* Если команд больше 8, делаем их меньше (3 в ряд) */
+.teams-grid.many-teams .team-logo-btn {
+    /* Для 3 в ряд (с учетом gap 15px): */
+    width: calc(33.33% - 10px);
 }
 
 .club-logo { 
