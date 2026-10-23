@@ -453,254 +453,144 @@
             renderCollection();
         });
 
-        function renderCollection() {
-            const container = document.getElementById('collectionContent');
-            container.innerHTML = '';
-            if (currentTab === 'teams') renderTeamsGrid(container);
-            else renderSeasonsList(container);
-        }
+      function renderCollection() {
+    const container = document.getElementById('collectionContent');
+    container.innerHTML = '';
+    if (currentTab === 'teams') renderTeamsGrid(container);
+    else renderSeasonsList(container);
+}
 
-        function renderTeamsGrid(container) {
-            const uniqueTeams = [];
-            collection.forEach(p => { if (!uniqueTeams.includes(p.club)) uniqueTeams.push(p.club); });
+function renderTeamsGrid(container) {
+    const uniqueTeams = [];
+    collection.forEach(p => { if (!uniqueTeams.includes(p.club)) uniqueTeams.push(p.club); });
+    if (uniqueTeams.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>'; return; }
 
-            if (uniqueTeams.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>';
-                return;
-            }
+    const grid = document.createElement('div');
+    grid.className = 'teams-grid';
+    if (uniqueTeams.length > 16) grid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+    else if (uniqueTeams.length > 9) grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
 
-            const grid = document.createElement('div');
-            grid.className = 'teams-grid';
-            if (uniqueTeams.length > 16) grid.style.gridTemplateColumns = 'repeat(5, 1fr)';
-            else if (uniqueTeams.length > 9) grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+    uniqueTeams.forEach(teamName => {
+        const player = collection.find(p => p.club === teamName);
+        const logo = player ? player.logo : 'КХЛ';
+        const btn = document.createElement('div');
+        btn.className = 'team-logo-btn';
+        btn.innerHTML = `<div class="team-logo-img">${logo}</div><div class="team-name-text">${teamName}</div>`;
+        btn.addEventListener('click', () => { renderTeamSeasons(teamName); });
+        grid.appendChild(btn);
+    });
+    container.appendChild(grid);
+}
 
-            uniqueTeams.forEach(teamName => {
-                const player = collection.find(p => p.club === teamName);
-                const logo = player ? player.logo : 'КХЛ';
-                const btn = document.createElement('div');
-                btn.className = 'team-logo-btn';
-                btn.innerHTML = `<div class="team-logo-img">${logo}</div><div class="team-name-text">${teamName}</div>`;
-                btn.addEventListener('click', () => { renderTeamSeasons(teamName); });
-                grid.appendChild(btn);
-            });
-            container.appendChild(grid);
-        }
+function renderTeamSeasons(teamName) {
+    document.getElementById('collectionContent').style.display = 'none';
+    document.getElementById('innerCollectionView').style.display = 'block';
+    document.getElementById('innerCollectionTitle').innerText = teamName;
+    
+    const list = document.getElementById('innerCollectionList');
+    list.innerHTML = '';
 
-        function renderTeamSeasons(teamName) {
-            document.getElementById('collectionContent').style.display = 'none';
-            document.getElementById('innerCollectionView').style.display = 'block';
-            document.getElementById('innerCollectionTitle').innerText = teamName;
-            
-            const list = document.getElementById('innerCollectionList');
-            list.innerHTML = '';
+    const teamPlayers = collection.filter(p => p.club === teamName);
+    const uniqueSeasons = [];
+    teamPlayers.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
+    uniqueSeasons.sort((a, b) => b.localeCompare(a));
 
-            const teamPlayers = collection.filter(p => p.club === teamName);
-            const uniqueSeasons = [];
-            teamPlayers.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
-            uniqueSeasons.sort((a, b) => b.localeCompare(a));
+    uniqueSeasons.forEach(season => {
+        const count = teamPlayers.filter(p => p.season === season).length;
+        const btn = document.createElement('div');
+        btn.className = 'season-btn';
+        btn.innerHTML = `<div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div><div style="color: #fbbf24; font-weight: bold;">${count} игроков</div>`;
+        btn.addEventListener('click', () => { renderSeasonPlayers(teamName, season); });
+        list.appendChild(btn);
+    });
 
-            uniqueSeasons.forEach(season => {
-                const count = teamPlayers.filter(p => p.season === season).length;
-                const btn = document.createElement('div');
-                btn.className = 'season-btn';
-                btn.innerHTML = `<div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div><div style="color: #fbbf24; font-weight: bold;">${count} игроков</div>`;
-                btn.addEventListener('click', () => { renderSeasonPlayers(teamName, season); });
-                list.appendChild(btn);
-            });
+    document.getElementById('backToMainCollectionBtn').innerText = "⬅ Назад к командам";
+    document.getElementById('backToMainCollectionBtn').onclick = () => {
+        document.getElementById('innerCollectionView').style.display = 'none';
+        document.getElementById('collectionContent').style.display = 'block';
+    };
+}
 
-            document.getElementById('backToMainCollectionBtn').innerText = "⬅ Назад к командам";
-            document.getElementById('backToMainCollectionBtn').onclick = () => {
-                document.getElementById('innerCollectionView').style.display = 'none';
-                document.getElementById('collectionContent').style.display = 'block';
-            };
-        }
+function renderSeasonsList(container) {
+    const uniqueSeasons = [];
+    collection.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
+    if (uniqueSeasons.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>'; return; }
+    uniqueSeasons.sort((a, b) => b.localeCompare(a));
 
-        function renderSeasonsList(container) {
-            const uniqueSeasons = [];
-            collection.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
+    uniqueSeasons.forEach(season => {
+        const btn = document.createElement('div');
+        btn.className = 'season-btn';
+        const count = collection.filter(p => p.season === season).length;
+        btn.innerHTML = `<div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div><div style="color: #fbbf24; font-weight: bold;">${count} игроков</div>`;
+        btn.addEventListener('click', () => { renderSeasonPlayers(null, season); });
+        container.appendChild(btn);
+    });
+}
 
-            if (uniqueSeasons.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>';
-                return;
-            }
+function renderSeasonPlayers(teamName, season) {
+    document.getElementById('collectionContent').style.display = 'none';
+    document.getElementById('innerCollectionView').style.display = 'block';
+    
+    const title = teamName ? `${teamName} • ${season}` : `Сезон ${season}`;
+    document.getElementById('innerCollectionTitle').innerText = title;
+    
+    const list = document.getElementById('innerCollectionList');
+    list.innerHTML = '';
 
-            uniqueSeasons.sort((a, b) => b.localeCompare(a));
+    let playersToShow = teamName ? collection.filter(p => p.club === teamName && p.season === season) : collection.filter(p => p.season === season);
 
-            uniqueSeasons.forEach(season => {
-                const btn = document.createElement('div');
-                btn.className = 'season-btn';
-                const count = collection.filter(p => p.season === season).length;
-                btn.innerHTML = `<div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div><div style="color: #fbbf24; font-weight: bold;">${count} игроков</div>`;
-                btn.addEventListener('click', () => { renderSeasonPlayers(null, season); });
-                container.appendChild(btn);
-            });
-        }
-                function renderSeasonPlayers(teamName, season) {
-            document.getElementById('collectionContent').style.display = 'none';
-            document.getElementById('innerCollectionView').style.display = 'block';
-            
-            const title = teamName ? `${teamName} • ${season}` : `Сезон ${season}`;
-            document.getElementById('innerCollectionTitle').innerText = title;
-            
-            const list = document.getElementById('innerCollectionList');
-            list.innerHTML = '';
+    playersToShow.sort((a, b) => {
+        const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
+        const ovrB = Math.round((b.sc + b.br + b.ps + b.si + b.end + b.skate) / 6);
+        return ovrB - ovrA; 
+    });
 
-            let playersToShow = teamName ? collection.filter(p => p.club === teamName && p.season === season) : collection.filter(p => p.season === season);
+    if (playersToShow.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:#aaa;">Игроков нет.</p>';
+    } else {
+        playersToShow.forEach(player => {
+            const div = document.createElement('div');
+            let rarityClass = 'common';
+            if (player.rarity_num === 2) rarityClass = 'rare';
+            if (player.rarity_num === 3) rarityClass = 'super-rare';
+            if (player.rarity_num === 4) rarityClass = 'legendary';
+            if (player.rarity_num === 5) rarityClass = 'epic';
 
-            playersToShow.sort((a, b) => {
-                const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
-                const ovrB = Math.round((b.sc + b.br + b.ps + b.si + b.end + b.skate) / 6);
-                return ovrB - ovrA; 
-            });
-
-            if (playersToShow.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#aaa;">Игроков нет.</p>';
-            } else {
-                playersToShow.forEach(player => {
-                    const div = document.createElement('div');
-                    let rarityClass = 'common';
-                    if (player.rarity_num === 2) rarityClass = 'rare';
-                    if (player.rarity_num === 3) rarityClass = 'super-rare';
-                    if (player.rarity_num === 4) rarityClass = 'legendary';
-                    if (player.rarity_num === 5) rarityClass = 'epic';
-
-                    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-                    div.className = `mini-card ${rarityClass}`;
-                    div.innerHTML = `
-                        <div style="flex: 1;">
-                            <div style="font-weight: bold; display: flex; align-items: center;">${player.name}</div>
-                            <div style="font-size: 12px; color: #aaa;">${player.pos} • ${player.number || ''}</div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-                            <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
-                            <button class="open-card-btn" data-name="${player.name}" data-season="${player.season}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">Открыть</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-
-                document.querySelectorAll('#innerCollectionList .open-card-btn').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.stopPropagation(); 
-                        const name = this.getAttribute('data-name');
-                        const ssn = this.getAttribute('data-season');
-                        const playerToOpen = collection.find(p => p.name === name && p.season === ssn);
-                        if (playerToOpen) openDetailView(playerToOpen);
-                    });
-                });
-            }
-
-            document.getElementById('backToMainCollectionBtn').innerText = teamName ? "⬅ Назад к сезонам команды" : "⬅ Назад к сезонам";
-            document.getElementById('backToMainCollectionBtn').onclick = () => {
-                if (teamName) renderTeamSeasons(teamName);
-                else {
-                    document.getElementById('innerCollectionView').style.display = 'none';
-                    document.getElementById('collectionContent').style.display = 'block';
-                    renderCollection();
-                }
-            };
-        }
-
-        function openDetailView(player) {
-            currentViewPlayer = player;
-            
-            document.getElementById('d-name').innerText = player.name;
-            document.getElementById('d-club').innerText = player.club;
-            document.getElementById('d-season').innerText = player.season;
-            document.getElementById('d-pos').innerText = player.pos;
-            document.getElementById('d-sc').innerText = player.sc;
-            document.getElementById('d-br').innerText = player.br;
-            document.getElementById('d-ps').innerText = player.ps;
-            document.getElementById('d-si').innerText = player.si;
-            document.getElementById('d-end').innerText = player.end;
-            document.getElementById('d-skate').innerText = player.skate;
-            
-            document.getElementById('d-number').innerText = player.number || "";
-            document.getElementById('d-clubLogo').innerText = player.logo || "КХЛ";
-            
             const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-            document.getElementById('d-overall').innerText = overall;
-            
-            document.getElementById('d-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
-
-            const sellPrice = overall * 2;
-            document.getElementById('detailSellBtn').innerText = `Продать одну (${sellPrice} 🪙)`;
-
-            const backSide = document.getElementById('detailBack');
-            let html = `
-                <h3 style="margin-top: 0; font-size: 18px; color: white;">${player.name}</h3>
-                <div class="stats-section">
-                    <div class="stats-header">Регулярный чемпионат</div>
-                    <div class="back-stat-row"><span>Игры:</span> <span>${player.reg_stats.games}</span></div>
-                    <div class="back-stat-row"><span>Голы:</span> <span>${player.reg_stats.goals}</span></div>
-                    <div class="back-stat-row"><span>Пасы:</span> <span>${player.reg_stats.assists}</span></div>
-                    <div class="back-stat-row"><span>Очки:</span> <span>${player.reg_stats.points}</span></div>
-                    <div class="back-stat-row"><span>Штраф:</span> <span>${player.reg_stats.penalty}</span></div>
+            div.className = `mini-card ${rarityClass}`;
+            div.innerHTML = `
+                <div style="flex: 1;">
+                    <div style="font-weight: bold; display: flex; align-items: center;">${player.name}</div>
+                    <div style="font-size: 12px; color: #aaa;">${player.pos} • ${player.number || ''}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                    <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
+                    <button class="open-card-btn" data-name="${player.name}" data-season="${player.season}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">Открыть</button>
                 </div>
             `;
+            list.appendChild(div);
+        });
 
-            if (player.playoff_stats) {
-                html += `
-                    <div class="divider"></div>
-                    <div class="stats-section">
-                        <div class="stats-header" style="color: #e11d48;">Плей-офф</div>
-                        <div class="back-stat-row"><span>Игры:</span> <span>${player.playoff_stats.games}</span></div>
-                        <div class="back-stat-row"><span>Голы:</span> <span>${player.playoff_stats.goals}</span></div>
-                        <div class="back-stat-row"><span>Пасы:</span> <span>${player.playoff_stats.assists}</span></div>
-                        <div class="back-stat-row"><span>Очки:</span> <span>${player.playoff_stats.points}</span></div>
-                        <div class="back-stat-row"><span>Штраф:</span> <span>${player.playoff_stats.penalty}</span></div>
-                    </div>
-                `;
-            } else {
-                html += `<div style="height: 40px;"></div>`;
-            }
+        document.querySelectorAll('#innerCollectionList .open-card-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation(); 
+                const name = this.getAttribute('data-name');
+                const ssn = this.getAttribute('data-season');
+                const playerToOpen = collection.find(p => p.name === name && p.season === ssn);
+                if (playerToOpen) openDetailView(playerToOpen);
+            });
+        });
+    }
 
-            html += `<div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
-            backSide.innerHTML = html;
-
-            let detailBorderColor = "#9ca3af";
-            if (player.rarity_num === 2) detailBorderColor = "#a3e635";
-            if (player.rarity_num === 3) detailBorderColor = "#3b82f6";
-            if (player.rarity_num === 4) detailBorderColor = "#fbbf24";
-            if (player.rarity_num === 5) detailBorderColor = "#be123c";
-            
-            const detailCard = document.querySelector('#detailView .card');
-            if (detailCard) detailCard.style.borderColor = detailBorderColor;
-
-            detailView.style.display = 'flex';
-            document.getElementById('flipCard').classList.remove('flipped');
+    document.getElementById('backToMainCollectionBtn').innerText = teamName ? "⬅ Назад к сезонам команды" : "⬅ Назад к сезонам";
+    document.getElementById('backToMainCollectionBtn').onclick = () => {
+        if (teamName) renderTeamSeasons(teamName);
+        else {
+            document.getElementById('innerCollectionView').style.display = 'none';
+            document.getElementById('collectionContent').style.display = 'block';
+            renderCollection();
         }
+    };
+}
 
-        document.getElementById('flipCard').addEventListener('click', function() {
-            this.classList.toggle('flipped');
-        });
-
-        document.getElementById('closeDetailBtn').addEventListener('click', function() {
-            detailView.style.display = 'none';
-            document.getElementById('flipCard').classList.remove('flipped');
-        });
-
-        document.getElementById('detailSellBtn').addEventListener('click', function() {
-            if (!currentViewPlayer) return;
-            const overall = Math.round((currentViewPlayer.sc + currentViewPlayer.br + currentViewPlayer.ps + currentViewPlayer.si + currentViewPlayer.end + currentViewPlayer.skate) / 6);
-            const sellPrice = overall * 2;
-
-            if (confirm(`Вы уверены, что хотите продать ${currentViewPlayer.name} за ${sellPrice} монет?`)) {
-                const index = collection.findIndex(p => p.name === currentViewPlayer.name && p.season === currentViewPlayer.season);
-                if (index !== -1) {
-                    collection.splice(index, 1);
-                    localStorage.setItem('khl_collection', JSON.stringify(collection));
-                    userCoins += sellPrice;
-                    updateUI();
-                    alert(`Карточка продана! Вы получили ${sellPrice} 🪙`);
-                    detailView.style.display = 'none';
-                    document.getElementById('flipCard').classList.remove('flipped');
-                    renderCollection();
-                }
-            }
-        });
-
-        updateUI();
-    </script>
-</body>
-</html>
+// ... (и дальше идет openDetailView, flipCard, closeDetailBtn, detailSellBtn, updateUI() — их оставь как есть)
