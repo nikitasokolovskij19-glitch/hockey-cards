@@ -55,7 +55,7 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Загружаем баланс из памяти телефона (если играл раньше) или ставим 100
+        // Загружаем баланс из памяти телефона или ставим 100
         let userCoins = parseInt(localStorage.getItem('khl_coins')) || 100;
         let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
         
@@ -64,10 +64,9 @@
         const bonusBtn = document.getElementById('bonusBtn');
         const packPrice = 50;
 
-        // Функция обновления интерфейса (баланс и кнопки)
         function updateUI() {
             coinDisplay.innerText = userCoins;
-            localStorage.setItem('khl_coins', userCoins); // Сохраняем
+            localStorage.setItem('khl_coins', userCoins);
             
             if (userCoins < packPrice) {
                 openPackBtn.style.display = 'none';
@@ -78,7 +77,6 @@
             }
         }
 
-        // Кнопка "Открыть пак"
         openPackBtn.addEventListener('click', function() {
             userCoins -= packPrice;
             updateUI();
@@ -87,8 +85,8 @@
             
             const randomIndex = Math.floor(Math.random() * PLAYERS.length);
             const player = PLAYERS[randomIndex];
-            collection.push(player); // Добавляем в коллекцию
-            localStorage.setItem('khl_collection', JSON.stringify(collection)); // Сохраняем коллекцию
+            collection.push(player);
+            localStorage.setItem('khl_collection', JSON.stringify(collection));
 
             setTimeout(() => {
                 document.getElementById('name').innerText = player.name;
@@ -101,26 +99,21 @@
                 document.getElementById('si').innerText = player.si;
                 document.getElementById('img').innerText = player.img;
 
-                // Красим рамку в зависимости от редкости
                 const borderColor = player.rarity === "Легендарная" ? "#fbbf24" : (player.rarity === "Эпическая" ? "#a855f7" : "#e11d48");
                 document.getElementById('playerCard').style.borderColor = borderColor;
 
                 openPackBtn.innerText = `Открыть пак (50 🪙)`;
                 alert(`Тебе выпал: ${player.name} (${player.rarity})!`);
-                
-                // Если монет не хватает, показываем кнопку бонуса
                 updateUI();
             }, 500);
         });
 
-        // Кнопка "Получить бонус"
         bonusBtn.addEventListener('click', function() {
             userCoins += 50;
             updateUI();
             alert("Ты получил 50 монет! Приходи завтра за новым бонусом.");
         });
 
-        // При запуске сразу обновляем интерфейс
         updateUI();
     </script>
 </body>
