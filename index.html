@@ -159,7 +159,13 @@
 
         let tg = window.Telegram.WebApp;
         tg.expand();
-
+        {
+// ОДНОРАЗОВАЯ ОЧИСТКА (потом эту строчку можно удалить)
+if (!localStorage.getItem('cleaned_v1')) {
+    localStorage.removeItem('khl_collection');
+    localStorage.removeItem('khl_coins');
+    localStorage.setItem('cleaned_v1', 'true');
+}
         let userCoins = parseInt(localStorage.getItem('khl_coins')) || 100;
         let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
         let currentViewPlayer = null;
