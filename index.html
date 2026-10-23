@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>КХЛ Карточки</title>
     <style>
-        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
-        .card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #e11d48; border-radius: 20px; padding: 20px; width: 280px; text-align: center; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.2); position: relative; transition: border-color 0.3s; }
+        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; height: 100vh; margin: 0; overflow-y: auto; }
+        h2 { margin-top: 0; }
+        .card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #e11d48; border-radius: 20px; padding: 20px; width: 280px; text-align: center; box-shadow: 0 10px 25px rgba(225, 29, 72, 0.2); position: relative; transition: border-color 0.3s; flex-shrink: 0; }
         .season-badge { position: absolute; top: 10px; right: 10px; background-color: #e11d48; color: white; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 10px; }
         .player-img { width: 120px; height: 120px; background-color: #334155; border-radius: 50%; margin: 10px auto 15px; display: flex; align-items: center; justify-content: center; font-size: 50px; border: 3px solid #475569; }
         .name { font-size: 22px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
@@ -15,32 +16,56 @@
         .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid #334155; padding-top: 15px; }
         .stat { font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between; padding: 0 10px; }
         .stat span { font-size: 16px; font-weight: bold; color: white; }
-        .btn-open { margin-top: 25px; padding: 15px 30px; background-color: #e11d48; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4); }
+        
+        .btn-open { margin-top: 25px; padding: 15px 30px; background-color: #e11d48; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 280px; transition: 0.2s; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4); }
         .btn-open:active { transform: scale(0.95); }
-        .btn-bonus { margin-top: 10px; padding: 10px; background-color: #10b981; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; display: none; }
+        .btn-bonus { margin-top: 10px; padding: 10px; background-color: #10b981; color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; width: 280px; display: none; }
+        
         .coins-display { margin-bottom: 15px; font-size: 18px; font-weight: bold; color: #fbbf24; }
+        
+        /* Стили для коллекции */
+        #collectionView { display: none; width: 100%; max-width: 320px; flex-direction: column; align-items: center; }
+        .collection-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; }
+        .mini-card { background-color: #1e293b; padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #e11d48; }
+        .mini-card.legendary { border-left-color: #fbbf24; }
+        .mini-card.epic { border-left-color: #a855f7; }
+        .btn-nav { margin-top: 15px; background-color: #3b82f6; color: white; border: none; padding: 10px; border-radius: 10px; width: 280px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h2>Твой первый игрок КХЛ</h2>
-    <div class="coins-display">Баланс: <span id="coinDisplay">100</span> 🪙</div>
-    
-    <div class="card" id="playerCard">
-        <div class="season-badge" id="season">2016/17</div>
-        <div class="player-img" id="img">🏒</div>
-        <div class="name" id="name">С. Мозякин</div>
-        <div class="club" id="club">Металлург Мг</div>
-        <div class="position" id="position">Нападающий</div>
-        <div class="stats">
-            <div class="stat">СКО <span id="sc">85</span></div>
-            <div class="stat">БРС <span id="br">98</span></div>
-            <div class="stat">ПАС <span id="ps">95</span></div>
-            <div class="stat">СИЛ <span id="si">80</span></div>
+
+    <!-- ГЛАВНЫЙ ЭКРАН (Магазин) -->
+    <div id="shopView" style="display: flex; flex-direction: column; align-items: center;">
+        <h2>Твой первый игрок КХЛ</h2>
+        <div class="coins-display">Баланс: <span id="coinDisplay">100</span> 🪙</div>
+        
+        <div class="card" id="playerCard">
+            <div class="season-badge" id="season">2016/17</div>
+            <div class="player-img" id="img">🏒</div>
+            <div class="name" id="name">С. Мозякин</div>
+            <div class="club" id="club">Металлург Мг</div>
+            <div class="position" id="position">Нападающий</div>
+            <div class="stats">
+                <div class="stat">СКО <span id="sc">85</span></div>
+                <div class="stat">БРС <span id="br">98</span></div>
+                <div class="stat">ПАС <span id="ps">95</span></div>
+                <div class="stat">СИЛ <span id="si">80</span></div>
+            </div>
         </div>
+        
+        <button class="btn-open" id="openPackBtn">Открыть пак (50 🪙)</button>
+        <button class="btn-bonus" id="bonusBtn">🎁 Получить бонус (+50 🪙)</button>
+        <button class="btn-nav" id="viewCollectionBtn">📂 Моя коллекция</button>
     </div>
-    
-    <button class="btn-open" id="openPackBtn">Открыть пак (50 🪙)</button>
-    <button class="btn-bonus" id="bonusBtn">🎁 Получить бонус (+50 🪙)</button>
+
+    <!-- ЭКРАН КОЛЛЕКЦИИ -->
+    <div id="collectionView">
+        <h2>Моя коллекция</h2>
+        <div class="collection-list" id="collectionList">
+            <!-- Сюда будут добавляться карточки -->
+        </div>
+        <button class="btn-nav" id="backToShopBtn">⬅ Назад в магазин</button>
+    </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
@@ -55,13 +80,15 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Загружаем баланс из памяти телефона или ставим 100
         let userCoins = parseInt(localStorage.getItem('khl_coins')) || 100;
         let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
         
         const coinDisplay = document.getElementById('coinDisplay');
         const openPackBtn = document.getElementById('openPackBtn');
         const bonusBtn = document.getElementById('bonusBtn');
+        const shopView = document.getElementById('shopView');
+        const collectionView = document.getElementById('collectionView');
+        const collectionList = document.getElementById('collectionList');
         const packPrice = 50;
 
         function updateUI() {
@@ -77,6 +104,7 @@
             }
         }
 
+        // Открытие пака
         openPackBtn.addEventListener('click', function() {
             userCoins -= packPrice;
             updateUI();
@@ -108,11 +136,49 @@
             }, 500);
         });
 
+        // Бонус
         bonusBtn.addEventListener('click', function() {
             userCoins += 50;
             updateUI();
             alert("Ты получил 50 монет! Приходи завтра за новым бонусом.");
         });
+
+        // Навигация
+        document.getElementById('viewCollectionBtn').addEventListener('click', function() {
+            shopView.style.display = 'none';
+            collectionView.style.display = 'flex';
+            renderCollection();
+        });
+
+        document.getElementById('backToShopBtn').addEventListener('click', function() {
+            collectionView.style.display = 'none';
+            shopView.style.display = 'flex';
+        });
+
+        // Отрисовка коллекции
+        function renderCollection() {
+            collectionList.innerHTML = ''; // Очищаем
+            
+            // Переворачиваем список, чтобы новые были сверху
+            const reversedCollection = [...collection].reverse();
+
+            reversedCollection.forEach(player => {
+                const div = document.createElement('div');
+                let rarityClass = '';
+                if (player.rarity === 'Легендарная') rarityClass = 'legendary';
+                if (player.rarity === 'Эпическая') rarityClass = 'epic';
+
+                div.className = `mini-card ${rarityClass}`;
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight: bold;">${player.name}</div>
+                        <div style="font-size: 12px; color: #aaa;">${player.club} • ${player.season}</div>
+                    </div>
+                    <div style="color: #fbbf24; font-weight: bold;">${player.overall || '--'}</div>
+                `;
+                collectionList.appendChild(div);
+            });
+        }
 
         updateUI();
     </script>
