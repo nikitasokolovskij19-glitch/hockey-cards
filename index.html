@@ -236,41 +236,60 @@
         });
 
         function renderCollection() {
-            collectionList.innerHTML = ''; 
-            const grouped = {};
-            collection.forEach(player => {
-                const key = `${player.name}_${player.season}`;
-                if (!grouped[key]) {
-                    grouped[key] = { ...player, count: 0 };
-                }
-                grouped[key].count += 1;
-            });
+    collectionList.innerHTML = ''; 
+    const grouped = {};
+    collection.forEach(player => {
+        const key = `${player.name}_${player.season}`;
+        if (!grouped[key]) {
+            grouped[key] = { ...player, count: 0 };
+        }
+        grouped[key].count += 1;
+    });
 
-            const groupedArray = Object.values(grouped);
+    const groupedArray = Object.values(grouped);
 
-            groupedArray.forEach(player => {
-                const div = document.createElement('div');
-                let rarityClass = '';
-                if (player.rarity === 'Легендарная') rarityClass = 'legendary';
-                if (player.rarity === 'Эпическая') rarityClass = 'epic';
+    groupedArray.forEach(player => {
+        const div = document.createElement('div');
+        let rarityClass = '';
+        if (player.rarity === 'Легендарная') rarityClass = 'legendary';
+        if (player.rarity === 'Эпическая') rarityClass = 'epic';
 
-                const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+        const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
 
-                div.className = `mini-card ${rarityClass}`;
-                div.innerHTML = `
-                    <div style="flex: 1;">
-                        <div style="font-weight: bold; display: flex; align-items: center;">
-                            ${player.name} 
-                            ${player.count > 1 ? `<span class="count-badge">x${player.count}</span>` : ''}
-                        </div>
-                        <div style="font-size: 12px; color: #aaa;">${player.club} • ${player.season}</div>
-                    </div>
-                    <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
-                `;
-                
-                div.addEventListener('click', () => openDetailView(player));
-                collectionList.appendChild(div);
-            });
+        div.className = `mini-card ${rarityClass}`;
+        
+        // Добавляем кнопку "Открыть" прямо в карточку
+        div.innerHTML = `
+            <div style="flex: 1;">
+                <div style="font-weight: bold; display: flex; align-items: center;">
+                    ${player.name} 
+                    ${player.count > 1 ? `<span class="count-badge">x${player.count}</span>` : ''}
+                </div>
+                <div style="font-size: 12px; color: #aaa;">${player.club} • ${player.season}</div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
+                <button class="open-card-btn" data-name="${player.name}" data-season="${player.season}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">Открыть</button>
+            </div>
+        `;
+        
+        collectionList.appendChild(div);
+    });
+
+    // Добавляем обработчики нажатия на новые кнопки
+    document.querySelectorAll('.open-card-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Останавливаем всплытие события
+            const name = this.getAttribute('data-name');
+            const season = this.getAttribute('data-season');
+            
+            // Находим нужного игрока в сгруппированном списке
+            const playerToOpen = Object.values(grouped).find(p => p.name === name && p.season === season);
+            if (playerToOpen) {
+                openDetailView(playerToOpen);
+            }
+        });
+    });
         }
 
         function openDetailView(player) {
