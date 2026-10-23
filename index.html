@@ -437,6 +437,8 @@ playersToShow.forEach(player => {
 
 const groupedArray = Object.values(grouped);
 
+        console.log("Игроков до группировки:", playersToShow.length);
+        console.log("Ключи групп:", Object.keys(grouped));
 // 3. Сортируем по рейтингу
 groupedArray.sort((a, b) => {
     const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
