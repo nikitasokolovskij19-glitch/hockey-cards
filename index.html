@@ -1,4 +1,4 @@
-2<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -24,31 +24,10 @@
         
         .coins-display { margin-bottom: 15px; font-size: 18px; font-weight: bold; color: #fbbf24; }
         
-        #collectionView { 
-    display: none; 
-    width: 100%; 
-    flex-direction: column; 
-    align-items: center; 
-    padding-top: 20px; 
-    position: absolute; /* Убирает влияние соседних элементов */
-    top: 0;
-    left: 0;
-    background-color: #0f172a; /* Закрывает фон под собой */
-    min-height: 100vh;
-    z-index: 10;
-}
-.collection-list { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 10px; 
-    margin-top: 15px; 
-    width: 100%; 
-    max-width: 320px;
-    position: relative;
-    z-index: 20;
-}
+        #collectionView { display: none; width: 100%; max-width: 320px; flex-direction: column; align-items: center; padding-top: 20px; }
+        .collection-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; padding-bottom: 50px; }
         
-        .mini-card { background-color: #1e293b; padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #e11d48; cursor: pointer; transition: 0.2s; }
+        .mini-card { background-color: #1e293b; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #e11d48; cursor: pointer; transition: 0.2s; position: relative; z-index: 99; }
         .mini-card:active { transform: scale(0.98); }
         .mini-card.legendary { border-left-color: #fbbf24; }
         .mini-card.epic { border-left-color: #a855f7; }
@@ -57,7 +36,7 @@
         
         .btn-nav { margin-top: 15px; background-color: #3b82f6; color: white; border: none; padding: 12px; border-radius: 10px; width: 300px; font-weight: bold; cursor: pointer; }
 
-        #detailView { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.95); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
+        #detailView { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         
         .flip-card { background-color: transparent; width: 300px; height: 480px; perspective: 1000px; cursor: pointer; }
         .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
@@ -133,9 +112,7 @@
                     </div>
                     <div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>
                 </div>
-                <div class="flip-card-back" id="detailBack">
-                    <!-- Сюда JS будет вставлять статистику -->
-                </div>
+                <div class="flip-card-back" id="detailBack"></div>
             </div>
         </div>
         
@@ -148,43 +125,37 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         const PLAYERS = [
-    { 
-        name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", 
-        sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", img: "🏒",
-        reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
-        playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
-    },
-    { 
-        name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", 
-        sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", img: "🏒",
-        reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
-        playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
-    },
-    { 
-        name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", 
-        sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", img: "🏒",
-        reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
-        playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
-    },
-    { 
-        name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", 
-        sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", img: "🏒",
-        reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
-        playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
-    },
-    { 
-        name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", 
-        sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", img: "🏒",
-        reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
-        playoff_stats: null 
-    },
-    { 
-        name: "ТЕСТ", club: "Тест", season: "2024/25", pos: "Тест", 
-        sc: 50, br: 50, ps: 50, si: 50, end: 50, skate: 50, rarity: "Золотая", img: "🏒",
-        reg_stats: { games: 1, goals: 1, assists: 1, points: 1, penalty: 1 },
-        playoff_stats: null 
-    }
-];
+            { 
+                name: "С. Мозякин", club: "Металлург Мг", season: "2016/17", pos: "Нападающий", 
+                sc: 85, br: 98, ps: 95, si: 80, end: 88, skate: 90, rarity: "Легендарная", img: "🏒",
+                reg_stats: { games: 60, goals: 48, assists: 35, points: 83, penalty: 20 },
+                playoff_stats: { games: 18, goals: 7, assists: 10, points: 17, penalty: 4 }
+            },
+            { 
+                name: "П. Дацюк", club: "СКА", season: "2016/17", pos: "Нападающий", 
+                sc: 88, br: 85, ps: 99, si: 75, end: 85, skate: 92, rarity: "Эпическая", img: "🏒",
+                reg_stats: { games: 60, goals: 12, assists: 35, points: 47, penalty: 16 },
+                playoff_stats: { games: 18, goals: 4, assists: 12, points: 16, penalty: 6 }
+            },
+            { 
+                name: "А. Овечкин", club: "Динамо М", season: "2012/13", pos: "Нападающий", 
+                sc: 99, br: 94, ps: 70, si: 85, end: 90, skate: 85, rarity: "Эпическая", img: "🏒",
+                reg_stats: { games: 31, goals: 19, assists: 21, points: 40, penalty: 14 },
+                playoff_stats: { games: 15, goals: 8, assists: 7, points: 15, penalty: 8 }
+            },
+            { 
+                name: "Д. Зарипов", club: "Ак Барс", season: "2014/15", pos: "Нападающий", 
+                sc: 90, br: 88, ps: 85, si: 70, end: 82, skate: 88, rarity: "Золотая", img: "🏒",
+                reg_stats: { games: 60, goals: 25, assists: 35, points: 60, penalty: 12 },
+                playoff_stats: { games: 20, goals: 8, assists: 10, points: 18, penalty: 10 }
+            },
+            { 
+                name: "И. Ковальчук", club: "СКА", season: "2015/16", pos: "Нападающий", 
+                sc: 92, br: 90, ps: 75, si: 80, end: 86, skate: 87, rarity: "Золотая", img: "🏒",
+                reg_stats: { games: 50, goals: 25, assists: 15, points: 40, penalty: 30 },
+                playoff_stats: null 
+            }
+        ];
 
         let tg = window.Telegram.WebApp;
         tg.expand();
@@ -254,23 +225,16 @@
         });
 
         document.getElementById('viewCollectionBtn').addEventListener('click', function() {
-    // Полностью скрываем магазин, чтобы он не перекрывал клики
-    shopView.style.display = 'none'; 
-    shopView.style.visibility = 'hidden'; 
-    
-    collectionView.style.display = 'flex';
-    collectionView.style.visibility = 'visible';
-    renderCollection();
-});
+            shopView.style.display = 'none';
+            collectionView.style.display = 'flex';
+            renderCollection();
+        });
 
         document.getElementById('backToShopBtn').addEventListener('click', function() {
-    collectionView.style.display = 'none';
-    collectionView.style.visibility = 'hidden';
-    
-    shopView.style.display = 'flex';
-    shopView.style.visibility = 'visible';
-});
-        
+            collectionView.style.display = 'none';
+            shopView.style.display = 'flex';
+        });
+
         function renderCollection() {
             collectionList.innerHTML = ''; 
             const grouped = {};
