@@ -104,8 +104,21 @@
             <div class="stat">СИЛ <span>80</span></div>
         </div>
     </div>
+    <button class="btn-open" id="openPackBtn">Открыть пак (50 🪙)</button>
 
-    <button class="btn-open" onclick="alert('Скоро тут будет открываться бокс с карточками!')">Открыть пак (50 🪙)</button>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Инициализация Telegram WebApp
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем на весь экран
 
+        document.getElementById('openPackBtn').addEventListener('click', function() {
+            // Отправляем данные боту (сигнал "открыть пак")
+            tg.sendData("open_pack");
+            
+            // Закрываем Mini App, чтобы пользователь увидел ответ бота в чате
+            tg.close(); 
+        });
+    </script>
 </body>
-</html>
+</html>2
