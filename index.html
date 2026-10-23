@@ -5,6 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>КХЛ Карточки</title>
     <style>
+        /* Стили для нового экрана коллекции */
+.tab-btn { transition: 0.2s; }
+.active-tab { background: #3b82f6 !important; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    width: 100%;
+    padding-bottom: 50px;
+}
+
+.team-logo-btn {
+    background-color: #1e293b;
+    border: 2px solid #334155;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+    aspect-ratio: 1 / 1;
+}
+.team-logo-btn:active { transform: scale(0.95); border-color: #3b82f6; }
+
+.team-logo-img {
+    width: 60px;
+    height: 60px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+    margin-bottom: 10px;
+}
+
+.team-name-text {
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    color: #cbd5e1;
+}
+
+.season-btn {
+    background-color: #1e293b;
+    padding: 12px 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid #3b82f6;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+.season-btn:active { transform: scale(0.98); background-color: #334155; }
+      
         body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; height: 100vh; margin: 0; overflow-y: auto; overflow-x: hidden; }
         h2 { margin-top: 0; }
         
@@ -193,11 +255,20 @@
     </div>
 
     <!-- ЭКРАН КОЛЛЕКЦИИ -->
-    <div id="collectionView">
-        <h2>Моя коллекция</h2>
-        <div class="collection-list" id="collectionList"></div>
-        <button class="btn-nav" id="backToShopBtn">⬅ Назад</button>
+<div id="collectionView">
+    <h2>Моя коллекция</h2>
+    
+    <!-- Переключатель вкладок -->
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button id="tabTeamsBtn" class="tab-btn active-tab" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">По командам</button>
+        <button id="tabSeasonsBtn" class="tab-btn" style="padding: 10px 20px; background: #1e293b; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">По сезонам</button>
     </div>
+
+    <!-- Контейнер для отображения контента (команды или сезоны) -->
+    <div id="collectionContent" style="width: 100%; max-width: 320px;"></div>
+
+    <button class="btn-nav" id="backToShopBtn" style="margin-top: 20px;">⬅ Назад</button>
+</div>
 
     <!-- ОКНО ВЫПАДЕНИЯ -->
     <div id="revealView">
@@ -493,58 +564,112 @@
             shopView.style.display = 'flex';
         });
 
-        // --- ОТРИСОВКА КОЛЛЕКЦИИ ---
-        function renderCollection() {
-            collectionList.innerHTML = ''; 
-            const grouped = {};
-            collection.forEach(player => {
-                const key = `${player.name}_${player.season}`;
-                if (!grouped[key]) {
-                    grouped[key] = { ...player, count: 0 };
-                }
-                grouped[key].count += 1;
-            });
+        let currentTab = 'teams';
 
-            const groupedArray = Object.values(grouped);
+// Переключение вкладок
+document.getElementById('tabTeamsBtn').addEventListener('click', function() {
+    currentTab = 'teams';
+    document.getElementById('tabTeamsBtn').classList.add('active-tab');
+    document.getElementById('tabSeasonsBtn').classList.remove('active-tab');
+    document.getElementById('tabTeamsBtn').style.background = '#3b82f6';
+    document.getElementById('tabSeasonsBtn').style.background = '#1e293b';
+    renderCollection();
+});
 
-            groupedArray.forEach(player => {
-                const div = document.createElement('div');
-                let rarityClass = 'common';
-if (player.rarity_num === 2) rarityClass = 'rare';
-if (player.rarity_num === 3) rarityClass = 'super-rare';
-if (player.rarity_num === 4) rarityClass = 'legendary';
-if (player.rarity_num === 5) rarityClass = 'epic';
+document.getElementById('tabSeasonsBtn').addEventListener('click', function() {
+    currentTab = 'seasons';
+    document.getElementById('tabSeasonsBtn').classList.add('active-tab');
+    document.getElementById('tabTeamsBtn').classList.remove('active-tab');
+    document.getElementById('tabSeasonsBtn').style.background = '#3b82f6';
+    document.getElementById('tabTeamsBtn').style.background = '#1e293b';
+    renderCollection();
+});
 
-                const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+function renderCollection() {
+    const container = document.getElementById('collectionContent');
+    container.innerHTML = '';
 
-                div.className = `mini-card ${rarityClass}`;
-                div.innerHTML = `
-                    <div style="flex: 1;">
-                        <div style="font-weight: bold; display: flex; align-items: center;">
-                            ${player.name} 
-                            ${player.count > 1 ? `<span class="count-badge">x${player.count}</span>` : ''}
-                        </div>
-                        <div style="font-size: 12px; color: #aaa;">${player.club} • ${player.season}</div>
-                    </div>
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-                        <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
-                        <button class="open-card-btn" data-name="${player.name}" data-season="${player.season}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">Открыть</button>
-                    </div>
-                `;
-                
-                collectionList.appendChild(div);
-            });
+    if (currentTab === 'teams') {
+        renderTeamsGrid(container);
+    } else {
+        renderSeasonsList(container);
+    }
+}
 
-            document.querySelectorAll('.open-card-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation(); 
-                    const name = this.getAttribute('data-name');
-                    const season = this.getAttribute('data-season');
-                    const playerToOpen = Object.values(grouped).find(p => p.name === name && p.season === season);
-                    if (playerToOpen) openDetailView(playerToOpen);
-                });
-            });
+// Отрисовка сетки команд
+function renderTeamsGrid(container) {
+    const uniqueTeams = [];
+    collection.forEach(p => {
+        if (!uniqueTeams.includes(p.club)) {
+            uniqueTeams.push(p.club);
         }
+    });
+
+    if (uniqueTeams.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>';
+        return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'teams-grid';
+
+    // Адаптивная сетка
+    if (uniqueTeams.length > 16) grid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+    else if (uniqueTeams.length > 9) grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+
+    uniqueTeams.forEach(teamName => {
+        const player = collection.find(p => p.club === teamName);
+        const logo = player ? player.logo : 'КХЛ';
+
+        const btn = document.createElement('div');
+        btn.className = 'team-logo-btn';
+        btn.innerHTML = `
+            <div class="team-logo-img">${logo}</div>
+            <div class="team-name-text">${teamName}</div>
+        `;
+        btn.addEventListener('click', () => {
+            // Пока просто алерт (переход внутрь сделаем на следующем шаге)
+            alert(`Выбрана команда: ${teamName}. Скоро здесь будет список сезонов!`);
+        });
+        grid.appendChild(btn);
+    });
+
+    container.appendChild(grid);
+}
+
+// Отрисовка списка сезонов
+function renderSeasonsList(container) {
+    const uniqueSeasons = [];
+    collection.forEach(p => {
+        if (!uniqueSeasons.includes(p.season)) {
+            uniqueSeasons.push(p.season);
+        }
+    });
+
+    if (uniqueSeasons.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>';
+        return;
+    }
+
+    uniqueSeasons.sort((a, b) => b.localeCompare(a));
+
+    uniqueSeasons.forEach(season => {
+        const btn = document.createElement('div');
+        btn.className = 'season-btn';
+        
+        const count = collection.filter(p => p.season === season).length;
+
+        btn.innerHTML = `
+            <div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div>
+            <div style="color: #fbbf24; font-weight: bold;">${count} игроков</div>
+        `;
+        btn.addEventListener('click', () => {
+            // Пока просто алерт (переход внутрь сделаем на следующем шаге)
+            alert(`Выбран сезон: ${season}. Скоро здесь будет список игроков!`);
+        });
+        container.appendChild(btn);
+    });
+}
 
         // --- ДЕТАЛЬНЫЙ ПРОСМОТР ---
         function openDetailView(player) {
