@@ -104,8 +104,34 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
 }
 
 /* --- ИНФОРМАЦИЯ ОБ ИГРОКЕ --- */
-.card-info { position: relative; z-index: 20; background: linear-gradient(to top, #0f172a 85%, transparent); padding: 15px 20px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
-.name { font-size: 24px; font-weight: 800; margin-bottom: 2px; text-transform: uppercase; text-align: center; text-shadow: 1px 1px 5px black;}
+.card-info { 
+    position: relative; 
+    z-index: 20; 
+    background: linear-gradient(to top, #0f172a 85%, transparent); 
+    padding: 15px 20px; 
+    width: 100%; 
+    box-sizing: border-box; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    /* Распределяем элементы: имя сверху, характеристики по центру, подсказка снизу */
+    justify-content: space-between; 
+    flex-grow: 1; /* Занимает всё оставшееся место */
+}
+.name { 
+    font-size: 24px; 
+    font-weight: 800; 
+    margin-bottom: 5px; 
+    margin-top: 10px; /* Опускаем имя ниже */
+    text-transform: uppercase; 
+    text-align: center; 
+    text-shadow: 1px 1px 5px black;
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: clip; 
+    width: 100%;
+    font-size: clamp(16px, 5vw, 24px); 
+}
 .club { display: none; }
 .position { color: #e11d48; font-size: 14px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
 
@@ -375,8 +401,8 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
         <div class="stat">СИЛ <span id="r-si">80</span></div>
         <div class="stat">ВЫН <span id="r-end">88</span></div>
         <div class="stat">КАТ <span id="r-skate">90</span></div>
-        <div style="margin-top: 10px; font-size: 11px; color: #64748b; text-align: center; white-space: nowrap; width: 100%;">Нажми, чтобы перевернуть</div>
-    </div>
+        <div style="margin-top: 15px; font-size: 11px; color: #64748b; text-align: center; white-space: nowrap; width: 100%; display: block;">Нажми, чтобы перевернуть</div>
+   </div>
 </div>
             </div>
     <button class="btn-nav" id="closeRevealBtn" style="margin-top: 30px; opacity: 0; transition: 0.5s;">Забрать в коллекцию</button>
