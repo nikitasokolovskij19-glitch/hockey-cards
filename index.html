@@ -16,25 +16,23 @@ body {
     position: relative;
 }
 
-/* Анимированный фон (шайбы) */
+/* Анимированный фон (Логотипы) */
 .bg-animation {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none;
 }
-.bg-animation span {
-    position: absolute; display: block; width: 20px; height: 20px; background: rgba(255,255,255,0.05); border-radius: 50%;
-    animation: floatUp 15s linear infinite;
+
+.bg-logo {
+    position: absolute; bottom: -100px; 
+    opacity: 0.05; /* Делаем логотипы почти прозрачными */
+    filter: grayscale(100%) brightness(200%); /* Делаем их белыми для стиля */
+    animation: floatUp linear infinite;
 }
-.bg-animation span:nth-child(1) { left: 10%; width: 30px; height: 30px; animation-duration: 20s; animation-delay: 0s; }
-.bg-animation span:nth-child(2) { left: 30%; width: 15px; height: 15px; animation-duration: 25s; animation-delay: 2s; }
-.bg-animation span:nth-child(3) { left: 50%; width: 40px; height: 40px; animation-duration: 18s; animation-delay: 5s; }
-.bg-animation span:nth-child(4) { left: 70%; width: 20px; height: 20px; animation-duration: 22s; animation-delay: 1s; }
-.bg-animation span:nth-child(5) { left: 90%; width: 25px; height: 25px; animation-duration: 28s; animation-delay: 8s; }
 
 @keyframes floatUp {
-    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.05; }
+    90% { opacity: 0.05; }
+    100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
 }
 
 h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
@@ -112,9 +110,13 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
 </head>
 <body>
 
-    <!-- Анимированный фон -->
+    <!-- Анимированный фон (Логотипы КХЛ) -->
 <div class="bg-animation">
-    <span></span><span></span><span></span><span></span><span></span>
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/HC_SKA_Logo.svg.png" class="bg-logo" style="left: 10%; animation-duration: 25s; animation-delay: 0s; width: 80px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/OHK_Dynamo_logo.svg.png" class="bg-logo" style="left: 30%; animation-duration: 35s; animation-delay: 5s; width: 60px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/200.png" class="bg-logo" style="left: 50%; animation-duration: 28s; animation-delay: 2s; width: 100px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/HC_Metallurg_Magnitogorsk_Logo.svg.pn" class="bg-logo" style="left: 70%; animation-duration: 32s; animation-delay: 8s; width: 70px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/HC_SKA_Logo.svg.png" class="bg-logo" style="left: 90%; animation-duration: 22s; animation-delay: 12s; width: 50px;">
 </div>
 
 <!-- ГЛАВНЫЙ ЭКРАН -->
