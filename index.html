@@ -58,24 +58,23 @@
         /* Огонек с текстом */
 .overall-badge { 
     position: absolute; 
-    top: 10px; 
-    left: 10px; 
-    width: 75px; 
-    height: 75px;
+    top: 12px; 
+    left: 12px; 
+    width: 65px; /* Уменьшили размер самого блока */
+    height: 65px;
     display: flex; 
     flex-direction: column; 
     align-items: center; 
     justify-content: center; 
     z-index: 10; 
-    /* Накладываем эмодзи огня как фон */
-    font-size: 65px; /* Размер самого огонька */
+    font-size: 50px; /* Уменьшили размер эмодзи (было 65px) */
     line-height: 1;
 }
 
-/* Контейнер для текста, чтобы он был поверх огня */
+/* Контейнер для текста */
 .overall-badge .text-container {
     position: absolute;
-    top: 55%; /* Сдвигаем текст вниз, в основание огня */
+    top: 62%; /* Опустили текст ниже (было 55%) */
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
@@ -84,11 +83,11 @@
 }
 
 .overall-badge .value { 
-    font-size: 22px; 
+    font-size: 20px; /* Оставили размер цифры прежним (читаемым) */
     font-weight: 800; 
-    color: #000; /* Черный текст для контраста */
+    color: #000; 
     line-height: 1;
-    text-shadow: 0 0 3px rgba(255,255,255,0.8); /* Белая тень, чтобы читалось */
+    text-shadow: 0 0 3px rgba(255,255,255,0.8); 
 }
 
 .overall-badge .label { 
@@ -301,7 +300,7 @@
         <div class="value" id="d-overall">89</div>
         <div class="label">Сила</div>
     </div>
-                            </div>2
+                            </div>
                             <div id="d-img" style="width: 100%; height: 100%;"></div>
                             <div class="top-right-info">
                                 <div class="club-logo" id="d-clubLogo">ММг</div>
