@@ -228,17 +228,16 @@ h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing:
                     </div>
                 </div>
             </div>
-            
-            <!-- ЗАДНЯЯ СТОРОНА -->,
+                        <!-- ЗАДНЯЯ СТОРОНА -->
             <div class="flip-card-back" id="detailBack"></div>
         </div> <!-- Закрывает flip-card-inner -->
     </div> <!-- Закрывает flip-card -->
-</div2>
-    <div class="detail-buttons" ...>
-        <button ...>...</button>
-        <button ...>...</button>
+
+    <div class="detail-buttons" style="margin-top: 25px; display: flex; gap: 15px; width: 100%; justify-content: center;">
+        <button class="btn-sell" id="detailSellBtn" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 14px 25px; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); transition: all 0.3s;">Продать одну (X 🪙)</button>
+        <button class="btn-close" id="closeDetailBtn" style="background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px 25px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: all 0.3s;">Закрыть</button>
     </div>
-</div> <!-- Закрывает detailView -->
+</div>a
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
     alert("Скрипт запущен!");
@@ -645,8 +644,7 @@ function renderTeamSeasons(teamName) {
             detailView.style.display = 'flex';
             document.getElementById('flipCard').classList.remove('flipped');
         }
-
-        document.getElementById('flipCard').addEventListener('click', function() {
+                document.getElementById('flipCard').addEventListener('click', function() {
             this.classList.toggle('flipped');
         });
 
@@ -655,7 +653,7 @@ function renderTeamSeasons(teamName) {
             document.getElementById('flipCard').classList.remove('flipped');
         });
 
-                document.getElementById('detailSellBtn').addEventListener('click', function() {
+        document.getElementById('detailSellBtn').addEventListener('click', function() {
             if (!currentViewPlayer) return;
             const overall = Math.round((currentViewPlayer.sc + currentViewPlayer.br + currentViewPlayer.ps + currentViewPlayer.si + currentViewPlayer.end + currentViewPlayer.skate) / 6);
             const sellPrice = overall * 2;
@@ -679,7 +677,7 @@ function renderTeamSeasons(teamName) {
                     renderCollection();
                 }
             }
-        }); // <--- ЗДЕСЬ ЗАКРЫВАЕТСЯ ФУНКЦИЯ ПРОДАЖИ
+        });
 
         // Обновление профиля
         function updateProfile() {
@@ -688,7 +686,6 @@ function renderTeamSeasons(teamName) {
                 document.getElementById('user-name').innerText = firstName;
             }
             
-            // Считаем общий рейтинг коллекции
             let totalRating = 0;
             collection.forEach(p => {
                 totalRating += Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
@@ -696,8 +693,7 @@ function renderTeamSeasons(teamName) {
             document.getElementById('user-rating').innerText = totalRating;
         }
         
-        // Вызываем обновление профиля при загрузке
-        updateProfile(); // <--- УБРАЛИ ЦИФРУ 2
+        updateProfile();
 
         // Загрузка базы игроков из файла
         fetch('players.json')
@@ -706,9 +702,9 @@ function renderTeamSeasons(teamName) {
                 return response.json();
             })
             .then(data => {
-                PLAYERS = data; // Записываем загруженных игроков в переменную
+                PLAYERS = data; 
                 console.log("База игроков загружена. Всего:", PLAYERS.length);
-                updateUI(); // Запускаем игру после загрузки
+                updateUI(); 
             })
             .catch(error => {
                 alert("Ошибка загрузки базы игроков! Проверьте интернет.");
