@@ -89,8 +89,38 @@
             display: flex; flex-direction: column; align-items: center; margin-top: auto;
         }
         
-        .name { font-size: 24px; font-weight: 800; margin-bottom: 5px; text-transform: uppercase; text-align: center; text-shadow: 1px 1px 5px black; white-space: nowrap; overflow: hidden; text-overflow: clip; width: 100%; font-size: clamp(16px, 5vw, 24px); }
-        .position { color: #e11d48; font-size: 14px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
+        .name { 
+    font-size: 22px; /* Чуть уменьшили, чтобы влезало слева */
+    font-weight: 800; 
+    margin-bottom: 2px; 
+    text-transform: uppercase; 
+    text-align: left; /* Выравниваем по левому краю */
+    text-shadow: 1px 1px 5px black; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: clip; 
+}
+
+.position { 
+    font-size: 12px; /* Уменьшили размер */
+    font-weight: 800; 
+    margin-bottom: 0; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    text-align: left; /* Выравниваем по левому краю */
+}
+
+/* Скрываем старый бейдж с номером, он нам больше не нужен */
+.number-badge { display: none; }
+
+/* Новый стиль для номера справа */
+.info-number {
+    font-size: 32px;
+    font-weight: 800;
+    font-style: italic;
+    color: rgba(255,255,255,0.8);
+    text-shadow: 2px 2px 5px black;
+}
         
         .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 10px;}
         .stat { font-size: 12px; color: #64748b; font-weight: 600; display: flex; flex-direction: column; align-items: center; text-transform: uppercase;}
@@ -270,16 +300,18 @@
             <div class="card-image-container">
                 <div class="season-badge" id="r-season">2016/17</div>
                 <div class="overall-badge" id="r-overall">89</div>
-                <div class="number-badge" id="r-number">#10</div>
                 <div id="r-img" style="width: 100%; height: 100%;"></div>
                 <div class="top-right-info">
                     <div class="club-logo" id="r-clubLogo">ММг</div>
                 </div>
             </div>
             <div class="card-info">
-                <div style="margin-top: 20px; text-align: center; width: 100%;">
-                    <div class="name" id="r-name">Сергей Мозякин</div>
-                    <div class="position" id="r-position">Нападающий</div>
+                <div style="margin-top: 15px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 10px; box-sizing: border-box;">
+    <div style="text-align: left;">
+        <div class="name" id="r-name">Сергей Мозякин</div>
+        <div class="position" id="r-position">Нападающий</div>
+    </div>
+    <div class="info-number" id="r-number">#10</div>
                 </div>
                 <div class="stats">
                     <div class="stat">СКО <span id="r-sc">85</span></div>
@@ -306,7 +338,6 @@
                         <div class="card-image-container">
                             <div class="season-badge" id="d-season">2016/17</div>
                             <div class="overall-badge" id="d-overall">89</div>
-                            <div class="number-badge" id="d-number">#10</div>
                             <div id="d-img" style="width: 100%; height: 100%;"></div>
                             <div class="top-right-info">
                                 <div class="club-logo" id="d-clubLogo">ММг</div>
@@ -324,10 +355,16 @@
                                 <div class="stat">СИЛ <span id="d-si">80</span></div>
                                 <div class="stat">ВЫН <span id="d-end">88</span></div>
                                 <div class="stat">КАТ <span id="d-skate">90</span></div>
-                            </div>
-                            <div style="margin-top: 15px; font-size: 11px; color: #64748b; text-align: center; white-space: nowrap; width: 100%; display: block;">Нажми, чтобы перевернуть</div>
-                        </div>
+                          </div>
+                            <div style="margin-top: 15px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 10px; box-sizing: border-box;">
+                            <div style="text-align: left;">
+                            <div class="name" id="d-name">Сергей Мозякин</div>
+                            <div class="position" id="d-pos">Нападающий</div>
+                          </div>
+                           <div class="info-number" id="d-number">#10</div>
+                      </div>
                     </div>
+                  </div>
                 </div>
                 
                 <!-- ЗАДНЯЯ СТОРОНА -->
@@ -511,6 +548,10 @@ function buyPack(season, price) {
     document.getElementById('r-name').innerText = player.name;
     document.getElementById('r-season').innerText = player.season;
     document.getElementById('r-position').innerText = player.pos;
+      let posColor = "#ef4444"; // Красный для нападающих
+      if (player.pos === "Защитник") posColor = "#3b82f6"; // Синий
+      if (player.pos === "Вратарь") posColor = "#10b981"; // Зеленый
+    document.getElementById('r-position').style.color = posColor;
     document.getElementById('r-sc').innerText = player.sc;
     document.getElementById('r-br').innerText = player.br;
     document.getElementById('r-ps').innerText = player.ps;
@@ -737,6 +778,10 @@ function openDetailView(player) {
     document.getElementById('d-name').innerText = player.name;
     document.getElementById('d-season').innerText = player.season;
     document.getElementById('d-pos').innerText = player.pos;
+     let posColor = "#ef4444"; 
+     if (player.pos === "Защитник") posColor = "#3b82f6"; 
+     if (player.pos === "Вратарь") posColor = "#10b981"; 
+    document.getElementById('d-pos').style.color = posColor;
     document.getElementById('d-sc').innerText = player.sc;
     document.getElementById('d-br').innerText = player.br;
     document.getElementById('d-ps').innerText = player.ps;
