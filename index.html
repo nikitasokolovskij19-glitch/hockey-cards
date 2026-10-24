@@ -312,13 +312,11 @@
     <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Tractor_Logo.svg.jpg" class="bg-logo" style="left: 72%; animation-duration: 21s; animation-delay: 22s; width: 90px;">
 </div>
 
-    
 <!-- ГЛАВНЫЙ ЭКРАН -->
 <div id="shopView">
     
     <!-- ПРОФИЛЬ И БАЛАНС -->
     <div class="profile-banner">
-        <!-- Левая часть: Аватар и Ник -->
         <div style="display: flex; align-items: center; gap: 10px;">
             <div class="avatar-container" onclick="alert('Профиль (в разработке)')">
                 <div class="profile-avatar" id="user-avatar">👤</div>
@@ -330,7 +328,6 @@
             </div>
         </div>
         
-        <!-- Правая часть: Баланс -->
         <div class="balance-display">
             <span id="coinDisplay">100</span> 💵
         </div>
@@ -340,7 +337,7 @@
     <div class="squad-container">
         <!-- 3 Нападающих -->
         <div class="squad-row">
-            <div class="squad-slot" onclick="alert('Выбор нападающего (следующий шаг)')"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
+            <div class="squad-slot" onclick="alert('Выбор нападающего')"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
             <div class="squad-slot" onclick="alert('Выбор нападающего')"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
             <div class="squad-slot" onclick="alert('Выбор нападающего')"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
         </div>
@@ -367,18 +364,10 @@
             <button class="btn-main btn-collection" id="viewCollectionBtn">КОЛЛЕКЦИЯ 📁</button>
         </div>
         
-        <!-- Скрытая кнопка бонуса (появится, когда не хватит денег) -->
+        <!-- Скрытая кнопка бонуса -->
         <button class="btn-bonus" id="bonusBtn" style="display: none; width: 100%; margin-top: 5px; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 14px;">🎁 Получить бонус</button>
     </div>
 </div>
-
-        <!-- БАЛАНС (Символ валюты 💵) -->
-        <div class="coins-display" style="margin-bottom: 30px; font-size: 24px; font-weight: 800; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);">Баланс: <span id="coinDisplay">100</span> 💵</div>
-        
-        <button class="btn-open" id="goToPacksBtn" style="margin-top: 5px; padding: 16px 30px; background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; width: 300px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(225, 29, 72, 0.4); text-transform: uppercase; letter-spacing: 1px;">🎁 Выбрать пак</button>
-        <button class="btn-bonus" id="bonusBtn" style="margin-top: 10px; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 16px; font-size: 14px; font-weight: 800; cursor: pointer; width: 300px; display: none; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); transition: all 0.3s;">🎁 Получить бонус (+50 💵)</button>
-        <button class="btn-nav" id="viewCollectionBtn" style="margin-top: 15px; background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(5px);">📂 Моя коллекция</button>
-    </div>
 
     <!-- ЭКРАН ПАКОВ -->
     <div id="packsView" style="display: none; width: 100%; flex-direction: column; align-items: center;">
