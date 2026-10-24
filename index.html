@@ -340,23 +340,23 @@ body {
 </div>
 
     <!-- ЗВЕНО (6 слотов) -->
-    <div class="squad-container">
-        <!-- 3 Нападающих -->
-        <div class="squad-row">
-            <div class="squad-slot" onclick="alert('Выбор нападающего')"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
-            <div class="squad-slot" onclick="alert('Выбор нападающего')"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
-            <div class="squad-slot" onclick="alert('Выбор нападающего')"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
-        </div>
-        <!-- 2 Защитника -->
-        <div class="squad-row">
-            <div class="squad-slot" onclick="alert('Выбор защитника')"><span class="slot-pos">ЗАЩ</span><div class="slot-plus">+</div></div>
-            <div class="squad-slot" onclick="alert('Выбор защитника')"><span class="slot-pos">ЗАЩ</span><div class="slot-plus">+</div></div>
-        </div>
-        <!-- 1 Вратарь -->
-        <div class="squad-row">
-            <div class="squad-slot" onclick="alert('Выбор вратаря')"><span class="slot-pos">ВРТ</span><div class="slot-plus">+</div></div>
-        </div>
+<div class="squad-container">
+    <!-- 3 Нападающих -->
+    <div class="squad-row">
+        <div class="squad-slot" id="slot-0" onclick="openSquadSelection('Нападающий', 0)"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
+        <div class="squad-slot" id="slot-1" onclick="openSquadSelection('Нападающий', 1)"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
+        <div class="squad-slot" id="slot-2" onclick="openSquadSelection('Нападающий', 2)"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
     </div>
+    <!-- 2 Защитника -->
+    <div class="squad-row">
+        <div class="squad-slot" id="slot-3" onclick="openSquadSelection('Защитник', 3)"><span class="slot-pos">ЗАЩ</span><div class="slot-plus">+</div></div>
+        <div class="squad-slot" id="slot-4" onclick="openSquadSelection('Защитник', 4)"><span class="slot-pos">ЗАЩ</span><div class="slot-plus">+</div></div>
+    </div>
+    <!-- 1 Вратарь -->
+    <div class="squad-row">
+        <div class="squad-slot" id="slot-5" onclick="openSquadSelection('Вратарь', 5)"><span class="slot-pos">ВРТ</span><div class="slot-plus">+</div></div>
+    </div>
+</div>
 
     <!-- НИЖНЕЕ МЕНЮ -->
     <div class="bottom-menu">
@@ -374,6 +374,19 @@ body {
         <button class="btn-bonus" id="bonusBtn" style="display: none; width: 100%; margin-top: 5px; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 14px;">🎁 Получить бонус</button>
     </div>
 </div>
+
+    <!-- ЭКРАН ВЫБОРА ИГРОКА В ЗВЕНО -->
+<div id="squadSelectView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; box-sizing: border-box;">
+    
+    <h2 id="squadSelectTitle" style="color: #fbbf24; margin-bottom: 20px;">Выбери игрока</h2>
+    
+    <div id="squadSelectList" style="width: 100%; max-width: 320px; padding: 0 15px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-bottom: 50px;">
+        <!-- Сюда скрипт будет вставлять карточки для выбора -->
+    </div>
+
+    <button onclick="document.getElementById('squadSelectView').style.display='none'" style="position: fixed; bottom: 20px; background: rgba(51, 65, 85, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; width: 300px; font-weight: 800; cursor: pointer; z-index: 10000;">Закрыть</button>
+</div>
+    
     <!-- ОКНО ПРОФИЛЯ -->
 <div id="profileView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
     
@@ -555,6 +568,8 @@ body {
 
     let userCoins = parseInt(localStorage.getItem('khl_coins')) || 100;
     let userExp = parseInt(localStorage.getItem('khl_exp')) || 0;
+    // Массив для хранения состава (6 слотов)
+    let squad = JSON.parse(localStorage.getItem('khl_squad')) || [null, null, null, null, null, null];
     let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
     let currentViewPlayer = null;
 
@@ -675,6 +690,106 @@ function updateProfile() {
     
     const expPercent = (levelData.currentExp / levelData.expNeeded) * 100;
     document.getElementById('profile-exp-bar').style.width = `${expPercent}%`;
+    renderSquad();
+}
+
+    // --- ЛОГИКА ЗВЕНА ---
+
+// Отрисовка звена
+function renderSquad() {
+    for (let i = 0; i < 6; i++) {
+        const slot = document.getElementById(`slot-${i}`);
+        const player = squad[i];
+
+        if (player) {
+            // Если игрок есть, показываем его мини-карточку
+            let rarityColor = "#9ca3af";
+            if (player.rarity_num === 2) rarityColor = "#a3e635";
+            if (player.rarity_num === 3) rarityColor = "#3b82f6";
+            if (player.rarity_num === 4) rarityColor = "#fbbf24";
+            if (player.rarity_num === 5) rarityColor = "#be123c";
+
+            slot.style.background = 'rgba(30, 41, 59, 0.9)';
+            slot.style.border = `2px solid ${rarityColor}`;
+            slot.innerHTML = `
+                <div style="position: absolute; top: 5px; left: 5px; background: #0f172a; border-radius: 5px; padding: 2px 6px; font-size: 10px; font-weight: 800; color: #fbbf24; z-index: 10;">${Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6)}</div>
+                <img src="${player.img}" style="width: 100%; height: 60%; object-fit: cover; object-position: top center; border-radius: 10px 10px 0 0;">
+                <div style="font-size: 10px; font-weight: 800; text-align: center; padding: 2px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;">${player.name}</div>
+                <div style="font-size: 8px; color: #cbd5e1; text-align: center; margin-bottom: 5px;">${player.number}</div>
+            `;
+        } else {
+            // Если пусто, возвращаем плюсик
+            const posName = (i < 3) ? "НАП" : (i < 5 ? "ЗАЩ" : "ВРТ");
+            slot.style.background = 'rgba(30, 41, 59, 0.4)';
+            slot.style.border = '2px dashed rgba(255,255,255,0.2)';
+            slot.innerHTML = `<span class="slot-pos">${posName}</span><div class="slot-plus">+</div>`;
+        }
+    }
+}
+
+// Открытие окна выбора игрока
+function openSquadSelection(requiredPos, slotIndex) {
+    document.getElementById('squadSelectTitle').innerText = `Выбор: ${requiredPos}`;
+    const listContainer = document.getElementById('squadSelectList');
+    listContainer.innerHTML = '';
+
+    // Берем всех игроков из коллекции нужной позиции
+    let availablePlayers = collection.filter(p => p.pos === requiredPos);
+
+    // Проверяем, чтобы эти игроки не стояли уже в других слотах
+    availablePlayers = availablePlayers.filter(p => {
+        return !squad.some(s => s && s.name === p.name && s.season === p.season);
+    });
+
+    if (availablePlayers.length === 0) {
+        listContainer.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 20px;">У тебя нет свободных карточек на эту позицию.<br>Открой паки или убери игрока из другого слота!</p>`;
+    } else {
+        // Группируем дубликаты, чтобы не выводить 10 одинаковых строк
+        const grouped = {};
+        availablePlayers.forEach(player => {
+            const key = `${player.name}_${player.season}`;
+            if (!grouped[key]) grouped[key] = { ...player, count: 0 };
+            grouped[key].count += 1;
+        });
+
+        Object.values(grouped).forEach(player => {
+            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+            
+            const btn = document.createElement('div');
+            btn.style.background = 'rgba(30, 41, 59, 0.6)'; 
+            btn.style.padding = '15px'; 
+            btn.style.borderRadius = '12px';
+            btn.style.display = 'flex'; 
+            btn.style.justifyContent = 'space-between'; 
+            btn.style.alignItems = 'center';
+            btn.style.cursor = 'pointer';
+            
+            btn.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="font-weight: bold;">${player.name}</div>
+                    <div style="font-size: 12px; color: #aaa;">${player.season}</div>
+                </div>
+                <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
+            `;
+            
+            // При клике ставим в слот
+            btn.onclick = () => {
+                // Проверка на дубликат в звене (на всякий случай)
+                if (squad.some(s => s && s.name === player.name && s.season === player.season)) {
+                    alert("Этот игрок уже есть в звене!");
+                    return;
+                }
+                squad[slotIndex] = player;
+                localStorage.setItem('khl_squad', JSON.stringify(squad));
+                document.getElementById('squadSelectView').style.display = 'none';
+                renderSquad();
+            };
+            
+            listContainer.appendChild(btn);
+        });
+    }
+
+    document.getElementById('squadSelectView').style.display = 'flex';
 }
 
 // Функция добавления опыта
