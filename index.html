@@ -720,13 +720,22 @@ function updateProfile() {
     // Подгоняем размер шрифта
     setTimeout(adjustNicknameSize, 50); // Небольшая задержка для применения стилей
 
-    // Считаем общий рейтинг коллекции
-    let totalRating = 0;
-    collection.forEach(p => {
-        totalRating += Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
-    });
-    document.getElementById('user-rating').innerText = totalRating;
+    // Считаем средний рейтинг ЗВЕНА (6 слотов)
+let squadTotalRating = 0;
+for (let i = 0; i < 6; i++) {
+    if (squad[i]) {
+        const p = squad[i];
+        const pRating = Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
+        squadTotalRating += pRating;
+    }
+    // Если слот пустой (null), прибавляется 0, как ты и просил
+}
 
+// Считаем среднее и округляем до десятых
+const averageRating = (squadTotalRating / 6).toFixed(1);
+
+document.getElementById('user-rating').innerText = averageRating;
+    
     // Обновляем уровень и опыт
     const levelData = getLevelData(userExp);
     document.getElementById('user-level').innerText = levelData.level;
@@ -852,6 +861,14 @@ function openSquadSelection(requiredPos, slotIndex) {
             localStorage.setItem('khl_squad', JSON.stringify(squad));
             document.getElementById('squadSelectView').style.display = 'none';
             renderSquad();
+            updateProfile(); // <--- ДОБАВИТЬ СЮДА
+            removeBtn.onclick = () => {
+    squad[slotIndex] = null;
+    localStorage.setItem('khl_squad', JSON.stringify(squad));
+    document.getElementById('squadSelectView').style.display = 'none';
+    renderSquad();
+    updateProfile(); // <--- ДОБАВИТЬ СЮДА
+};
         };
         listContainer.appendChild(removeBtn);
     }
