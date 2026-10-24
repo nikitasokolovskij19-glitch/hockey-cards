@@ -56,9 +56,11 @@ body {
 .squad-container { margin-top: 80px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
 .squad-row { display: flex; gap: 10px; justify-content: center; }
 .squad-slot {
-    width: 85px; height: 120px; background: rgba(30, 41, 59, 0.4); border: 2px dashed rgba(255,255,255,0.2);
+    width: 95px; height: 135px; /* Увеличили размер */
+    background: rgba(30, 41, 59, 0.4); border: 2px dashed rgba(255,255,255,0.2);
     border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center;
     cursor: pointer; transition: 0.3s; position: relative;
+    overflow: hidden; box-sizing: border-box;
 }
 .squad-slot:active { transform: scale(0.95); }
 .slot-pos { font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.3); position: absolute; top: 10px; }
@@ -702,26 +704,54 @@ function renderSquad() {
         const player = squad[i];
 
         if (player) {
-            // Если игрок есть, показываем его мини-карточку
+            // Цвет рамки в зависимости от редкости
             let rarityColor = "#9ca3af";
             if (player.rarity_num === 2) rarityColor = "#a3e635";
             if (player.rarity_num === 3) rarityColor = "#3b82f6";
             if (player.rarity_num === 4) rarityColor = "#fbbf24";
             if (player.rarity_num === 5) rarityColor = "#be123c";
 
-            slot.style.background = 'rgba(30, 41, 59, 0.9)';
+            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+            
+            // Создаем красивую мини-карточку
+            slot.style.background = '#0f172a';
             slot.style.border = `2px solid ${rarityColor}`;
+            slot.style.padding = '0'; // Убираем отступы, чтобы фото заполняло всё
+            
             slot.innerHTML = `
-                <div style="position: absolute; top: 5px; left: 5px; background: #0f172a; border-radius: 5px; padding: 2px 6px; font-size: 10px; font-weight: 800; color: #fbbf24; z-index: 10;">${Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6)}</div>
-                <img src="${player.img}" style="width: 100%; height: 60%; object-fit: cover; object-position: top center; border-radius: 10px 10px 0 0;">
-                <div style="font-size: 10px; font-weight: 800; text-align: center; padding: 2px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;">${player.name}</div>
-                <div style="font-size: 8px; color: #cbd5e1; text-align: center; margin-bottom: 5px;">${player.number}</div>
+                <!-- Фото на весь фон -->
+                <img src="${player.img}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; z-index: 1;" onerror="this.style.display='none';">
+                
+                <!-- Затемнение снизу для текста -->
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, #0f172a 30%, transparent); z-index: 2;"></div>
+
+                <!-- Общий рейтинг (сверху слева) -->
+                <div style="position: absolute; top: 0; left: 0; background: rgba(15,23,42,0.85); color: ${rarityColor}; font-weight: 800; font-size: 14px; padding: 3px 6px; border-bottom-right-radius: 8px; z-index: 3; border-right: 1px solid ${rarityColor}; border-bottom: 1px solid ${rarityColor};">
+                    ${overall}
+                </div>
+
+                <!-- Логотип клуба (сверху справа) -->
+                <div style="position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; background: #ffffff; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">
+                    <img src="${player.logo}" style="width: 90%; height: 90%; object-fit: contain;" onerror="this.style.display='none';">
+                </div>
+
+                <!-- Информация об игроке (снизу) -->
+                <div style="position: absolute; bottom: 4px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 3; padding: 0 2px; box-sizing: border-box;">
+                    <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; text-shadow: 1px 1px 2px black;">
+                        ${player.name}
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 10px; color: #cbd5e1; font-weight: 700;">
+                        <span>${player.flag || '🏳️'}</span>
+                        <span>${player.number || ''}</span>
+                    </div>
+                </div>
             `;
         } else {
             // Если пусто, возвращаем плюсик
             const posName = (i < 3) ? "НАП" : (i < 5 ? "ЗАЩ" : "ВРТ");
             slot.style.background = 'rgba(30, 41, 59, 0.4)';
             slot.style.border = '2px dashed rgba(255,255,255,0.2)';
+            slot.style.padding = '10px'; // Возвращаем отступы для рамки с плюсом
             slot.innerHTML = `<span class="slot-pos">${posName}</span><div class="slot-plus">+</div>`;
         }
     }
