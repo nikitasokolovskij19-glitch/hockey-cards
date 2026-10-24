@@ -25,6 +25,11 @@
     opacity: 0.05; 
     filter: grayscale(100%) brightness(200%); 
     animation: dropDown linear infinite; 
+    
+    /* Делаем логотипы идеально круглыми */
+    border-radius: 50%; 
+    object-fit: cover; 
+    aspect-ratio: 1 / 1; /* Принудительно делаем квадратными, чтобы круг был ровным */
 }
 
 @keyframes dropDown {
