@@ -84,32 +84,32 @@
 }
         
         .card-info { 
-            position: relative; z-index: 20; background: linear-gradient(to top, #0f172a 85%, transparent); 
-            padding: 10px 15px; width: 100%; box-sizing: border-box; 
-            display: flex; flex-direction: column; align-items: center; margin-top: auto;
-        }
-        
-        .name { 
-    font-size: 22px; /* Чуть уменьшили, чтобы влезало слева */
-    font-weight: 800; 
-    margin-bottom: 2px; 
-    text-transform: uppercase; 
-    text-align: left; /* Выравниваем по левому краю */
-    text-shadow: 1px 1px 5px black; 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: clip; 
+    position: relative; z-index: 20; 
+    background: linear-gradient(to top, #0f172a 85%, transparent); 
+    /* Уменьшаем боковые отступы, чтобы текст был левее */
+    padding: 10px 10px; 
+    width: 100%; box-sizing: border-box; 
+    display: flex; flex-direction: column; align-items: center; margin-top: auto;
+}
+
+.name { 
+    font-size: 22px; font-weight: 800; margin-bottom: 2px; 
+    text-transform: uppercase; text-align: left; /* Выравнивание по левому краю */
+    text-shadow: 1px 1px 5px black; white-space: nowrap; overflow: hidden; text-overflow: clip; 
 }
 
 .position { 
-    font-size: 12px; /* Уменьшили размер */
-    font-weight: 800; 
-    margin-bottom: 0; 
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-    text-align: left; /* Выравниваем по левому краю */
+    font-size: 12px; font-weight: 800; margin-bottom: 0; 
+    text-transform: uppercase; letter-spacing: 1px; text-align: left; /* Выравнивание по левому краю */
 }
 
+/* Опускаем характеристики ниже */
+.stats { 
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; 
+    width: 100%; 
+    margin-top: 35px; /* Опустили характеристики ниже */
+    margin-bottom: 15px; 
+}
 /* Скрываем старый бейдж с номером, он нам больше не нужен */
 .number-badge { display: none; }
 
@@ -121,8 +121,7 @@
     color: rgba(255,255,255,0.8);
     text-shadow: 2px 2px 5px black;
 }
-        
-        .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 10px;}
+
         .stat { font-size: 12px; color: #64748b; font-weight: 600; display: flex; flex-direction: column; align-items: center; text-transform: uppercase;}
         .stat span { font-size: 26px; font-weight: 800; color: white; margin-top: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.2);}
 
@@ -306,11 +305,15 @@
                 </div>
             </div>
             <div class="card-info">
-                <div style="margin-top: 15px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 10px; box-sizing: border-box;">
-    <div style="text-align: left;">
+                <div style="margin-top: 15px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0; box-sizing: border-box;">
+    <div style="text-align: left; margin-left: 5px;">
         <div class="name" id="r-name">Сергей Мозякин</div>
         <div class="position" id="r-position">Нападающий</div>
     </div>
+    <div class="info-number" id="r-number" style="margin-right: 10px;">#10</div>
+                </div>
+    <div class="info-number" id="r-number">#10</div>
+                </div>
     <div class="info-number" id="r-number">#10</div>
                 </div>
                 <div class="stats">
@@ -355,12 +358,13 @@
                                 <div class="stat">СИЛ <span id="d-si">80</span></div>
                                 <div class="stat">ВЫН <span id="d-end">88</span></div>
                                 <div class="stat">КАТ <span id="d-skate">90</span></div>
-                          </div>
-                            <div style="margin-top: 15px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 10px; box-sizing: border-box;">
-                            <div style="text-align: left;">
-                            <div class="name" id="d-name">Сергей Мозякин</div>
-                            <div class="position" id="d-pos">Нападающий</div>
-                          </div>
+                          <div style="margin-top: 15px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 5px; box-sizing: border-box;">
+    <div style="text-align: left;">
+        <div class="name" id="d-name">Сергей Мозякин</div>
+        <div class="position" id="d-pos">Нападающий</div>
+    </div>
+    <div class="info-number" id="d-number">#10</div>
+</div>
                            <div class="info-number" id="d-number">#10</div>
                       </div>
                     </div>
@@ -775,13 +779,16 @@ function renderSeasonPlayers(teamName, season) {
 
 function openDetailView(player) {
     currentViewPlayer = player;
+    
     document.getElementById('d-name').innerText = player.name;
     document.getElementById('d-season').innerText = player.season;
     document.getElementById('d-pos').innerText = player.pos;
-     let posColor = "#ef4444"; 
-     if (player.pos === "Защитник") posColor = "#3b82f6"; 
-     if (player.pos === "Вратарь") posColor = "#10b981"; 
+    
+    let posColor = "#ef4444"; 
+    if (player.pos === "Защитник") posColor = "#3b82f6"; 
+    if (player.pos === "Вратарь") posColor = "#10b981"; 
     document.getElementById('d-pos').style.color = posColor;
+
     document.getElementById('d-sc').innerText = player.sc;
     document.getElementById('d-br').innerText = player.br;
     document.getElementById('d-ps').innerText = player.ps;
@@ -792,6 +799,7 @@ function openDetailView(player) {
     
     const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
     document.getElementById('d-overall').innerText = overall;
+    
     document.getElementById('d-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('d-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
