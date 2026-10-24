@@ -16,7 +16,7 @@
             position: relative;
         }
 
-        /* Анимированный фон (Логотипы) */
+        /* Анимированный фон */
         .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
         .bg-logo { position: absolute; bottom: -100px; opacity: 0.05; filter: grayscale(100%) brightness(200%); animation: floatUp linear infinite; }
         @keyframes floatUp {
@@ -31,53 +31,60 @@
         /* Карточка */
         .card { 
             background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); 
-            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 24px; 
+            border: 2px solid var(--card-border-color, #e11d48); /* Переменная для цвета */
+            border-radius: 24px; 
             width: 320px; height: 520px; 
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255,255,255,0.05); 
             position: relative; transition: all 0.4s ease; 
             flex-shrink: 0; display: flex; flex-direction: column; overflow: hidden; justify-content: flex-end; 
         }
         
-        .card-image-container { position: absolute; top: 0; left: 0; width: 100%; height: 65%; background-color: #1e293b; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
-        .card-image-container img { width: 100%; height: 100%; object-fit: cover; object-position: top center; transition: transform 0.3s; }
+        .card-image-container { position: absolute; top: 0; left: 0; width: 100%; height: 60%; background-color: #1e293b; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+        .card-image-container img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
         
-        .overall-badge { 
-            position: absolute; top: 15px; left: 15px; 
-            background: linear-gradient(135deg, #fbbf24, #d97706); 
-            color: #000; font-size: 28px; font-weight: 800; 
-            width: 55px; height: 55px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); z-index: 10; 
-        }
-        
+        .overall-badge { position: absolute; top: 15px; left: 15px; background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; font-size: 28px; font-weight: 800; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); z-index: 10; }
         .top-right-info { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 10; }
-        
-        .season-badge { 
-            background: linear-gradient(135deg, #e11d48, #be123c); color: white; 
-            font-size: 11px; font-weight: 400; padding: 3px 10px; border-radius: 10px; 
-            box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4); 
-            position: absolute; top: 5px; left: 50%; transform: translateX(-50%); z-index: 10;
-        }
-        
-        .club-logo { 
-            width: 60px; height: 60px; background: transparent; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
-        }
+        .season-badge { background: linear-gradient(135deg, #e11d48, #be123c); color: white; font-size: 11px; font-weight: 400; padding: 3px 10px; border-radius: 10px; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4); position: absolute; top: 5px; left: 50%; transform: translateX(-50%); z-index: 10; }
+        .club-logo { width: 60px; height: 60px; background: transparent; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .club-logo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
 
-        .card-info { 
-            position: relative; z-index: 20; background: linear-gradient(to top, #0f172a 85%, transparent); 
-            padding: 10px 10px; width: 100%; box-sizing: border-box; 
-            display: flex; flex-direction: column; align-items: center; margin-top: auto;
-        }
+        /* Информация внизу */
+        .card-info { position: relative; z-index: 20; background: linear-gradient(to top, #0f172a 90%, transparent); width: 100%; box-sizing: border-box; display: flex; flex-direction: column; margin-top: auto; }
         
-        .name { font-size: 22px; font-weight: 800; margin-bottom: 2px; text-transform: uppercase; text-align: left; text-shadow: 1px 1px 5px black; white-space: nowrap; overflow: hidden; text-overflow: clip; }
-        .position { font-size: 12px; font-weight: 800; margin-bottom: 0; text-transform: uppercase; letter-spacing: 1px; text-align: left; }
-        .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; width: 100%; margin-top: 35px; margin-bottom: 15px;}
-        .stat { font-size: 12px; color: #64748b; font-weight: 600; display: flex; flex-direction: column; align-items: center; text-transform: uppercase;}
-        .stat span { font-size: 26px; font-weight: 800; color: white; margin-top: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.2);}
-        .info-number { font-size: 26px; font-weight: 800; font-style: italic; color: rgba(255,255,255,0.8); text-shadow: 2px 2px 5px black; margin-bottom: 0; }
+        /* Имя и амплуа */
+        .name-block { padding: 20px 15px 10px 15px; width: 100%; box-sizing: border-box; text-align: left; }
+        .name { font-size: 22px; font-weight: 800; margin-bottom: 2px; text-transform: uppercase; text-shadow: 1px 1px 5px black; white-space: nowrap; overflow: hidden; text-overflow: clip; }
+        .position { font-size: 12px; font-weight: 800; margin-bottom: 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Таблица */
+        .info-table { display: flex; width: 100%; border-top: 2px solid var(--card-border-color, #e11d48); border-bottom: 2px solid var(--card-border-color, #e11d48); box-sizing: border-box; }
+        
+        /* Левая часть (Статы) */
+        .info-table-left { flex: 1; padding: 10px 5px; display: flex; align-items: center; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; width: 100%; }
+        .stat { font-size: 10px; color: #64748b; font-weight: 600; display: flex; flex-direction: column; align-items: center; text-transform: uppercase;}
+        .stat span { font-size: 20px; font-weight: 800; color: white; margin-top: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.2);}
+
+        /* Правая часть (Номер и Флаг) */
+        .info-table-right { width: 70px; border-left: 2px solid var(--card-border-color, #e11d48); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; }
+        .info-number { font-size: 22px; font-weight: 800; font-style: italic; color: white; text-shadow: 1px 1px 3px black; }
+        .player-flag { font-size: 20px; line-height: 1; }
+
+        .flip-hint { padding: 10px; text-align: center; font-size: 11px; color: #64748b; width: 100%; box-sizing: border-box; }
+
+        /* Стили для 3D-переворота */
+        .flip-card { background-color: transparent; width: 320px; height: 520px; perspective: 1000px; cursor: pointer; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 24px; box-sizing: border-box; }
+        .flip-card-back { background: linear-gradient(145deg, #0f172a, #1e293b); border: 2px solid var(--card-border-color, #3b82f6); transform: rotateY(180deg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); }
+
+        /* Статистика на обороте */
+        .stats-section { width: 100%; margin-bottom: 10px; }
+        .stats-header { font-size: 14px; color: #3b82f6; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid rgba(59, 130, 246, 0.3); padding-bottom: 4px; text-align: left; letter-spacing: 1px; }
+        .back-stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 15px; color: #cbd5e1; }
+        .back-stat-row span:last-child { font-weight: 800; color: white; }
+        .divider { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #3b82f6, transparent); margin: 15px 0; }
 
         /* Профиль */
         .profile-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; width: 280px; margin-bottom: 30px; text-align: center; }
@@ -96,13 +103,6 @@
         .pack-season { font-size: 16px; font-weight: 800; color: white; text-align: center; }
         .pack-count { font-size: 11px; color: #94a3b8; margin-bottom: 10px; font-weight: 600; }
         .pack-price { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 10px; font-size: 14px; font-weight: 800; color: #fbbf24; }
-
-        /* Стили для обратной стороны карточки */
-        .stats-section { width: 100%; margin-bottom: 10px; }
-        .stats-header { font-size: 14px; color: #3b82f6; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid rgba(59, 130, 246, 0.3); padding-bottom: 4px; text-align: left; letter-spacing: 1px; }
-        .back-stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 15px; color: #cbd5e1; }
-        .back-stat-row span:last-child { font-weight: 800; color: white; }
-        .divider { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #3b82f6, transparent); margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -126,7 +126,7 @@
             <div class="profile-rating">Сила коллекции: <span id="user-rating">0</span> OVR</div>
         </div>
 
-        <!-- БАЛАНС (ТУТ ВАЛЮТА 💵) -->
+        <!-- БАЛАНС (Символ валюты 💵) -->
         <div class="coins-display" style="margin-bottom: 30px; font-size: 24px; font-weight: 800; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);">Баланс: <span id="coinDisplay">100</span> 💵</div>
         
         <button class="btn-open" id="goToPacksBtn" style="margin-top: 5px; padding: 16px 30px; background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; width: 300px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(225, 29, 72, 0.4); text-transform: uppercase; letter-spacing: 1px;">🎁 Выбрать пак</button>
@@ -137,7 +137,6 @@
     <!-- ЭКРАН ПАКОВ -->
     <div id="packsView" style="display: none; width: 100%; flex-direction: column; align-items: center;">
         <h2>Выбери сезон</h2>
-        <!-- Сюда скрипт сам вставит кнопки сезонов -->
         <div id="seasonsListContainer"></div>
         <button class="btn-nav" id="backFromPacksBtn" style="margin-top: 20px; background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s;">⬅ Назад</button>
     </div>
@@ -173,38 +172,44 @@
                     <div class="club-logo" id="r-clubLogo">ММг</div>
                 </div>
             </div>
+            
+            <!-- НОВАЯ ТАБЛИЦА -->
             <div class="card-info">
-                <div style="margin-top: 15px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 5px; box-sizing: border-box;">
-                    <div style="text-align: left;">
-                        <div class="name" id="r-name">Сергей Мозякин</div>
-                        <div class="position" id="r-position">Нападающий</div>
+                <div class="name-block">
+                    <div class="name" id="r-name">Сергей Мозякин</div>
+                    <div class="position" id="r-position">Нападающий</div>
+                </div>
+                <div class="info-table">
+                    <div class="info-table-left">
+                        <div class="stats">
+                            <div class="stat">СКО <span id="r-sc">85</span></div>
+                            <div class="stat">БРС <span id="r-br">98</span></div>
+                            <div class="stat">ПАС <span id="r-ps">95</span></div>
+                            <div class="stat">СИЛ <span id="r-si">80</span></div>
+                            <div class="stat">ВЫН <span id="r-end">88</span></div>
+                            <div class="stat">КАТ <span id="r-skate">90</span></div>
+                        </div>
                     </div>
-                    <div class="info-number" id="r-number">#10</div>
+                    <div class="info-table-right">
+                        <div class="info-number" id="r-number">#10</div>
+                        <div class="player-flag" id="r-flag">🇷🇺</div>
+                    </div>
                 </div>
-                
-                <div class="stats">
-                    <div class="stat">СКО <span id="r-sc">85</span></div>
-                    <div class="stat">БРС <span id="r-br">98</span></div>
-                    <div class="stat">ПАС <span id="r-ps">95</span></div>
-                    <div class="stat">СИЛ <span id="r-si">80</span></div>
-                    <div class="stat">ВЫН <span id="r-end">88</span></div>
-                    <div class="stat">КАТ <span id="r-skate">90</span></div>
-                </div>
-                
-                <div style="margin-top: 10px; font-size: 11px; color: #64748b; text-align: center; white-space: nowrap; width: 100%; display: block;">Нажми, чтобы перевернуть</div>
+                <div class="flip-hint">Нажми, чтобы перевернуть</div>
             </div>
         </div>
+        
         <button class="btn-nav" id="closeRevealBtn" style="margin-top: 30px; opacity: 0; transition: 0.5s; background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer;">Забрать в коллекцию</button>
     </div>
 
     <!-- ОКНО ПРОСМОТРА (ДЕТАЛИ) -->
     <div id="detailView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
         
-        <div class="flip-card" id="flipCard" style="background-color: transparent; width: 320px; height: 520px; perspective: 1000px; cursor: pointer;">
-            <div class="flip-card-inner" style="position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d;">
+        <div class="flip-card" id="flipCard">
+            <div class="flip-card-inner">
                 
                 <!-- ЛИЦЕВАЯ СТОРОНА -->
-                <div class="flip-card-front" id="detailFront" style="position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 24px; box-sizing: border-box;">
+                <div class="flip-card-front" id="detailFront">
                     <div class="card" style="width: 100%; height: 100%;">
                         <div class="card-image-container">
                             <div class="season-badge" id="d-season">2016/17</div>
@@ -214,42 +219,46 @@
                                 <div class="club-logo" id="d-clubLogo">ММг</div>
                             </div>
                         </div>
+                        
+                        <!-- НОВАЯ ТАБЛИЦА -->
                         <div class="card-info">
-                            <div style="margin-top: 15px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 5px; box-sizing: border-box;">
-                                <div style="text-align: left;">
-                                    <div class="name" id="d-name">Сергей Мозякин</div>
-                                    <div class="position" id="d-pos">Нападающий</div>
+                            <div class="name-block">
+                                <div class="name" id="d-name">Сергей Мозякин</div>
+                                <div class="position" id="d-pos">Нападающий</div>
+                            </div>
+                            <div class="info-table">
+                                <div class="info-table-left">
+                                    <div class="stats">
+                                        <div class="stat">СКО <span id="d-sc">85</span></div>
+                                        <div class="stat">БРС <span id="d-br">98</span></div>
+                                        <div class="stat">ПАС <span id="d-ps">95</span></div>
+                                        <div class="stat">СИЛ <span id="d-si">80</span></div>
+                                        <div class="stat">ВЫН <span id="d-end">88</span></div>
+                                        <div class="stat">КАТ <span id="d-skate">90</span></div>
+                                    </div>
                                 </div>
-                                <div class="info-number" id="d-number">#10</div>
+                                <div class="info-table-right">
+                                    <div class="info-number" id="d-number">#10</div>
+                                    <div class="player-flag" id="d-flag">🇷🇺</div>
+                                </div>
                             </div>
-                            
-                            <div class="stats">
-                                <div class="stat">СКО <span id="d-sc">85</span></div>
-                                <div class="stat">БРС <span id="d-br">98</span></div>
-                                <div class="stat">ПАС <span id="d-ps">95</span></div>
-                                <div class="stat">СИЛ <span id="d-si">80</span></div>
-                                <div class="stat">ВЫН <span id="d-end">88</span></div>
-                                <div class="stat">КАТ <span id="d-skate">90</span></div>
-                            </div>
-                            
-                            <div style="margin-top: 10px; font-size: 11px; color: #64748b; text-align: center; white-space: nowrap; width: 100%; display: block;">Нажми, чтобы перевернуть</div>
+                            <div class="flip-hint">Нажми, чтобы перевернуть</div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- ЗАДНЯЯ СТОРОНА -->
-                <div class="flip-card-back" id="detailBack" style="position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 24px; box-sizing: border-box; background: linear-gradient(145deg, #0f172a, #1e293b); border: 2px solid #3b82f6; transform: rotateY(180deg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);"></div>
+                <div class="flip-card-back" id="detailBack"></div>
             
             </div>
         </div>
         
-        <!-- КНОПКИ -->
         <div class="detail-buttons" style="margin-top: 25px; display: flex; gap: 15px; width: 100%; justify-content: center;">
             <button class="btn-sell" id="detailSellBtn" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 14px 25px; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); transition: all 0.3s;">Продать одну (X 💵)</button>
             <button class="btn-close" id="closeDetailBtn" style="background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px 25px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: all 0.3s;">Закрыть</button>
         </div>
         
-    </div>2
+    </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
     // ДЕТЕКТОР ОШИБОК
@@ -367,115 +376,119 @@
         });
         document.getElementById('user-rating').innerText = totalRating;
     }
+
     // --- НАВИГАЦИЯ ---
-document.getElementById('goToPacksBtn').addEventListener('click', function() {
-    shopView.style.display = 'none';
-    packsView.style.display = 'flex';
-    renderPackButtons(); // Генерируем кнопки сезонов при входе
-});
+    document.getElementById('goToPacksBtn').addEventListener('click', function() {
+        shopView.style.display = 'none';
+        packsView.style.display = 'flex';
+        renderPackButtons(); // Генерируем кнопки сезонов при входе
+    });
 
-document.getElementById('backFromPacksBtn').addEventListener('click', function() {
-    packsView.style.display = 'none';
-    shopView.style.display = 'flex';
-});
+    document.getElementById('backFromPacksBtn').addEventListener('click', function() {
+        packsView.style.display = 'none';
+        shopView.style.display = 'flex';
+    });
 
-document.getElementById('viewCollectionBtn').addEventListener('click', function() {
-    shopView.style.display = 'none';
-    collectionView.style.display = 'flex';
-    document.getElementById('collectionContent').style.display = 'block';
-    document.getElementById('innerCollectionView').style.display = 'none';
-    renderCollection();
-});
+    document.getElementById('viewCollectionBtn').addEventListener('click', function() {
+        shopView.style.display = 'none';
+        collectionView.style.display = 'flex';
+        document.getElementById('collectionContent').style.display = 'block';
+        document.getElementById('innerCollectionView').style.display = 'none';
+        renderCollection();
+    });
 
-document.getElementById('backToShopBtn').addEventListener('click', function() {
-    collectionView.style.display = 'none';
-    shopView.style.display = 'flex';
-});
+    document.getElementById('backToShopBtn').addEventListener('click', function() {
+        collectionView.style.display = 'none';
+        shopView.style.display = 'flex';
+    });
 
-// --- ПОКУПКА ПАКА ---
-function buyPack(season, price) {
-    if (userCoins < price) { alert(`У тебя не хватает ${GAME_CONFIG.currencyName}!`); return; }
-    
-    // Шансы на выпадение
-    const roll = Math.random() * 100; 
-    let targetRarityNum = 1;
-    if (roll > 99.5) targetRarityNum = 5;
-    else if (roll > 95) targetRarityNum = 4;
-    else if (roll > 85) targetRarityNum = 3;
-    else if (roll > 60) targetRarityNum = 2;
+    // --- ПОКУПКА ПАКА ---
+    function buyPack(season, price) {
+        if (userCoins < price) { alert(`У тебя не хватает ${GAME_CONFIG.currencyName}!`); return; }
+        
+        // Шансы на выпадение
+        const roll = Math.random() * 100; 
+        let targetRarityNum = 1;
+        if (roll > 99.5) targetRarityNum = 5;
+        else if (roll > 95) targetRarityNum = 4;
+        else if (roll > 85) targetRarityNum = 3;
+        else if (roll > 60) targetRarityNum = 2;
 
-    // Ищем игроков нужного сезона и редкости
-    let availablePlayers = PLAYERS.filter(p => p.season === season && p.rarity_num === targetRarityNum);
-    if (availablePlayers.length === 0) availablePlayers = PLAYERS.filter(p => p.season === season);
-    if (availablePlayers.length === 0) { alert("В этом сезоне пока нет игроков!"); return; }
+        // Ищем игроков нужного сезона и редкости
+        let availablePlayers = PLAYERS.filter(p => p.season === season && p.rarity_num === targetRarityNum);
+        if (availablePlayers.length === 0) availablePlayers = PLAYERS.filter(p => p.season === season);
+        if (availablePlayers.length === 0) { alert("В этом сезоне пока нет игроков!"); return; }
 
-    userCoins -= price;
-    updateUI();
+        userCoins -= price;
+        updateUI();
 
-    const randomIndex = Math.floor(Math.random() * availablePlayers.length);
-    const player = availablePlayers[randomIndex];
-    collection.push(player);
-    localStorage.setItem('khl_collection', JSON.stringify(collection));
+        const randomIndex = Math.floor(Math.random() * availablePlayers.length);
+        const player = availablePlayers[randomIndex];
+        collection.push(player);
+        localStorage.setItem('khl_collection', JSON.stringify(collection));
 
-    packsView.style.display = 'none';
+        packsView.style.display = 'none';
 
-    // Заполняем карточку для выпадения
-    document.getElementById('r-name').innerText = player.name;
-    document.getElementById('r-season').innerText = player.season;
-    document.getElementById('r-position').innerText = player.pos;
-    
-    let posColor = "#ef4444"; 
-    if (player.pos === "Защитник") posColor = "#3b82f6"; 
-    if (player.pos === "Вратарь") posColor = "#10b981"; 
-    document.getElementById('r-position').style.color = posColor;
+        // Заполняем карточку для выпадения
+        document.getElementById('r-name').innerText = player.name;
+        document.getElementById('r-season').innerText = player.season;
+        document.getElementById('r-position').innerText = player.pos;
+        
+        let posColor = "#ef4444"; 
+        if (player.pos === "Защитник") posColor = "#3b82f6"; 
+        if (player.pos === "Вратарь") posColor = "#10b981"; 
+        document.getElementById('r-position').style.color = posColor;
 
-    document.getElementById('r-sc').innerText = player.sc;
-    document.getElementById('r-br').innerText = player.br;
-    document.getElementById('r-ps').innerText = player.ps;
-    document.getElementById('r-si').innerText = player.si;
-    document.getElementById('r-end').innerText = player.end;
-    document.getElementById('r-skate').innerText = player.skate;
-    document.getElementById('r-number').innerText = player.number || "";
-    
-    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-    document.getElementById('r-overall').innerText = overall;
-    
-    document.getElementById('r-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
-    document.getElementById('r-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
+        document.getElementById('r-sc').innerText = player.sc;
+        document.getElementById('r-br').innerText = player.br;
+        document.getElementById('r-ps').innerText = player.ps;
+        document.getElementById('r-si').innerText = player.si;
+        document.getElementById('r-end').innerText = player.end;
+        document.getElementById('r-skate').innerText = player.skate;
+        document.getElementById('r-number').innerText = player.number || "";
+        document.getElementById('r-flag').innerText = player.flag || '🏳️'; // Флаг
+        
+        const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+        document.getElementById('r-overall').innerText = overall;
+        
+        document.getElementById('r-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
+        document.getElementById('r-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
-    // Красим рамку
-    let borderColor = "#9ca3af";
-    if (player.rarity_num === 2) borderColor = "#a3e635";
-    if (player.rarity_num === 3) borderColor = "#3b82f6";
-    if (player.rarity_num === 4) borderColor = "#fbbf24";
-    if (player.rarity_num === 5) borderColor = "#be123c";
-    document.getElementById('revealCard').style.borderColor = borderColor;
+        // Красим рамку и линии таблицы
+        let borderColor = "#9ca3af";
+        if (player.rarity_num === 2) borderColor = "#a3e635";
+        if (player.rarity_num === 3) borderColor = "#3b82f6";
+        if (player.rarity_num === 4) borderColor = "#fbbf24";
+        if (player.rarity_num === 5) borderColor = "#be123c";
+        
+        document.getElementById('revealCard').style.setProperty('--card-border-color', borderColor);
+        document.getElementById('revealCard').style.borderColor = borderColor;
 
-    // Анимация появления
-    const revealView = document.getElementById('revealView');
-    revealView.style.display = 'flex';
-    
-    const revealCard = document.getElementById('revealCard');
-    const revealText = document.getElementById('revealText');
-    const closeBtn = document.getElementById('closeRevealBtn');
-    
-    revealCard.style.transform = 'scale(0)';
-    revealText.style.opacity = '0';
-    revealText.style.transform = 'translateY(-50px)';
-    closeBtn.style.opacity = '0';
+        // Анимация появления
+        const revealView = document.getElementById('revealView');
+        revealView.style.display = 'flex';
+        
+        const revealCard = document.getElementById('revealCard');
+        const revealText = document.getElementById('revealText');
+        const closeBtn = document.getElementById('closeRevealBtn');
+        
+        revealCard.style.transform = 'scale(0)';
+        revealText.style.opacity = '0';
+        revealText.style.transform = 'translateY(-50px)';
+        closeBtn.style.opacity = '0';
 
-    setTimeout(() => {
-        revealCard.style.transform = 'scale(1)';
-        revealText.style.opacity = '1';
-        revealText.style.transform = 'translateY(0)';
-        closeBtn.style.opacity = '1';
-    }, 100);
-}
+        setTimeout(() => {
+            revealCard.style.transform = 'scale(1)';
+            revealText.style.opacity = '1';
+            revealText.style.transform = 'translateY(0)';
+            closeBtn.style.opacity = '1';
+        }, 100);
+    }
 
-document.getElementById('closeRevealBtn').addEventListener('click', function() {
-    document.getElementById('revealView').style.display = 'none';
-    shopView.style.display = 'flex';
-});
+    document.getElementById('closeRevealBtn').addEventListener('click', function() {
+        document.getElementById('revealView').style.display = 'none';
+        shopView.style.display = 'flex';
+    });
     // --- ЛОГИКА КОЛЛЕКЦИИ ---
 let currentTab = 'teams';
 
@@ -566,9 +579,8 @@ function renderTeamSeasons(teamName) {
         document.getElementById('innerCollectionView').style.display = 'none';
         document.getElementById('collectionContent').style.display = 'block';
     };
-}
-
-function renderSeasonsList(container) {
+    }
+    function renderSeasonsList(container) {
     const uniqueSeasons = [];
     collection.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
     if (uniqueSeasons.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>'; return; }
@@ -668,6 +680,7 @@ function renderSeasonPlayers(teamName, season) {
             document.getElementById('d-end').innerText = player.end;
             document.getElementById('d-skate').innerText = player.skate;
             document.getElementById('d-number').innerText = player.number || "";
+            document.getElementById('d-flag').innerText = player.flag || '🏳️'; // Флаг
             
             const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
             document.getElementById('d-overall').innerText = overall;
@@ -688,13 +701,20 @@ function renderSeasonPlayers(teamName, season) {
             html += `<div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
             backSide.innerHTML = html;
 
+            // Красим рамку карточки и линии таблицы
             let detailBorderColor = "#9ca3af";
             if (player.rarity_num === 2) detailBorderColor = "#a3e635";
             if (player.rarity_num === 3) detailBorderColor = "#3b82f6";
             if (player.rarity_num === 4) detailBorderColor = "#fbbf24";
             if (player.rarity_num === 5) detailBorderColor = "#be123c";
+            
             const detailCard = document.querySelector('#detailView .card');
-            if (detailCard) detailCard.style.borderColor = detailBorderColor;
+            if (detailCard) {
+                detailCard.style.setProperty('--card-border-color', detailBorderColor);
+                detailCard.style.borderColor = detailBorderColor;
+            }
+            const detailBack = document.getElementById('detailBack');
+            if (detailBack) detailBack.style.setProperty('--card-border-color', detailBorderColor);
 
             detailView.style.display = 'flex';
             document.getElementById('flipCard').classList.remove('flipped');
