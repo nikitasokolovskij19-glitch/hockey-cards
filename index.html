@@ -186,28 +186,30 @@
     </div>
 
     <!-- ГЛАВНЫЙ ЭКРАН -->
-    <div id="shopView" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 85vh;">
-        <div id="seasonsListContainer"></div>
-        <!-- ПРОФИЛЬ -->
-        <div class="profile-card">
-            <div class="profile-avatar" id="user-avatar">👤</div>
-            <div class="profile-name" id="user-name">Коллекционер</div>
-            <div class="profile-rating">Сила коллекции: <span id="user-rating">0</span> OVR</div>
-        </div>
-
-        <!-- БАЛАНС -->
-        <div class="coins-display" style="margin-bottom: 30px; font-size: 24px; font-weight: 800; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);">Баланс: <span id="coinDisplay">100</span> 🪙</div>
-        
-        <button class="btn-open" id="goToPacksBtn" style="margin-top: 5px; padding: 16px 30px; background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; width: 300px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(225, 29, 72, 0.4); text-transform: uppercase; letter-spacing: 1px;">🎁 Выбрать пак</button>
-        <button class="btn-bonus" id="bonusBtn" style="margin-top: 10px; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 16px; font-size: 14px; font-weight: 800; cursor: pointer; width: 300px; display: none; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); transition: all 0.3s;">🎁 Получить бонус (+50 🪙)</button>
-        <button class="btn-nav" id="viewCollectionBtn" style="margin-top: 15px; background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(5px);">📂 Моя коллекция</button>
+<div id="shopView" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 85vh;">
+    
+    <!-- ПРОФИЛЬ -->
+    <div class="profile-card">
+        <div class="profile-avatar" id="user-avatar">👤</div>
+        <div class="profile-name" id="user-name">Коллекционер</div>
+        <div class="profile-rating">Сила коллекции: <span id="user-rating">0</span> OVR</div>
     </div>
 
-    <!-- ЭКРАН ПАКОВ -->
+    <!-- БАЛАНС -->
+    <div class="coins-display" style="margin-bottom: 30px; font-size: 24px; font-weight: 800; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);">Баланс: <span id="coinDisplay">100</span> 🪙</div>
+    
+    <button class="btn-open" id="goToPacksBtn" style="margin-top: 5px; padding: 16px 30px; background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; width: 300px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(225, 29, 72, 0.4); text-transform: uppercase; letter-spacing: 1px;">🎁 Выбрать пак</button>
+    
+    <button class="btn-bonus" id="bonusBtn" style="margin-top: 10px; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 16px; font-size: 14px; font-weight: 800; cursor: pointer; width: 300px; display: none; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); transition: all 0.3s;">🎁 Получить бонус (+50 🪙)</button>
+    
+    <button class="btn-nav" id="viewCollectionBtn" style="margin-top: 15px; background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(5px);">📂 Моя коллекция</button>
+</div>
+
+<!-- ЭКРАН ПАКОВ (МАГАЗИН) -->
 <div id="packsView" style="display: none; width: 100%; flex-direction: column; align-items: center;">
     <h2>Выбери сезон</h2>
     
-    <!-- ВОТ ЗДЕСЬ ДОЛЖЕН БЫТЬ КОНТЕЙНЕР -->
+    <!-- ВОТ ЗДЕСЬ ДОЛЖЕН БЫТЬ КОНТЕЙНЕР С ПАКАМИ -->
     <div id="seasonsListContainer"></div>
     
     <button class="btn-nav" id="backFromPacksBtn" style="margin-top: 20px; background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s;">⬅ Назад</button>
