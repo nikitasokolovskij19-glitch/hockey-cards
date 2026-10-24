@@ -90,6 +90,87 @@
         .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #3b82f6; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
         .profile-name { font-size: 20px; font-weight: 800; margin-bottom: 5px; }
         .profile-rating { font-size: 14px; color: #fbbf24; font-weight: 600; }
+        /* Новый дизайн для паков */
+#seasonsListContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 пака в ряд */
+    gap: 15px;
+    width: 100%;
+    max-width: 340px;
+    padding-bottom: 50px;
+    box-sizing: border-box;
+}
+
+.pack-card {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    aspect-ratio: 3 / 4; /* Форма карточки */
+}
+
+.pack-card:active {
+    transform: scale(0.95);
+}
+
+/* Красивая полоска сверху */
+.pack-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #3b82f6;
+}
+
+/* Эффект для нового сезона */
+.pack-card.new-season {
+    border: 2px solid #e11d48;
+    box-shadow: 0 0 20px rgba(225, 29, 72, 0.3);
+}
+.pack-card.new-season::before {
+    background: #e11d48;
+    height: 6px;
+}
+
+.pack-icon {
+    font-size: 40px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.pack-season {
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+    text-align: center;
+}
+
+.pack-count {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.pack-price {
+    background: rgba(255,255,255,0.1);
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fbbf24;
+}
     </style>
 </head>
 <body>
@@ -259,41 +340,32 @@
 
     // Функция генерации кнопок сезонов
     function renderPackButtons() {
-        const container = document.getElementById('seasonsListContainer');
-        container.innerHTML = '';
+    const container = document.getElementById('seasonsListContainer');
+    container.innerHTML = '';
 
-        ALL_SEASONS.forEach(season => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-season';
-            
-            btn.style.marginTop = '12px';
-            btn.style.padding = '16px';
-            btn.style.background = 'rgba(30, 41, 59, 0.6)';
-            btn.style.color = 'white';
-            btn.style.border = '1px solid rgba(255,255,255,0.1)';
-            btn.style.borderRadius = '16px';
-            btn.style.fontSize = '16px';
-            btn.style.fontWeight = '700';
-            btn.style.cursor = 'pointer';
-            btn.style.width = '300px';
-            btn.style.transition = 'all 0.3s';
-            btn.style.textAlign = 'left';
-            btn.style.display = 'flex';
-            btn.style.justifyContent = 'space-between';
-            btn.style.alignItems = 'center';
-            btn.style.backdropFilter = 'blur(5px)';
+    ALL_SEASONS.forEach(season => {
+        // Считаем, сколько игроков есть в базе для этого сезона
+        const playerCount = PLAYERS.filter(p => p.season === season).length;
+        
+        const btn = document.createElement('div');
+        btn.className = 'pack-card';
+        
+        // Добавляем особый стиль для нового сезона
+        if (season === "2025/26") {
+            btn.classList.add('new-season');
+        }
 
-            if (season === "2025/26") {
-                btn.style.background = 'linear-gradient(135deg, #e11d48, #be123c)';
-                btn.style.boxShadow = '0 4px 15px rgba(225, 29, 72, 0.4)';
-                btn.innerHTML = `<div>🔥 Сезон ${season} (Новый)</div><div style="color: #fbbf24; font-weight: 800;">50 🪙</div>`;
-            } else {
-                btn.innerHTML = `<div>Сезон ${season}</div><div style="color: #fbbf24; font-weight: 800;">50 🪙</div>`;
-            }
+        // Формируем внутреннее наполнение карточки пака
+        btn.innerHTML = `
+            <div class="pack-icon">${season === "2025/26" ? "🔥" : "📦"}</div>
+            <div class="pack-season">${season}</div>
+            <div class="pack-count">${playerCount} карточек</div>
+            <div class="pack-price">50 🪙</div>
+        `;
 
-            btn.addEventListener('click', () => buyPack(season, 50));
-            container.appendChild(btn);
-        });
+        btn.addEventListener('click', () => buyPack(season, 50));
+        container.appendChild(btn);
+    });
     }
 
     // Обновление интерфейса (Баланс и Бонус)
