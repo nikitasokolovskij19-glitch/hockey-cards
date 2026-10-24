@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>КХЛ Карточки</title>
     <style>
+        .currency-icon {
+    width: 18px; 
+    height: 18px;
+    object-fit: contain; /* Вписываем картинку целиком */
+    vertical-align: middle; /* Выравниваем по тексту */
+    margin-left: 4px; /* Отступ от цифры */
+    margin-bottom: 2px;
+        }
         .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
         .flip-card-front, .flip-card-back { -webkit-backface-visibility: hidden; backface-visibility: hidden; ... }
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
@@ -251,7 +259,7 @@
     </div>
 
     <!-- БАЛАНС -->
-    <div class="coins-display" style="margin-bottom: 30px; font-size: 24px; font-weight: 800; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);">Баланс: <span id="coinDisplay">100</span> 🪙</div>
+    <div class="coins-display" style="margin-bottom: 30px; font-size: 24px; font-weight: 800; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);">Баланс: <span id="coinDisplay">100</span> <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/55919.970.png" class="currency-icon">
     
     <button class="btn-open" id="goToPacksBtn" style="margin-top: 5px; padding: 16px 30px; background: linear-gradient(135deg, #e11d48, #be123c); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; width: 300px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(225, 29, 72, 0.4); text-transform: uppercase; letter-spacing: 1px;">🎁 Выбрать пак</button>
     
@@ -433,7 +441,7 @@
             <div class="pack-icon">${season === "2025/26" ? "🔥" : "📦"}</div>
             <div class="pack-season">${season}</div>
             <div class="pack-count">${playerCount} карточек</div>
-            <div class="pack-price">50 🪙</div>
+            <div class="pack-price">${GAME_CONFIG.packPrice} <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/55919.970.png" class="currency-icon"></div>
         `;
 
         btn.addEventListener('click', () => buyPack(season, 50));
@@ -461,7 +469,7 @@
             if (userCoins < packPrice) {
                 goToPacksBtn.style.display = 'none';
                 bonusBtn.style.display = 'block';
-                bonusBtn.innerText = "🎁 Получить бонус (+50 🪙)";
+                bonusBtn.innerHTML = `🎁 Получить бонус (+${GAME_CONFIG.bonusAmount} <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/55919.970.png" class="currency-icon">)`;
             } else {
                 goToPacksBtn.style.display = 'block';
                 bonusBtn.style.display = 'block'; 
@@ -802,7 +810,7 @@ function openDetailView(player) {
     document.getElementById('d-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
     const sellPrice = overall * 2;
-    document.getElementById('detailSellBtn').innerText = `Продать одну (${sellPrice} 🪙)`;
+    document.getElementById('detailSellBtn').innerHTML = `Продать одну (${sellPrice} <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/55919.970.png" class="currency-icon" style="width:14px; height:14px;">)`;
 
     const backSide = document.getElementById('detailBack');
     let html = `<h3 style="margin-top: 0; font-size: 18px; color: white;">${player.name}</h3><div class="stats-section"><div class="stats-header">Регулярный чемпионат</div><div class="back-stat-row"><span>Игры:</span> <span>${player.reg_stats.games}</span></div><div class="back-stat-row"><span>Голы:</span> <span>${player.reg_stats.goals}</span></div><div class="back-stat-row"><span>Пасы:</span> <span>${player.reg_stats.assists}</span></div><div class="back-stat-row"><span>Очки:</span> <span>${player.reg_stats.points}</span></div><div class="back-stat-row"><span>Штраф:</span> <span>${player.reg_stats.penalty}</span></div></div>`;
