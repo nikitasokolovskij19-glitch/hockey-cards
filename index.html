@@ -55,7 +55,51 @@
         .card-image-container { position: absolute; top: 0; left: 0; width: 100%; height: 60%; background-color: #1e293b; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
         .card-image-container img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
         
-        .overall-badge { position: absolute; top: 15px; left: 15px; background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; font-size: 28px; font-weight: 800; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); z-index: 10; }
+        /* Огонек с текстом */
+.overall-badge { 
+    position: absolute; 
+    top: 10px; 
+    left: 10px; 
+    width: 75px; 
+    height: 75px;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 10; 
+    /* Накладываем эмодзи огня как фон */
+    font-size: 65px; /* Размер самого огонька */
+    line-height: 1;
+}
+
+/* Контейнер для текста, чтобы он был поверх огня */
+.overall-badge .text-container {
+    position: absolute;
+    top: 55%; /* Сдвигаем текст вниз, в основание огня */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.overall-badge .value { 
+    font-size: 22px; 
+    font-weight: 800; 
+    color: #000; /* Черный текст для контраста */
+    line-height: 1;
+    text-shadow: 0 0 3px rgba(255,255,255,0.8); /* Белая тень, чтобы читалось */
+}
+
+.overall-badge .label { 
+    font-size: 9px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    color: #000; 
+    margin-top: 1px;
+    text-shadow: 0 0 3px rgba(255,255,255,0.8);
+}
+        
         .top-right-info { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 10; }
         .season-badge { background: linear-gradient(135deg, #e11d48, #be123c); color: white; font-size: 11px; font-weight: 400; padding: 3px 10px; border-radius: 10px; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4); position: absolute; top: 5px; left: 50%; transform: translateX(-50%); z-index: 10; }
         .club-logo { width: 60px; height: 60px; background: transparent; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
@@ -198,7 +242,13 @@
         <div class="card" id="revealCard" style="transform: scale(0); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
             <div class="card-image-container">
                 <div class="season-badge" id="r-season">2016/17</div>
-                <div class="overall-badge" id="r-overall">89</div>
+                <div class="overall-badge">
+    🔥
+    <div class="text-container">
+        <div class="value" id="r-overall">89</div>
+        <div class="label">Сила</div>
+    </div>
+                </div>
                 <div id="r-img" style="width: 100%; height: 100%;"></div>
                 <div class="top-right-info">
                     <div class="club-logo" id="r-clubLogo">ММг</div>
@@ -245,7 +295,13 @@
                     <div class="card" style="width: 100%; height: 100%;">
                         <div class="card-image-container">
                             <div class="season-badge" id="d-season">2016/17</div>
-                            <div class="overall-badge" id="d-overall">89</div>
+                            <div class="overall-badge">
+    🔥
+    <div class="text-container">
+        <div class="value" id="d-overall">89</div>
+        <div class="label">Сила</div>
+    </div>
+                            </div>2
                             <div id="d-img" style="width: 100%; height: 100%;"></div>
                             <div class="top-right-info">
                                 <div class="club-logo" id="d-clubLogo">ММг</div>
