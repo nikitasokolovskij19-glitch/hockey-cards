@@ -823,22 +823,54 @@ function renderSquad() {
     }
 }
 
-// Открытие окна выбора игрока
+// Открытие окна выбора игрока (или управления слотом)
 function openSquadSelection(requiredPos, slotIndex) {
-    document.getElementById('squadSelectTitle').innerText = `Выбор: ${requiredPos}`;
+    const currentPlayer = squad[slotIndex];
+    
+    // Меняем заголовок в зависимости от того, пустой слот или занятый
+    document.getElementById('squadSelectTitle').innerText = currentPlayer ? `Заменить: ${requiredPos}` : `Выбор: ${requiredPos}`;
+    
     const listContainer = document.getElementById('squadSelectList');
     listContainer.innerHTML = '';
+
+    // Если в слоте кто-то есть, показываем кнопку удаления
+    if (currentPlayer) {
+        const removeBtn = document.createElement('div');
+        removeBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        removeBtn.style.color = 'white';
+        removeBtn.style.padding = '15px';
+        removeBtn.style.borderRadius = '12px';
+        removeBtn.style.textAlign = 'center';
+        removeBtn.style.fontWeight = '800';
+        removeBtn.style.cursor = 'pointer';
+        removeBtn.style.marginBottom = '10px';
+        removeBtn.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.4)';
+        removeBtn.innerText = 'Убрать игрока из звена ❌';
+        
+        removeBtn.onclick = () => {
+            squad[slotIndex] = null;
+            localStorage.setItem('khl_squad', JSON.stringify(squad));
+            document.getElementById('squadSelectView').style.display = 'none';
+            renderSquad();
+        };
+        listContainer.appendChild(removeBtn);
+    }
 
     // Берем всех игроков из коллекции нужной позиции
     let availablePlayers = collection.filter(p => p.pos === requiredPos);
 
-    // Проверяем, чтобы эти игроки не стояли уже в других слотах
+    // Исключаем тех, кто уже стоит в звене (в других слотах)
     availablePlayers = availablePlayers.filter(p => {
         return !squad.some(s => s && s.name === p.name && s.season === p.season);
     });
 
     if (availablePlayers.length === 0) {
-        listContainer.innerHTML = `<p style="text-align: center; color: #aaa; margin-top: 20px;">У тебя нет свободных карточек на эту позицию.<br>Открой паки или убери игрока из другого слота!</p>`;
+        const noPlayersMsg = document.createElement('p');
+        noPlayersMsg.style.textAlign = 'center';
+        noPlayersMsg.style.color = '#aaa';
+        noPlayersMsg.style.marginTop = '20px';
+        noPlayersMsg.innerHTML = 'У тебя нет свободных карточек на эту позицию.<br>Открой паки или убери игрока из другого слота!';
+        listContainer.appendChild(noPlayersMsg);
     } else {
         // Группируем дубликаты, чтобы не выводить 10 одинаковых строк
         const grouped = {};
@@ -859,6 +891,7 @@ function openSquadSelection(requiredPos, slotIndex) {
             btn.style.justifyContent = 'space-between'; 
             btn.style.alignItems = 'center';
             btn.style.cursor = 'pointer';
+            btn.style.border = '1px solid rgba(255,255,255,0.1)';
             
             btn.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -868,13 +901,8 @@ function openSquadSelection(requiredPos, slotIndex) {
                 <div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>
             `;
             
-            // При клике ставим в слот
+            // При клике ставим в слот (заменяем, если там кто-то был)
             btn.onclick = () => {
-                // Проверка на дубликат в звене (на всякий случай)
-                if (squad.some(s => s && s.name === player.name && s.season === player.season)) {
-                    alert("Этот игрок уже есть в звене!");
-                    return;
-                }
                 squad[slotIndex] = player;
                 localStorage.setItem('khl_squad', JSON.stringify(squad));
                 document.getElementById('squadSelectView').style.display = 'none';
@@ -886,8 +914,8 @@ function openSquadSelection(requiredPos, slotIndex) {
     }
 
     document.getElementById('squadSelectView').style.display = 'flex';
-}
-
+                                                      }2
+    
 // Функция добавления опыта
 function addExp(amount) {
     const oldLevel = getLevelData(userExp).level;
