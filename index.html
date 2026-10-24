@@ -320,22 +320,24 @@ body {
 <div id="shopView">
     
     <!-- ПРОФИЛЬ И БАЛАНС -->
-    <div class="profile-banner">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <div class="avatar-container" onclick="alert('Профиль (в разработке)')">
-                <div class="profile-avatar" id="user-avatar">👤</div>
-                <div class="level-badge" id="user-level">1</div>
-            </div>
-            <div class="profile-info">
-                <div class="profile-name" id="user-name">Загрузка...</div>
-                <div class="profile-rating">Сила: <span id="user-rating">0</span> OVR</div>
-            </div>
+<div class="profile-banner">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <!-- Аватарка и уровень (теперь клик открывает профиль) -->
+        <div class="avatar-container" onclick="document.getElementById('profileView').style.display='flex'">
+            <div class="profile-avatar" id="user-avatar">👤</div>
+            <div class="level-badge" id="user-level">1</div>
         </div>
-        
-        <div class="balance-display">
-            <span id="coinDisplay">100</span> 💵
+        <div class="profile-info">
+            <div class="profile-name" id="user-name">Загрузка...</div>
+            <div class="profile-rating">Сила: <span id="user-rating">0</span> OVR</div>
         </div>
     </div>
+    
+    <!-- Баланс -->
+    <div class="balance-display">
+        <span id="coinDisplay">100</span> 💵
+    </div>
+</div>
 
     <!-- ЗВЕНО (6 слотов) -->
     <div class="squad-container">
@@ -370,6 +372,25 @@ body {
         
         <!-- Скрытая кнопка бонуса -->
         <button class="btn-bonus" id="bonusBtn" style="display: none; width: 100%; margin-top: 5px; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 14px;">🎁 Получить бонус</button>
+    </div>
+</div>
+    <!-- ОКНО ПРОФИЛЯ -->
+<div id="profileView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
+    
+    <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #3b82f6; border-radius: 24px; padding: 30px; width: 300px; text-align: center; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);">
+        
+        <div style="width: 90px; height: 90px; border-radius: 50%; background: #3b82f6; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 45px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);" id="profile-modal-avatar">👤</div>
+        
+        <h2 style="margin: 0 0 5px 0; font-size: 24px;" id="profile-modal-name">Игрок</h2>
+        <div style="color: #fbbf24; font-weight: 800; font-size: 18px; margin-bottom: 20px;">Уровень: <span id="profile-modal-level">1</span></div>
+        
+        <div style="text-align: left; font-size: 12px; color: #cbd5e1; margin-bottom: 5px;">Прогресс уровня:</div>
+        <div style="width: 100%; height: 12px; background: #0f172a; border-radius: 10px; overflow: hidden; border: 1px solid #334155; margin-bottom: 5px;">
+            <div id="profile-exp-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.3s;"></div>
+        </div>
+        <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 25px;"><span id="profile-exp-text">0 / 100</span> XP</div>
+
+        <button class="btn-close" onclick="document.getElementById('profileView').style.display='none'" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
     </div>
 </div>
 
@@ -533,6 +554,7 @@ body {
     tg.expand();
 
     let userCoins = parseInt(localStorage.getItem('khl_coins')) || 100;
+    let userExp = parseInt(localStorage.getItem('khl_exp')) || 0;
     let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
     let currentViewPlayer = null;
 
@@ -614,19 +636,65 @@ body {
         alert(`Ты получил ${GAME_CONFIG.bonusAmount} ${GAME_CONFIG.currencyName}! Следующий бонус будет доступен после 00:00 по Минску.`);
     });
 
-    // Обновление профиля (Имя и Рейтинг)
-    function updateProfile() {
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            const firstName = tg.initDataUnsafe.user.first_name || "Игрок";
-            document.getElementById('user-name').innerText = firstName;
-        }
-        
-        let totalRating = 0;
-        collection.forEach(p => {
-            totalRating += Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
-        });
-        document.getElementById('user-rating').innerText = totalRating;
+    // Функция расчета уровня и опыта
+function getLevelData(exp) {
+    let level = 1;
+    let currentExp = exp;
+    let expNeeded = 100; // Опыт для перехода с 1 на 2
+
+    while (currentExp >= expNeeded) {
+        currentExp -= expNeeded;
+        level++;
+        expNeeded = expNeeded * 2 + 100; // Формула: x * 2 + 100
     }
+
+    return { level, currentExp, expNeeded };
+}
+
+// Обновление профиля
+function updateProfile() {
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        const firstName = tg.initDataUnsafe.user.first_name || "Игрок";
+        document.getElementById('user-name').innerText = firstName;
+        document.getElementById('profile-modal-name').innerText = firstName;
+    }
+    
+    // Считаем общий рейтинг коллекции
+    let totalRating = 0;
+    collection.forEach(p => {
+        totalRating += Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
+    });
+    document.getElementById('user-rating').innerText = totalRating;
+
+    // Обновляем уровень и опыт
+    const levelData = getLevelData(userExp);
+    document.getElementById('user-level').innerText = levelData.level;
+    document.getElementById('profile-modal-level').innerText = levelData.level;
+    
+    document.getElementById('profile-exp-text').innerText = `${levelData.currentExp} / ${levelData.expNeeded}`;
+    
+    const expPercent = (levelData.currentExp / levelData.expNeeded) * 100;
+    document.getElementById('profile-exp-bar').style.width = `${expPercent}%`;
+}
+
+// Функция добавления опыта
+function addExp(amount) {
+    const oldLevel = getLevelData(userExp).level;
+    userExp += amount;
+    localStorage.setItem('khl_exp', userExp);
+    
+    const newLevel = getLevelData(userExp).level;
+    
+    // Если уровень повысился
+    if (newLevel > oldLevel) {
+        const reward = (newLevel - oldLevel) * 10; // 10 монет за каждый новый уровень
+        userCoins += reward;
+        updateUI();
+        alert(`🎉 Уровень повышен до ${newLevel}!\nНаграда: +${reward} 💵`);
+    }
+    
+    updateProfile();
+}
 
     // --- НАВИГАЦИЯ ---
     document.getElementById('goToPacksBtn').addEventListener('click', function() {
@@ -734,6 +802,7 @@ body {
             revealText.style.transform = 'translateY(0)';
             closeBtn.style.opacity = '1';
         }, 100);
+        addExp(25);
     }
 
     document.getElementById('closeRevealBtn').addEventListener('click', function() {
