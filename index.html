@@ -527,10 +527,10 @@ function renderTeamsGrid(container) {
     if (uniqueTeams.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>'; return; }
 
     const grid = document.createElement('div');
-    // Используем Grid для строгого расположения 4 в ряд
+    // ЖЕСТКАЯ СЕТКА 4 В РЯД (minmax(0, 1fr) не дает карточкам расширяться)
     grid.style.display = 'grid'; 
-    grid.style.gridTemplateColumns = 'repeat(4, 1fr)'; // 4 колонки
-    grid.style.gap = '8px'; // Небольшой отступ между карточками
+    grid.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))'; 
+    grid.style.gap = '8px'; 
     grid.style.width = '100%'; 
     grid.style.padding = '0 10px 50px 10px'; 
     grid.style.boxSizing = 'border-box';
@@ -544,22 +544,23 @@ function renderTeamsGrid(container) {
         btn.style.background = 'rgba(30, 41, 59, 0.6)'; 
         btn.style.border = '1px solid rgba(255,255,255,0.05)';
         btn.style.borderRadius = '12px'; 
-        btn.style.padding = '8px 2px'; // Уменьшили отступы внутри
+        btn.style.padding = '8px 4px'; 
         btn.style.display = 'flex';
         btn.style.flexDirection = 'column'; 
         btn.style.alignItems = 'center'; 
         btn.style.justifyContent = 'center';
         btn.style.cursor = 'pointer'; 
         btn.style.transition = 'all 0.3s'; 
-        btn.style.aspectRatio = '1 / 1'; // Квадратная форма
+        btn.style.aspectRatio = '1 / 1'; 
         btn.style.boxSizing = 'border-box';
+        btn.style.overflow = 'hidden'; // Чтобы ничего не вылезало
         
-        // Твой новый дизайн с белым кружком и картинкой
+        // Картинка теперь круглая и заполняет весь кружок
         btn.innerHTML = `
-            <div style="width: 50px; height: 50px; background: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); overflow: hidden;">
-                <img src="${logo}" style="width: 90%; height: 90%; object-fit: contain;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">
+            <div style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); overflow: hidden; background: #fff;">
+                <img src="${logo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">
             </div>
-            <div style="font-size: 9px; font-weight: 700; text-align: center; color: #cbd5e1; line-height: 1.1; word-wrap: break-word;">
+            <div style="font-size: 9px; font-weight: 700; text-align: center; color: #cbd5e1; line-height: 1.1; word-wrap: break-word; width: 100%;">
                 ${teamName}
             </div>
         `;
