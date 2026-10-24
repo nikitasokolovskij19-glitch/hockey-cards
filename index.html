@@ -26,7 +26,20 @@
 /* Профиль */
 .profile-banner {
     position: absolute; top: 0; left: 0; width: 100%; padding: 15px 20px; box-sizing: border-box;
-    display: flex; align-items: center; gap: 10px; background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), transparent); z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; /* Разносим по краям */
+    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), transparent); z-index: 100;
+}
+
+/* Новый стиль для баланса в углу */
+.balance-display {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fbbf24;
+    text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+    background: rgba(15, 23, 42, 0.6);
+    padding: 8px 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(251, 191, 36, 0.3);
 }
 .avatar-container { position: relative; cursor: pointer; }
 .profile-avatar { width: 55px; height: 55px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 25px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
@@ -299,18 +312,27 @@
     <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Tractor_Logo.svg.jpg" class="bg-logo" style="left: 72%; animation-duration: 21s; animation-delay: 22s; width: 90px;">
 </div>
 
-    <!-- ГЛАВНЫЙ ЭКРАН -->
+    
+<!-- ГЛАВНЫЙ ЭКРАН -->
 <div id="shopView">
     
-    <!-- ПРОФИЛЬ -->
+    <!-- ПРОФИЛЬ И БАЛАНС -->
     <div class="profile-banner">
-        <div class="avatar-container" onclick="alert('Тут будет открываться профиль (следующий шаг)')">
-            <div class="profile-avatar" id="user-avatar">👤</div>
-            <div class="level-badge" id="user-level">1</div>
+        <!-- Левая часть: Аватар и Ник -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="avatar-container" onclick="alert('Профиль (в разработке)')">
+                <div class="profile-avatar" id="user-avatar">👤</div>
+                <div class="level-badge" id="user-level">1</div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name" id="user-name">Загрузка...</div>
+                <div class="profile-rating">Сила: <span id="user-rating">0</span> OVR</div>
+            </div>
         </div>
-        <div class="profile-info">
-            <div class="profile-name" id="user-name">Загрузка...</div>
-            <div class="profile-rating">Сила: <span id="user-rating">0</span> OVR</div>
+        
+        <!-- Правая часть: Баланс -->
+        <div class="balance-display">
+            <span id="coinDisplay">100</span> 💵
         </div>
     </div>
 
@@ -335,12 +357,8 @@
 
     <!-- НИЖНЕЕ МЕНЮ -->
     <div class="bottom-menu">
-        <!-- Баланс -->
-        <div style="font-size: 22px; font-weight: 800; color: #fbbf24; margin-bottom: 5px; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);">Баланс: <span id="coinDisplay">100</span> 💵</div>
-        
         <button class="btn-main btn-quests" id="questsBtn">
             КВЕСТЫ <span id="questCount">0/5</span>
-            <!-- Красный восклицательный знак, если есть выполненные квесты (пока скрыт) -->
             <div class="quest-alert" id="questAlert" style="display: none;">!</div>
         </button>
         
@@ -349,8 +367,8 @@
             <button class="btn-main btn-collection" id="viewCollectionBtn">КОЛЛЕКЦИЯ 📁</button>
         </div>
         
-        <!-- Кнопка бонуса (скрыта по умолчанию) -->
-        <button class="btn-bonus" id="bonusBtn" style="display: none; width: 100%; margin-top: 5px;">🎁 Получить бонус</button>
+        <!-- Скрытая кнопка бонуса (появится, когда не хватит денег) -->
+        <button class="btn-bonus" id="bonusBtn" style="display: none; width: 100%; margin-top: 5px; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 14px;">🎁 Получить бонус</button>
     </div>
 </div>
 
