@@ -16,15 +16,23 @@
             position: relative;
         }
 
-        /* Анимированный фон */
-        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
-        .bg-logo { position: absolute; bottom: -100px; opacity: 0.05; filter: grayscale(100%) brightness(200%); animation: floatUp linear infinite; }
-        @keyframes floatUp {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.05; }
-            90% { opacity: 0.05; }
-            100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
-        }
+        /* Анимированный фон (Логотипы) */
+.bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
+
+.bg-logo { 
+    position: absolute; 
+    top: -100px; /* Начинаем сверху за экраном */
+    opacity: 0.05; 
+    filter: grayscale(100%) brightness(200%); 
+    animation: dropDown linear infinite; 
+}
+
+@keyframes dropDown {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.05; }
+    90% { opacity: 0.05; }
+    100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
+}
 
         h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.3); text-align: center; }
         
@@ -107,14 +115,33 @@
 </head>
 <body>
 
-    <!-- Анимированный фон -->
-    <div class="bg-animation">
-        <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/HC_SKA_Logo.svg.png" class="bg-logo" style="left: 10%; animation-duration: 25s; animation-delay: 0s; width: 80px;">
-        <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/OHK_Dynamo_logo.svg.png" class="bg-logo" style="left: 30%; animation-duration: 35s; animation-delay: 5s; width: 60px;">
-        <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/200.png" class="bg-logo" style="left: 50%; animation-duration: 28s; animation-delay: 2s; width: 100px;">
-        <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/HC_Metallurg_Magnitogorsk_Logo.svg.png" class="bg-logo" style="left: 70%; animation-duration: 32s; animation-delay: 8s; width: 70px;">
-        <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/HC_SKA_Logo.svg.png" class="bg-logo" style="left: 90%; animation-duration: 22s; animation-delay: 12s; width: 50px;">
-    </div>
+    <!-- Анимированный фон (Все логотипы КХЛ) -->
+<div class="bg-animation">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Admiral_Logo.svg.jpg" class="bg-logo" style="left: 5%; animation-duration: 20s; animation-delay: 0s; width: 60px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/AkBars_Logo.svg.jpg" class="bg-logo" style="left: 15%; animation-duration: 25s; animation-delay: 2s; width: 80px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Amur_Logo.svg.jpg" class="bg-logo" style="left: 25%; animation-duration: 18s; animation-delay: 5s; width: 50px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Avangard_Logo.svg.jpg" class="bg-logo" style="left: 35%; animation-duration: 28s; animation-delay: 1s; width: 70px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Avtomobilist_Logo.svg.jpg" class="bg-logo" style="left: 45%; animation-duration: 22s; animation-delay: 7s; width: 90px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Barys_Logo.svg.jpg" class="bg-logo" style="left: 55%; animation-duration: 30s; animation-delay: 3s; width: 60px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Cska_Logo.svg.jpg" class="bg-logo" style="left: 65%; animation-duration: 19s; animation-delay: 9s; width: 75px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Dinamo_Minsk_Logo.svg.jpg" class="bg-logo" style="left: 75%; animation-duration: 24s; animation-delay: 4s; width: 55px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Dragons_Logo.svg.jpg" class="bg-logo" style="left: 85%; animation-duration: 26s; animation-delay: 6s; width: 65px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Dynamo_Moscow_Logo.svg.jpg" class="bg-logo" style="left: 95%; animation-duration: 21s; animation-delay: 8s; width: 80px;">
+    
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Lada_Logo.svg.jpg" class="bg-logo" style="left: 10%; animation-duration: 27s; animation-delay: 10s; width: 60px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Lokomotiv_Logo.svg.jpg" class="bg-logo" style="left: 20%; animation-duration: 23s; animation-delay: 12s; width: 85px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Metallurg_Logo.svg.jpg" class="bg-logo" style="left: 30%; animation-duration: 16s; animation-delay: 14s; width: 50px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Neftekhimik_Logo.svg.jpg" class="bg-logo" style="left: 40%; animation-duration: 29s; animation-delay: 11s; width: 70px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Salavat_Logo.svg.jpg" class="bg-logo" style="left: 50%; animation-duration: 20s; animation-delay: 13s; width: 90px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Severstal_Logo.svg.jpg" class="bg-logo" style="left: 60%; animation-duration: 32s; animation-delay: 15s; width: 55px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Sibir_Logo.svg.jpg" class="bg-logo" style="left: 70%; animation-duration: 18s; animation-delay: 17s; width: 75px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Ska_Logo.svg.jpg" class="bg-logo" style="left: 80%; animation-duration: 25s; animation-delay: 16s; width: 65px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Sochi_Logo.svg.jpg" class="bg-logo" style="left: 90%; animation-duration: 22s; animation-delay: 19s; width: 80px;">
+    
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Spartak_Logo.svg.jpg" class="bg-logo" style="left: 12%; animation-duration: 24s; animation-delay: 20s; width: 70px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Torpedo_Logo.svg.jpg" class="bg-logo" style="left: 42%; animation-duration: 28s; animation-delay: 21s; width: 60px;">
+    <img src="https://nikitasokolovskij19-glitch.github.io/hockey-cards/Tractor_Logo.svg.jpg" class="bg-logo" style="left: 72%; animation-duration: 21s; animation-delay: 22s; width: 90px;">
+</div>
 
     <!-- ГЛАВНЫЙ ЭКРАН -->
     <div id="shopView" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 85vh;">
