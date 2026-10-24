@@ -7,20 +7,24 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
         
-        body { 
+body { 
     background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 50%, #020617 100%);
     background-attachment: fixed; background-size: cover; color: white; 
     font-family: 'Montserrat', sans-serif; 
     display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-    height: 100vh; margin: 0; 
-    overflow: hidden; /* ЗАПРЕТ НА ПРОКРУТКУ */
+    min-height: 100vh; margin: 0; 
+    overflow-y: auto; /* РАЗРЕШАЕМ ПРОКРУТКУ ВНИЗ */
+    overflow-x: hidden; /* Запрещаем прокрутку в стороны */
     position: relative;
 }
 
 /* Стили для главного экрана */
 #shopView {
     display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    width: 100%; height: 100vh; padding-top: 20px; box-sizing: border-box;
+    width: 100%; 
+    height: 100vh; 
+    overflow: hidden; /* БЛОКИРУЕМ ПРОКРУТКУ ТОЛЬКО НА ГЛАВНОЙ */
+    padding-top: 20px; box-sizing: border-box;
 }
 
 /* Профиль */
