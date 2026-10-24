@@ -48,8 +48,23 @@ body {
 .avatar-container { position: relative; cursor: pointer; }
 .profile-avatar { width: 55px; height: 55px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 25px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
 .level-badge { position: absolute; bottom: -5px; right: -5px; background: #fbbf24; color: #000; font-weight: 800; font-size: 12px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #0f172a; }
-.profile-info { display: flex; flex-direction: column; text-align: left; }
-.profile-name { font-size: 20px; font-weight: 800; margin-bottom: 2px; text-shadow: 1px 1px 3px black; }
+.profile-info { 
+    display: flex; 
+    flex-direction: column; 
+    text-align: left; 
+    max-width: 160px; /* Ограничиваем ширину блока с ником */
+}
+
+.profile-name { 
+    font-size: 20px; 
+    font-weight: 800; 
+    margin-bottom: 2px; 
+    text-shadow: 1px 1px 3px black; 
+    white-space: nowrap; /* Запрещаем перенос строки */
+    overflow: hidden; 
+    text-overflow: clip; 
+    transition: font-size 0.2s; /* Плавное уменьшение */
+}
 .profile-rating { font-size: 13px; color: #fbbf24; font-weight: 600; text-shadow: 1px 1px 3px black; }
 
 /* Звено (Сетка для карточек) */
@@ -400,12 +415,20 @@ body {
         <div style="color: #fbbf24; font-weight: 800; font-size: 18px; margin-bottom: 20px;">Уровень: <span id="profile-modal-level">1</span></div>
         
         <div style="text-align: left; font-size: 12px; color: #cbd5e1; margin-bottom: 5px;">Прогресс уровня:</div>
-        <div style="width: 100%; height: 12px; background: #0f172a; border-radius: 10px; overflow: hidden; border: 1px solid #334155; margin-bottom: 5px;">
-            <div id="profile-exp-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.3s;"></div>
-        </div>
-        <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 25px;"><span id="profile-exp-text">0 / 100</span> XP</div>
+<div style="width: 100%; height: 12px; background: #0f172a; border-radius: 10px; overflow: hidden; border: 1px solid #334155; margin-bottom: 5px;">
+    <div id="profile-exp-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.3s;"></div>
+</div>
+<div style="font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 20px;"><span id="profile-exp-text">0 / 100</span> XP</div>
 
-        <button class="btn-close" onclick="document.getElementById('profileView').style.display='none'" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
+<!-- БЛОК СМЕНЫ НИКНЕЙМА -->
+<div style="margin-bottom: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+    <div style="font-size: 14px; color: #fbbf24; font-weight: bold; margin-bottom: 10px;">Сменить никнейм</div>
+    <input type="text" id="nicknameInput" maxlength="15" placeholder="От 3 до 15 символов" style="width: 100%; padding: 12px; border-radius: 8px; background: #0f172a; border: 1px solid #3b82f6; color: white; text-align: center; font-size: 16px; box-sizing: border-box; margin-bottom: 8px; outline: none;">
+    <div id="nicknameError" style="color: #ef4444; font-size: 12px; margin-bottom: 8px; display: none;">Ник должен быть от 3 до 15 символов!</div>
+    <button onclick="saveNickname()" style="width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">Сохранить ник</button>
+</div>
+
+<button class="btn-close" onclick="document.getElementById('profileView').style.display='none'" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
     </div>
 </div>
 
@@ -668,14 +691,35 @@ function getLevelData(exp) {
     return { level, currentExp, expNeeded };
 }
 
+// Функция для подгона размера шрифта ника
+function adjustNicknameSize() {
+    const nameEl = document.getElementById('user-name');
+    if (!nameEl) return;
+    
+    nameEl.style.fontSize = '20px'; // Сбрасываем на изначальный размер
+    
+    // Пока текст шире, чем контейнер, уменьшаем шрифт
+    while (nameEl.scrollWidth > nameEl.clientWidth && parseInt(nameEl.style.fontSize) > 10) {
+        nameEl.style.fontSize = (parseInt(nameEl.style.fontSize) - 1) + 'px';
+    }
+}
+
 // Обновление профиля
 function updateProfile() {
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        const firstName = tg.initDataUnsafe.user.first_name || "Игрок";
-        document.getElementById('user-name').innerText = firstName;
-        document.getElementById('profile-modal-name').innerText = firstName;
-    }
+    // Берем ник из памяти или из Telegram (если ник не меняли)
+    let savedNick = localStorage.getItem('khl_nickname');
+    let defaultName = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.first_name : "Игрок";
+    let displayName = savedNick ? savedNick : defaultName;
+
+    document.getElementById('user-name').innerText = displayName;
+    document.getElementById('profile-modal-name').innerText = displayName;
     
+    // Заполняем поле ввода в профиле текущим ником
+    document.getElementById('nicknameInput').value = displayName;
+    
+    // Подгоняем размер шрифта
+    setTimeout(adjustNicknameSize, 50); // Небольшая задержка для применения стилей
+
     // Считаем общий рейтинг коллекции
     let totalRating = 0;
     collection.forEach(p => {
@@ -692,7 +736,25 @@ function updateProfile() {
     
     const expPercent = (levelData.currentExp / levelData.expNeeded) * 100;
     document.getElementById('profile-exp-bar').style.width = `${expPercent}%`;
+
     renderSquad();
+}
+
+// Функция сохранения ника
+function saveNickname() {
+    const input = document.getElementById('nicknameInput');
+    const errorText = document.getElementById('nicknameError');
+    const newName = input.value.trim();
+
+    if (newName.length < 3 || newName.length > 15) {
+        errorText.style.display = 'block';
+        return;
+    }
+
+    errorText.style.display = 'none';
+    localStorage.setItem('khl_nickname', newName);
+    updateProfile(); // Обновляем интерфейс
+    alert('Никнейм успешно изменен!');
 }
 
     // --- ЛОГИКА ЗВЕНА ---
