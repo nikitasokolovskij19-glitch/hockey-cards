@@ -74,7 +74,7 @@
 /* Контейнер для текста */
 .overall-badge .text-container {
     position: absolute;
-    top: 62%; /* Опустили текст ниже (было 55%) */
+    top: 65%; /* Опустили текст еще ниже (было 62%) */
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
@@ -83,19 +83,20 @@
 }
 
 .overall-badge .value { 
-    font-size: 20px; /* Оставили размер цифры прежним (читаемым) */
+    font-size: 20px; 
     font-weight: 800; 
     color: #000; 
     line-height: 1;
     text-shadow: 0 0 3px rgba(255,255,255,0.8); 
+    margin-bottom: 2px; /* Небольшой отступ от цифры до слова */
 }
 
 .overall-badge .label { 
-    font-size: 9px; 
+    font-size: 6px; /* Уменьшили "Сила" в 1.5 раза (было 9px) */
     font-weight: 800; 
     text-transform: uppercase; 
     color: #000; 
-    margin-top: 1px;
+    margin-top: 0;
     text-shadow: 0 0 3px rgba(255,255,255,0.8);
 }
         
