@@ -716,30 +716,34 @@ function renderSquad() {
             // Создаем красивую мини-карточку
             slot.style.background = '#0f172a';
             slot.style.border = `2px solid ${rarityColor}`;
-            slot.style.padding = '0'; // Убираем отступы, чтобы фото заполняло всё
+            slot.style.padding = '0'; 
             
             slot.innerHTML = `
                 <!-- Фото на весь фон -->
                 <img src="${player.img}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; z-index: 1;" onerror="this.style.display='none';">
                 
                 <!-- Затемнение снизу для текста -->
-                <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, #0f172a 30%, transparent); z-index: 2;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 65%; background: linear-gradient(to top, #0f172a 40%, transparent); z-index: 2;"></div>
 
-                <!-- Общий рейтинг (сверху слева) -->
+                <!-- Общий рейтинг -->
                 <div style="position: absolute; top: 0; left: 0; background: rgba(15,23,42,0.85); color: ${rarityColor}; font-weight: 800; font-size: 14px; padding: 3px 6px; border-bottom-right-radius: 8px; z-index: 3; border-right: 1px solid ${rarityColor}; border-bottom: 1px solid ${rarityColor};">
                     ${overall}
                 </div>
 
-                <!-- Логотип клуба (сверху справа) -->
-                <div style="position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; background: #ffffff; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">
-                    <img src="${player.logo}" style="width: 90%; height: 90%; object-fit: contain;" onerror="this.style.display='none';">
+                <!-- Логотип клуба (теперь круглый) -->
+                <div style="position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; background: #ffffff; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); overflow: hidden;">
+                    <img src="${player.logo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none';">
                 </div>
 
                 <!-- Информация об игроке (снизу) -->
-                <div style="position: absolute; bottom: 4px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 3; padding: 0 2px; box-sizing: border-box;">
-                    <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; text-shadow: 1px 1px 2px black;">
+                <div style="position: absolute; bottom: 5px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 3; padding: 0 4px; box-sizing: border-box;">
+                    
+                    <!-- Имя игрока (уменьшено и с переносом строки) -->
+                    <div style="font-size: 9px; font-weight: 800; text-transform: uppercase; width: 100%; text-align: center; text-shadow: 1px 1px 2px black; line-height: 1.1; white-space: normal; word-break: break-word; margin-bottom: 2px;">
                         ${player.name}
                     </div>
+                    
+                    <!-- Флаг и номер -->
                     <div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 10px; color: #cbd5e1; font-weight: 700;">
                         <span>${player.flag || '🏳️'}</span>
                         <span>${player.number || ''}</span>
@@ -751,7 +755,7 @@ function renderSquad() {
             const posName = (i < 3) ? "НАП" : (i < 5 ? "ЗАЩ" : "ВРТ");
             slot.style.background = 'rgba(30, 41, 59, 0.4)';
             slot.style.border = '2px dashed rgba(255,255,255,0.2)';
-            slot.style.padding = '10px'; // Возвращаем отступы для рамки с плюсом
+            slot.style.padding = '10px'; 
             slot.innerHTML = `<span class="slot-pos">${posName}</span><div class="slot-plus">+</div>`;
         }
     }
