@@ -122,11 +122,36 @@
         .stat { font-size: 10px; color: #64748b; font-weight: 600; display: flex; flex-direction: column; align-items: center; text-transform: uppercase;}
         .stat span { font-size: 20px; font-weight: 800; color: white; margin-top: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.2);}
 
-        /* Правая часть (Номер и Флаг) */
-        .info-table-right { width: 70px; border-left: 2px solid var(--card-border-color, #e11d48); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; }
-        .info-number { font-size: 22px; font-weight: 800; font-style: italic; color: white; text-shadow: 1px 1px 3px black; }
-        .player-flag { font-size: 20px; line-height: 1; }
+        /* Правая часть таблицы (Номер и Флаг) */
+.info-table-right { 
+    width: 80px; /* Чуть расширили колонку, чтобы влезли большие элементы */
+    border-left: 2px solid var(--card-border-color, #e11d48); 
+    display: flex; 
+    flex-direction: column; 
+    /* Вот эта магия делает отступы идеально равными */
+    justify-content: space-evenly; 
+    align-items: center; 
+    padding: 10px 0; /* Отступы сверху и снизу от краев таблицы */
+    box-sizing: border-box;
+}
 
+/* Номер (увеличен в 1.5 раза) */
+.info-number { 
+    font-size: 33px; /* Было 22px (22 * 1.5 = 33) */
+    font-weight: 800; 
+    font-style: italic; 
+    color: white; 
+    text-shadow: 1px 1px 3px black; 
+    line-height: 1;
+}
+
+/* Флаг (увеличен в 3 раза) */
+.player-flag { 
+    font-size: 60px; /* Было 20px (20 * 3 = 60) */
+    line-height: 1; 
+    /* Добавляем тень, чтобы флаг не сливался с фоном */
+    text-shadow: 0 0 10px rgba(0,0,0,0.5); 
+}
         .flip-hint { padding: 10px; text-align: center; font-size: 11px; color: #64748b; width: 100%; box-sizing: border-box; }
 
         /* Стили для 3D-переворота */
