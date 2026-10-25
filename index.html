@@ -295,8 +295,11 @@
         </div>
         <div class="card-info">
             <div class="name-block">
-                <div class="name" id="r-name">Сергей Мозякин</div>
-                <div class="position" id="r-position">Нападающий</div>
+    <div class="name" id="r-name">Сергей Мозякин</div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+        <div class="position" id="r-position">Нападающий</div>
+        <div id="r-rarity" style="font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; border: 1px solid; display: none;"></div>
+    </div>
             </div>
             <div class="info-table">
                 <div class="info-table-left">
@@ -345,8 +348,11 @@
                     </div>
                     <div class="card-info">
                         <div class="name-block">
-                            <div class="name" id="d-name">Сергей Мозякин</div>
-                            <div class="position" id="d-pos">Нападающий</div>
+    <div class="name" id="d-name">Сергей Мозякин</div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+        <div class="position" id="d-pos">Нападающий</div>
+        <div id="d-rarity" style="font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; border: 1px solid; display: none;"></div>
+    </div>
                         </div>
                         <div class="info-table">
                             <div class="info-table-left">
@@ -771,6 +777,7 @@ function buyPack(season, price) {
 
     packsView.style.display = 'none';
 
+    // Заполнение карточки
     document.getElementById('r-name').innerText = player.name;
     document.getElementById('r-season').innerText = player.season;
     document.getElementById('r-position').innerText = player.pos;
@@ -795,12 +802,21 @@ function buyPack(season, price) {
     document.getElementById('r-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('r-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
+    // Логика цветов и редкости
     let borderColor = "#9ca3af";
-    if (player.rarity_num === 2) borderColor = "#a3e635";
-    if (player.rarity_num === 3) borderColor = "#3b82f6";
-    if (player.rarity_num === 4) borderColor = "#fbbf24";
-    if (player.rarity_num === 5) borderColor = "#be123c";
+    let rarityText = "Обычная";
     
+    if (player.rarity_num === 2) { borderColor = "#a3e635"; rarityText = "Редкая"; }
+    if (player.rarity_num === 3) { borderColor = "#3b82f6"; rarityText = "Супер редкая"; }
+    if (player.rarity_num === 4) { borderColor = "#fbbf24"; rarityText = "Легендарная"; }
+    if (player.rarity_num === 5) { borderColor = "#be123c"; rarityText = "Эпическая"; }
+
+    const rRarityEl = document.getElementById('r-rarity');
+    rRarityEl.innerText = rarityText;
+    rRarityEl.style.color = borderColor;
+    rRarityEl.style.borderColor = borderColor;
+    rRarityEl.style.display = 'block';
+
     document.getElementById('revealCard').style.setProperty('--card-border-color', borderColor);
     document.getElementById('revealCard').style.borderColor = borderColor;
 
@@ -1052,7 +1068,22 @@ function openDetailView(player) {
     document.getElementById('d-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('d-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
-    // --- ЛОГИКА ПРОДАЖИ ---
+    // Логика цветов и редкости
+    let detailBorderColor = "#9ca3af";
+    let detailRarityText = "Обычная";
+
+    if (player.rarity_num === 2) { detailBorderColor = "#a3e635"; detailRarityText = "Редкая"; }
+    if (player.rarity_num === 3) { detailBorderColor = "#3b82f6"; detailRarityText = "Супер редкая"; }
+    if (player.rarity_num === 4) { detailBorderColor = "#fbbf24"; detailRarityText = "Легендарная"; }
+    if (player.rarity_num === 5) { detailBorderColor = "#be123c"; detailRarityText = "Эпическая"; }
+    
+    const dRarityEl = document.getElementById('d-rarity');
+    dRarityEl.innerText = detailRarityText;
+    dRarityEl.style.color = detailBorderColor;
+    dRarityEl.style.borderColor = detailBorderColor;
+    dRarityEl.style.display = 'block';
+
+    // Логика продажи
     const sellBtn = document.getElementById('detailSellBtn');
     const sellPrice = overall * GAME_CONFIG.sellMultiplier;
     
@@ -1092,12 +1123,6 @@ function openDetailView(player) {
     html += `<div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
     backSide.innerHTML = html;
 
-    let detailBorderColor = "#9ca3af";
-    if (player.rarity_num === 2) detailBorderColor = "#a3e635";
-    if (player.rarity_num === 3) detailBorderColor = "#3b82f6";
-    if (player.rarity_num === 4) detailBorderColor = "#fbbf24";
-    if (player.rarity_num === 5) detailBorderColor = "#be123c";
-    
     const detailCard = document.querySelector('#detailView .card');
     if (detailCard) {
         detailCard.style.setProperty('--card-border-color', detailBorderColor);
@@ -1111,10 +1136,10 @@ function openDetailView(player) {
     
     document.getElementById('globalHomeBtn').style.display = 'none';
     document.getElementById('globalBackBtn').style.display = 'none';
-  }
-  document.getElementById('flipCard').addEventListener('click', function() {
-    this.classList.toggle('flipped');
-});
+}
+    
+        html += `<div class="divider"></div><div class="stats-section"><div class="stats-header" style="color: #e11d48;">Плей-офф</div><div class="back-stat-row"><span>Игры:</span> <span>${player.playoff_stats.games}</span></div><div class="back-stat-row"><span>Голы:</span> <span>${player.playoff_stats.goals}</span></div><div class="back-stat-row"><span>Пасы:</span> <span>${player.playoff_stats.assists}</span></div><div class="back-stat-row"><span>Очки:</span> <span>${player.playoff_stats.points}</span></div><div class="back-stat-row"><span>Штраф:</span> <span>${player.playoff_stats.penalty}</span></div></div>`;
+    } el
 
 document.getElementById('closeDetailBtn').addEventListener('click', function() {
     detailView.style.display = 'none';
