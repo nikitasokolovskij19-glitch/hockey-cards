@@ -476,6 +476,14 @@
 let questsData = JSON.parse(localStorage.getItem('khl_quests_data')) || {
     lastDailyUpdate: '',
     lastWeeklyUpdate: '',
+    daily: { play: 0, open1: 0, sell1: 0, squad: 0, open3: 0, claimed: false, mainClaimed: false, rewardsTaken: {} },
+    weekly: { open10: 0, sell5: 0, fullSquad: 0, epicDrop: 0, login3: 0, claimed: false, mainClaimed: false, loginDays: [], rewardsTaken: {} }
+};
+    
+    // --- ПЕРЕМЕННЫЕ КВЕСТОВ ---
+let questsData = JSON.parse(localStorage.getItem('khl_quests_data')) || {
+    lastDailyUpdate: '',
+    lastWeeklyUpdate: '',
     daily: { play: 0, open1: 0, sell1: 0, squad: 0, open3: 0, claimed: false, mainClaimed: false },
     weekly: { open10: 0, sell5: 0, fullSquad: 0, epicDrop: 0, login3: 0, claimed: false, mainClaimed: false, loginDays: [] }
 };
@@ -495,13 +503,14 @@ let questsData = JSON.parse(localStorage.getItem('khl_quests_data')) || {
 
     function goHome() {
     document.getElementById('profileView').style.display = 'none';
-    document.getElementById('nicknameModalView').style.display = 'none'; // <--- ДОБАВИТЬ ВОТ ЭТУ СТРОКУ
+    document.getElementById('nicknameModalView').style.display = 'none';
     document.getElementById('detailView').style.display = 'none';
     document.getElementById('squadSelectView').style.display = 'none';
     document.getElementById('sellModalView').style.display = 'none';
     document.getElementById('sortModalView').style.display = 'none';
     document.getElementById('packsView').style.display = 'none';
     document.getElementById('collectionView').style.display = 'none';
+    document.getElementById('questsView').style.display = 'none'; // <--- ДОБАВЛЕНА ВОТ ЭТА СТРОКА
     
     document.getElementById('shopView').style.display = 'flex';
     document.getElementById('globalHomeBtn').style.display = 'none';
@@ -1584,6 +1593,113 @@ function claimMainQuestReward() {
         alert('Вы получили 1000 💵 и Супер Редкую карточку за еженедельные квесты! (Карта появится в коллекции автоматически)');
         
         // Выдача гарантированной карты (75-84 OVR)
+        let available = PLAYERS.filter(p => {
+
+            function renderQuests() {
+    const list = document.getElementById('questsList');
+    list.innerHTML = '';
+
+    const dailyQuests = [
+        { id: 'play', title: 'Зайти в игру', target: 1 },
+        { id: 'open1', title: 'Открыть 1 пак', target: 1 },
+        { id: 'sell1', title: 'Продать 1 карточку', target: 1 },
+        { id: 'squad', title: 'Изменить звено', target: 1 },
+        { id: 'open3', title: 'Открыть 3 пака', target: 3 }
+    ];
+
+    const weeklyQuests = [
+        { id: 'open10', title: 'Открыть 10 паков', target: 10 },
+        { id: 'sell5', title: 'Продать 5 карточек', target: 5 },
+        { id: 'fullSquad', title: 'Собрать 6 слотов', target: 6 },
+        { id: 'epicDrop', title: 'Выбить 80+ OVR', target: 1 },
+        { id: 'login3', title: 'Зайти 3 дня подряд', target: 3 }
+    ];
+
+    const currentList = currentQuestTab === 'daily' ? dailyQuests : weeklyQuests;
+    const currentData = currentQuestTab === 'daily' ? questsData.daily : questsData.weekly;
+    const mainClaimed = currentQuestTab === 'daily' ? questsData.daily.mainClaimed : questsData.weekly.mainClaimed;
+    
+    let allCompleted = true;
+
+    currentList.forEach(q => {
+        let progress = currentData[q.id] || 0;
+        if (progress > q.target) progress = q.target;
+        const isDone = progress >= q.target;
+        const isClaimed = currentData.rewardsTaken && currentData.rewardsTaken[q.id];
+        
+        if (!isDone) allCompleted = false;
+
+        const item = document.createElement('div');
+        // Если выполнен, но не забран - делаем зеленую рамку
+        item.style.cssText = `background: rgba(30, 41, 59, 0.6); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid ${isDone ? (isClaimed ? '#64748b' : '#10b981') : '#3b82f6'}; display: flex; justify-content: space-between; align-items: center;`;
+        
+        let rightSide = '';
+        if (isClaimed) {
+            rightSide = `<div style="font-size: 20px;">✅</div>`;
+        } else if (isDone) {
+            // Кнопка "Забрать"
+            const rewardAmt = currentQuestTab === 'daily' ? 50 : 150;
+            rightSide = `<button onclick="claimSmallReward('${q.id}', ${rewardAmt})" style="background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(16,185,129,0.3);">Забрать ${rewardAmt} 💵</button>`;
+        } else {
+            rightSide = `<div style="font-size: 20px;">⏳</div>`;
+        }
+
+        item.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="font-weight: 700; font-size: 14px; color: ${isClaimed ? '#64748b' : (isDone ? '#10b981' : 'white')};">${q.title}</div>
+                <div style="font-size: 12px; color: #94a3b8;">${progress} / ${q.target}</div>
+            </div>
+            ${rightSide}
+        `;
+        list.appendChild(item);
+    });
+
+    // Кнопка большой награды (остается без изменений)
+    const rewardBtn = document.createElement('div');
+    rewardBtn.style.cssText = `margin-top: 20px; padding: 20px; border-radius: 16px; text-align: center; font-weight: 800; transition: 0.3s; background: ${mainClaimed ? 'rgba(16, 185, 129, 0.2)' : (allCompleted ? 'linear-gradient(135deg, #fbbf24, #d97706)' : 'rgba(51, 65, 85, 0.5)')}; color: ${mainClaimed ? '#10b981' : (allCompleted ? '#000' : '#64748b')}; cursor: ${(!allCompleted || mainClaimed) ? 'not-allowed' : 'pointer'}; box-shadow: ${(!allCompleted || mainClaimed) ? 'none' : '0 4px 15px rgba(251, 191, 36, 0.4)'};`;
+    
+    if (mainClaimed) {
+        rewardBtn.innerText = currentQuestTab === 'daily' ? '🎁 ГЛАВНАЯ НАГРАДА ПОЛУЧЕНА' : '🏆 ГЛАВНАЯ НАГРАДА ПОЛУЧЕНА';
+    } else if (allCompleted) {
+        rewardBtn.innerText = currentQuestTab === 'daily' ? '🎁 Забрать 300 💵' : '🏆 Забрать 1000 💵 + Карту 75+ OVR';
+        rewardBtn.onclick = claimMainQuestReward;
+    } else {
+        rewardBtn.innerText = currentQuestTab === 'daily' ? '🔒 Выполните все ежедневные' : '🔒 Выполните все еженедельные';
+    }
+
+    list.appendChild(rewardBtn);
+}
+
+// Функция для забора маленькой награды
+function claimSmallReward(questId, amount) {
+    if (currentQuestTab === 'daily') {
+        if (!questsData.daily.rewardsTaken) questsData.daily.rewardsTaken = {};
+        if (questsData.daily.rewardsTaken[questId]) return;
+        questsData.daily.rewardsTaken[questId] = true;
+    } else {
+        if (!questsData.weekly.rewardsTaken) questsData.weekly.rewardsTaken = {};
+        if (questsData.weekly.rewardsTaken[questId]) return;
+        questsData.weekly.rewardsTaken[questId] = true;
+    }
+
+    userCoins += amount;
+    updateUI();
+    localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+    renderQuests(); // Перерисовываем экран, чтобы кнопка сменилась на галочку
+}
+
+function claimMainQuestReward() {
+    if (currentQuestTab === 'daily') {
+        if (questsData.daily.mainClaimed) return;
+        questsData.daily.mainClaimed = true;
+        userCoins += 300;
+        alert('Вы получили 300 💵 за все ежедневные квесты!');
+    } else {
+        if (questsData.weekly.mainClaimed) return;
+        questsData.weekly.mainClaimed = true;
+        userCoins += 1000;
+        alert('Вы получили 1000 💵 и Супер Редкую карточку за все еженедельные квесты!');
+        
         let available = PLAYERS.filter(p => {
             const ovr = Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
             return ovr >= 75 && ovr <= 84;
