@@ -190,9 +190,9 @@
 
         <!-- НИЖНЕЕ МЕНЮ -->
         <div class="bottom-menu">
-            <button class="btn-main btn-quests" id="questsBtn" onclick="alert('Квесты в разработке')">
-                КВЕСТЫ <span id="questCount">0/5</span>
-                <div class="quest-alert" id="questAlert" style="display: none;">!</div>
+            <button class="btn-main btn-quests" id="questsBtn">
+    КВЕСТЫ
+    <div class="quest-alert" id="questAlert" style="display: none;">!</div>
             </button>
             <div class="btn-row">
                 <button class="btn-main btn-shop" id="goToPacksBtn">МАГАЗИН 🛒</button>
@@ -207,6 +207,22 @@
         <h2 style="margin-top: 40px;">Выбери сезон</h2>
         <div id="seasonsListContainer"></div>
     </div>
+    
+    <!-- ЭКРАН КВЕСТОВ -->
+<div id="questsView" style="display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 0px;">
+    <h2 style="font-size: 20px; margin-top: 40px; margin-bottom: 15px; letter-spacing: 1px;">ЗАДАНИЯ</h2>
+    
+    <!-- Вкладки -->
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button id="tabDailyBtn" class="tab-btn" style="transition: all 0.3s; padding: 12px 24px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 700; cursor: pointer; color: #94a3b8; background: rgba(30, 41, 59, 0.4);">Ежедневные</button>
+        <button id="tabWeeklyBtn" class="tab-btn" style="transition: all 0.3s; padding: 12px 24px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 700; cursor: pointer; color: #94a3b8; background: rgba(30, 41, 59, 0.4);">Еженедельные</button>
+    </div>
+
+    <!-- Список квестов -->
+    <div id="questsList" style="width: 100%; max-width: 340px; padding: 0 10px; box-sizing: border-box; padding-bottom: 50px;">
+        <!-- Сюда JS будет выводить квесты -->
+    </div>
+</div>
 
     <!-- ЭКРАН КОЛЛЕКЦИИ -->
     <div id="collectionView" style="display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 0px;">
@@ -456,6 +472,13 @@
     let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
     let squad = JSON.parse(localStorage.getItem('khl_squad')) || [null, null, null, null, null, null];
     let currentViewPlayer = null;
+    // --- ПЕРЕМЕННЫЕ КВЕСТОВ ---
+let questsData = JSON.parse(localStorage.getItem('khl_quests_data')) || {
+    lastDailyUpdate: '',
+    lastWeeklyUpdate: '',
+    daily: { play: 0, open1: 0, sell1: 0, squad: 0, open3: 0, claimed: false, mainClaimed: false },
+    weekly: { open10: 0, sell5: 0, fullSquad: 0, epicDrop: 0, login3: 0, claimed: false, mainClaimed: false, loginDays: [] }
+};
 
     const coinDisplay = document.getElementById('coinDisplay');
     const bonusBtn = document.getElementById('bonusBtn');
@@ -565,6 +588,57 @@
             }
         }
     }
+    
+    // Функция сброса квестов
+function checkQuestResets() {
+    const now = new Date();
+    // Текущая дата в формате YYYY-MM-DD
+    const today = now.toISOString().split('T')[0];
+    
+    // Получаем понедельник текущей недели
+    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay(); 
+    const startOfWeek = new Date(now.setDate(now.getDate() - dayOfWeek + 1));
+    const currentWeek = startOfWeek.toISOString().split('T')[0];
+
+    let changed = false;
+
+    // Сброс ежедневных
+    if (questsData.lastDailyUpdate !== today) {
+        questsData.daily = { play: 0, open1: 0, sell1: 0, squad: 0, open3: 0, claimed: false, mainClaimed: false };
+        questsData.lastDailyUpdate = today;
+        changed = true;
+    }
+
+    // Сброс еженедельных
+    if (questsData.lastWeeklyUpdate !== currentWeek) {
+        questsData.weekly = { open10: 0, sell5: 0, fullSquad: 0, epicDrop: 0, login3: 0, claimed: false, mainClaimed: false, loginDays: [] };
+        questsData.lastWeeklyUpdate = currentWeek;
+        changed = true;
+    }
+
+    if (changed) localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+}
+
+// Начисление прогресса (вызывать при действиях)
+function addQuestProgress(action, amount = 1) {
+    checkQuestResets(); // Проверяем, не наступил ли новый день
+    
+    // Обновляем ежедневные
+    if (questsData.daily[action] !== undefined) questsData.daily[action] += amount;
+    
+    // Обновляем еженедельные
+    const weeklyMap = { 'open1': 'open10', 'open3': 'open10', 'sell1': 'sell5', 'epicDrop': 'epicDrop', 'squad': 'fullSquad' };
+    if (weeklyMap[action] && questsData.weekly[weeklyMap[action]] !== undefined) {
+        questsData.weekly[weeklyMap[action]] += amount;
+    }
+
+    localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+    
+    // Если экран квестов открыт, обновляем его
+    if (document.getElementById('questsView').style.display === 'flex') {
+        renderQuests();
+    }
+}
 
     bonusBtn.addEventListener('click', function() {
         const now = new Date();
@@ -875,6 +949,7 @@ function openSquadSelection(requiredPos, slotIndex) {
             `;
             
             btn.onclick = () => {
+                addQuestProgress('squad');
                 squad[slotIndex] = player;
                 localStorage.setItem('khl_squad', JSON.stringify(squad));
                 document.getElementById('squadSelectView').style.display = 'none';
@@ -912,6 +987,11 @@ function renderPackButtons() {
 }
 
 function buyPack(season, price) {
+    addQuestProgress('open1');
+addQuestProgress('open3');
+// И если выпал 80+ OVR
+const overallCheck = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+if (overallCheck >= 80) addQuestProgress('epicDrop');2
     if (userCoins < price) { alert(`У тебя не хватает ${GAME_CONFIG.currencyName}!`); return; }
     
     const roll = Math.random() * 100; 
@@ -1345,6 +1425,7 @@ document.getElementById('closeDetailBtn').addEventListener('click', function() {
         }
 
         function executeSale(player, countToSell, overall) {
+            addQuestProgress('sell1');
             let sold = 0;
             for (let i = collection.length - 1; i >= 0; i--) {
                 if (sold < countToSell) {
@@ -1401,15 +1482,144 @@ document.getElementById('closeDetailBtn').addEventListener('click', function() {
                 renderSeasonPlayers(null, season);
             }
         }
+    
+    // --- ЛОГИКА ЭКРАНА КВЕСТОВ ---
+let currentQuestTab = 'daily';
 
-        // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
-fetch('players.json?v=999')
+document.getElementById('questsBtn').addEventListener('click', function() {
+    shopView.style.display = 'none';
+    document.getElementById('questsView').style.display = 'flex';
+    document.getElementById('globalHomeBtn').style.display = 'flex';
+    checkQuestResets();
+    renderQuests();
+});
+
+document.getElementById('tabDailyBtn').addEventListener('click', () => {
+    currentQuestTab = 'daily';
+    document.getElementById('tabDailyBtn').style.background = '#3b82f6';
+    document.getElementById('tabWeeklyBtn').style.background = 'rgba(30, 41, 59, 0.4)';
+    renderQuests();
+});
+
+document.getElementById('tabWeeklyBtn').addEventListener('click', () => {
+    currentQuestTab = 'weekly';
+    document.getElementById('tabWeeklyBtn').style.background = '#3b82f6';
+    document.getElementById('tabDailyBtn').style.background = 'rgba(30, 41, 59, 0.4)';
+    renderQuests();
+});
+
+function renderQuests() {
+    const list = document.getElementById('questsList');
+    list.innerHTML = '';
+
+    // Данные для отрисовки
+    const dailyQuests = [
+        { id: 'play', title: 'Зайти в игру', target: 1, reward: 'Выполнено' },
+        { id: 'open1', title: 'Открыть 1 пак', target: 1 },
+        { id: 'sell1', title: 'Продать 1 карточку', target: 1 },
+        { id: 'squad', title: 'Изменить звено', target: 1 },
+        { id: 'open3', title: 'Открыть 3 пака', target: 3 }
+    ];
+
+    const weeklyQuests = [
+        { id: 'open10', title: 'Открыть 10 паков', target: 10 },
+        { id: 'sell5', title: 'Продать 5 карточек', target: 5 },
+        { id: 'fullSquad', title: 'Собрать 6 слотов', target: 6 },
+        { id: 'epicDrop', title: 'Выбить 80+ OVR', target: 1 },
+        { id: 'login3', title: 'Зайти 3 дня подряд', target: 3 }
+    ];
+
+    const currentList = currentQuestTab === 'daily' ? dailyQuests : weeklyQuests;
+    const currentData = currentQuestTab === 'daily' ? questsData.daily : questsData.weekly;
+    const mainClaimed = currentQuestTab === 'daily' ? questsData.daily.mainClaimed : questsData.weekly.mainClaimed;
+    
+    let allCompleted = true;
+
+    // Рисуем квесты
+    currentList.forEach(q => {
+        let progress = currentData[q.id] || 0;
+        if (progress > q.target) progress = q.target;
+        const isDone = progress >= q.target;
+        if (!isDone) allCompleted = false;
+
+        const item = document.createElement('div');
+        item.style.cssText = `background: rgba(30, 41, 59, 0.6); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid ${isDone ? '#10b981' : '#3b82f6'}; display: flex; justify-content: space-between; align-items: center;`;
+        
+        item.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="font-weight: 700; font-size: 14px; color: ${isDone ? '#10b981' : 'white'};">${q.title}</div>
+                <div style="font-size: 12px; color: #94a3b8;">${progress} / ${q.target}</div>
+            </div>
+            <div style="font-size: 20px;">${isDone ? '✅' : '⏳'}</div>
+        `;
+        list.appendChild(item);
+    });
+
+    // Кнопка большой награды
+    const rewardBtn = document.createElement('div');
+    rewardBtn.style.cssText = `margin-top: 20px; padding: 20px; border-radius: 16px; text-align: center; font-weight: 800; transition: 0.3s; background: ${mainClaimed ? 'rgba(16, 185, 129, 0.2)' : (allCompleted ? 'linear-gradient(135deg, #fbbf24, #d97706)' : 'rgba(51, 65, 85, 0.5)')}; color: ${mainClaimed ? '#10b981' : (allCompleted ? '#000' : '#64748b')}; cursor: ${(!allCompleted || mainClaimed) ? 'not-allowed' : 'pointer'}; box-shadow: ${(!allCompleted || mainClaimed) ? 'none' : '0 4px 15px rgba(251, 191, 36, 0.4)'};`;
+    
+    if (mainClaimed) {
+        rewardBtn.innerText = currentQuestTab === 'daily' ? '🎁 Награда получена' : '🏆 Награда получена';
+    } else if (allCompleted) {
+        rewardBtn.innerText = currentQuestTab === 'daily' ? '🎁 Забрать 300 💵' : '🏆 Забрать 1000 💵 + Карту 75+ OVR';
+        rewardBtn.onclick = claimMainQuestReward;
+    } else {
+        rewardBtn.innerText = currentQuestTab === 'daily' ? '🔒 Выполните все ежедневные' : '🔒 Выполните все еженедельные';
+    }
+
+    list.appendChild(rewardBtn);
+}
+
+function claimMainQuestReward() {
+    if (currentQuestTab === 'daily') {
+        if (questsData.daily.mainClaimed) return;
+        questsData.daily.mainClaimed = true;
+        userCoins += 300;
+        alert('Вы получили 300 💵 за ежедневные квесты!');
+    } else {
+        if (questsData.weekly.mainClaimed) return;
+        questsData.weekly.mainClaimed = true;
+        userCoins += 1000;
+        alert('Вы получили 1000 💵 и Супер Редкую карточку за еженедельные квесты! (Карта появится в коллекции автоматически)');
+        
+        // Выдача гарантированной карты (75-84 OVR)
+        let available = PLAYERS.filter(p => {
+            const ovr = Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
+            return ovr >= 75 && ovr <= 84;
+        });
+        if (available.length > 0) {
+            const p = available[Math.floor(Math.random() * available.length)];
+            collection.push(p);
+            localStorage.setItem('khl_collection', JSON.stringify(collection));
+        }
+    }
+    
+    localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+    updateUI();
+    renderQuests();
+}
+
+    // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
+    fetch('players.json?v=999')
+        // ... дальше идет твой старый код fetch ...
+
     .then(response => {
         if (!response.ok) throw new Error('Файл players.json не найден (Ошибка 404)');
         return response.json();
     })
     .then(data => {
         PLAYERS = data; 
+        addQuestProgress('play'); // Ежедневный
+
+// Проверка на стрик входа (3 дня)
+const todayStr = new Date().toISOString().split('T')[0];
+if (!questsData.weekly.loginDays.includes(todayStr)) {
+    questsData.weekly.loginDays.push(todayStr);
+    // Оставляем только последние 3 дня
+    if (questsData.weekly.loginDays.length > 3) questsData.weekly.loginDays.shift();
+    addQuestProgress('login3', 1);
+}
         console.log("База игроков загружена. Всего:", PLAYERS.length);
         
         // Запускаем обновление интерфейса в try-catch, чтобы поймать ошибки отрисовки
