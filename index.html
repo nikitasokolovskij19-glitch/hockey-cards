@@ -646,45 +646,63 @@ if (savedAvatar) {
     renderAvatarOptions(); // Вызываем отрисовку сетки аватарок
     }
 
+    // СПИСОК ВСЕХ КЛУБОВ КХЛ ДЛЯ АВАТАРОК
+const ALL_KHL_CLUBS = [
+    { club: "Адмирал", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Admiral_Logo.svg.jpg" },
+    { club: "Ак Барс", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/AkBars_Logo.svg.jpg" },
+    { club: "Амур", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Amur_Logo.svg.jpg" },
+    { club: "Автомобилист", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Avtomobilist_Logo.svg.jpg" },
+    { club: "Авангард", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Avangard_Logo.svg.jpg" },
+    { club: "Барыс", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Barys_Logo.svg.jpg" },
+    { club: "Динамо М", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Dynamo_Moscow_Logo.svg.jpg" },
+    { club: "Динамо Минск", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Dinamo_Minsk_Logo.svg.jpg" },
+    { club: "Куньлунь", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Dragons_Logo.svg.jpg" },
+    { club: "Лада", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Lada_Logo.svg.jpg" },
+    { club: "Локомотив", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Lokomotiv_Logo.svg.jpg" },
+    { club: "Металлург Мг", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Metallurg_Logo.svg.jpg" },
+    { club: "Нефтехимик", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Neftekhimik_Logo.svg.jpg" },
+    { club: "Салават Юлаев", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Salavat_Logo.svg.jpg" },
+    { club: "Северсталь", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Severstal_Logo.svg.jpg" },
+    { club: "Сибирь", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Sibir_Logo.svg.jpg" },
+    { club: "СКА", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Ska_Logo.svg.jpg" },
+    { club: "Сочи", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Sochi_Logo.svg.jpg" },
+    { club: "Спартак", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Spartak_Logo.svg.jpg" },
+    { club: "Торпедо", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Torpedo_Logo.svg.jpg" },
+    { club: "Трактор", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Tractor_Logo.svg.jpg" },
+    { club: "ЦСКА", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Cska_Logo.svg.jpg" }
+    // Если в твоем репозитории есть логотип Витязя, раскомментируй строчку ниже:
+    // { club: "Витязь", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Vityaz_Logo.svg.jpg" }
+];
+    
     function renderAvatarOptions() {
     const grid = document.getElementById('avatarGrid');
-    if (!grid || !PLAYERS || PLAYERS.length === 0) return;
+    if (!grid) return;
     
     grid.innerHTML = '';
     const savedAvatar = localStorage.getItem('khl_user_avatar') || '';
 
-    const uniqueClubs = [];
-    const seenClubs = new Set();
-    PLAYERS.forEach(p => {
-        if (!seenClubs.has(p.club)) {
-            seenClubs.add(p.club);
-            uniqueClubs.push({ club: p.club, logo: p.logo });
-        }
-    });
+    // Сортируем по алфавиту прямо из готового списка
+    const sortedClubs = [...ALL_KHL_CLUBS].sort((a, b) => a.club.localeCompare(b.club));
 
-    uniqueClubs.sort((a, b) => a.club.localeCompare(b.club));
-
-    uniqueClubs.forEach(c => {
+    sortedClubs.forEach(c => {
         const isSelected = savedAvatar === c.logo;
         const div = document.createElement('div');
         
         div.style.cssText = `
-    aspect-ratio: 1 / 1; 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    cursor: pointer;
-    /* Меняем синий цвет на золотой (fbbf24) */
-    border: ${isSelected ? '3px solid #fbbf24' : '2px solid #ffffff'};
-    box-shadow: ${isSelected ? '0 0 15px rgba(251,191,36,0.6)' : 'none'};
-    box-sizing: border-box; 
-    transition: 0.2s;
-    overflow: hidden; 
-    background: transparent;
-`;
+            aspect-ratio: 1 / 1; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer;
+            border: ${isSelected ? '3px solid #fbbf24' : '2px solid #ffffff'};
+            box-shadow: ${isSelected ? '0 0 15px rgba(251,191,36,0.6)' : 'none'};
+            box-sizing: border-box; 
+            transition: 0.2s;
+            overflow: hidden; 
+            background: transparent;
+        `;
         
-        // Картинка теперь заполняет весь круг (width: 100%)
         div.innerHTML = `<img src="${c.logo}" style="width:100%; height:100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
         
         div.onclick = () => changeUserAvatar(c.logo);
