@@ -31,25 +31,6 @@
     position: relative;
 }
 
-        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
-        .bg-logo { 
-    position: absolute; 
-    top: -100px; 
-    opacity: 0.15; /* СДЕЛАЛИ ЯРЧЕ (было 0.05) */
-    filter: grayscale(30%) brightness(150%); /* Добавили сочности */
-    animation: dropDown linear infinite; 
-    border-radius: 50%; 
-    object-fit: cover; 
-    aspect-ratio: 1 / 1; 
-}
-
-@keyframes dropDown {
-    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-    10% { opacity: 0.15; } /* Синхронизировали с новым значением */
-    90% { opacity: 0.15; }
-    100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
-}
-
         h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.3); text-align: center; }
         
         @keyframes glowPulse {
@@ -187,9 +168,7 @@
     <div id="globalHomeBtn" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10000; background: rgba(30, 41, 59, 0.8); border-radius: 50%; width: 45px; height: 45px; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onclick="goHome()">❌</div>
     <div id="globalBackBtn" style="display: none; position: fixed; top: 15px; left: 15px; z-index: 10000; background: rgba(30, 41, 59, 0.8); border-radius: 50%; width: 45px; height: 45px; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onclick="goBack()">↩️</div>
 
-    <div class="bg-animation" id="bgAnimationContainer">
-    <!-- Логотипы будут создаваться скриптом -->
-    </div>
+    <canvas id="bgCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
 
     <div id="shopView">
         <div class="profile-banner" style="padding: 10px 15px;">
@@ -538,37 +517,98 @@
         { club: "ЦСКА", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Cska_Logo.svg.jpg" }
     ];
 
-    // --- ГЕНЕРАЦИЯ ЖИВОГО ФОНА ---
-function generateBackgroundLogos() {
-    const container = document.getElementById('bgAnimationContainer');
-    if (!container) return;
-    container.innerHTML = ''; // Очищаем контейнер
+    // --- ФИЗИЧЕСКИЙ ФОН НА CANVAS ---
+function initBackgroundCanvas() {
+    const canvas = document.getElementById('bgCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    let width, height;
+    let logos = [];
+    
+    // Настройка размеров холста
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
 
+    // Создаем объекты логотипов
     ALL_KHL_CLUBS.forEach(club => {
-        const img = document.createElement('img');
+        let img = new Image();
         img.src = club.logo;
-        img.className = 'bg-logo';
         
-        // Случайная позиция по горизонтали (от 5% до 85% экрана)
-        const randomLeft = Math.floor(Math.random() * 80) + 5; 
+        // ОГРАНИЧЕНИЕ РАЗМЕРА: от 40 до 60 пикселей (никаких огромных)
+        let radius = 20 + Math.random() * 10; 
         
-        // Случайный размер (от 50 до 110 пикселей)
-        const randomWidth = Math.floor(Math.random() * 60) + 50; 
-        
-        // Скорость (от 15 до 25 секунд). Раньше было 25-35с, теперь летят в 1.5 раза быстрее
-        const randomSpeed = (Math.random() * 10) + 15; 
-        
-        // Случайная задержка, чтобы они не падали все одновременно
-        const randomDelay = Math.random() * 20; 
-
-        img.style.left = `${randomLeft}%`;
-        img.style.width = `${randomWidth}px`;
-        img.style.animationDuration = `${randomSpeed}s`;
-        img.style.animationDelay = `${randomDelay}s`;
-
-        container.appendChild(img);
+        logos.push({
+            img: img,
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 2, // Скорость по X
+            vy: Math.random() * 1 + 0.5,   // Скорость по Y (падают вниз)
+            r: radius
+        });
     });
+
+    // Функция анимации
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.globalAlpha = 0.2; // Прозрачность фона (яркость)
+
+        for (let i = 0; i < logos.length; i++) {
+            let l1 = logos[i];
+            
+            // Движение
+            l1.x += l1.vx;
+            l1.y += l1.vy;
+
+            // Отскок от стен
+            if (l1.x - l1.r < 0 || l1.x + l1.r > width) l1.vx *= -1;
+            if (l1.y - l1.r < 0 || l1.y + l1.r > height) l1.vy *= -1;
+
+            // Проверка столкновений с другими логотипами
+            for (let j = i + 1; j < logos.length; j++) {
+                let l2 = logos[j];
+                let dx = l2.x - l1.x;
+                let dy = l2.y - l1.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+
+                // Если шары столкнулись
+                if (dist < l1.r + l2.r) {
+                    // Меняем скорости (отскок)
+                    let tempVx = l1.vx; let tempVy = l1.vy;
+                    l1.vx = l2.vx; l1.vy = l2.vy;
+                    l2.vx = tempVx; l2.vy = tempVy;
+
+                    // Расталкиваем их, чтобы не залипали
+                    l1.x -= dx * 0.05;
+                    l1.y -= dy * 0.05;
+                    l2.x += dx * 0.05;
+                    l2.y += dy * 0.05;
+                }
+            }
+
+            // Отрисовка картинки (вписываем в круг)
+            if (l1.img.complete) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(l1.x, l1.y, l1.r, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(l1.img, l1.x - l1.r, l1.y - l1.r, l1.r * 2, l1.r * 2);
+                ctx.restore();
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+    
+    // Запуск анимации
+    animate();
 }
+
+// Вызываем инициализацию фона
+initBackgroundCanvas();
 
 // Вызываем генерацию сразу при загрузке скрипта
 generateBackgroundLogos();
