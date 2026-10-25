@@ -570,34 +570,18 @@ function addExp(amount) {
     updateProfile();
 }
 
-// --- ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 function updateUI() {
     coinDisplay.innerText = userCoins;
     localStorage.setItem('khl_coins', userCoins);
     
-    const lastBonusDate = localStorage.getItem('khl_last_bonus_date');
-    const now = new Date();
-    const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
-    const currentDateStr = mskTime.toISOString().split('T')[0];
-
-    const bonusBtn = document.getElementById('bonusBtn');
+    // Так как кнопка бонуса убрана в календарь, Магазин всегда активен
     const goToPacksBtn = document.getElementById('goToPacksBtn');
-
-    if (lastBonusDate === currentDateStr) {
-        bonusBtn.style.display = 'none';
+    if (goToPacksBtn) {
         goToPacksBtn.style.display = 'block';
-    } else {
-        if (userCoins < GAME_CONFIG.packPrice) {
-            goToPacksBtn.style.display = 'none';
-            bonusBtn.style.display = 'block';
-            bonusBtn.innerText = `🎁 Получить бонус (+${GAME_CONFIG.bonusAmount} ${GAME_CONFIG.currency})`;
-        } else {
-            goToPacksBtn.style.display = 'block';
-            bonusBtn.style.display = 'block'; 
-            bonusBtn.innerText = `🎁 Получить бонус (+${GAME_CONFIG.bonusAmount} ${GAME_CONFIG.currency})`;
-        }
     }
-        updateQuestAlert();
+    
+    // Проверка уведомлений на квестах
+    updateQuestAlert();
 }
 
 // --- ПРОВЕРКА УВЕДОМЛЕНИЯ НА КВЕСТАХ ---
@@ -640,17 +624,6 @@ function updateQuestAlert() {
         alertEl.style.display = 'none';
     }
 }
-
-document.getElementById('bonusBtn').addEventListener('click', function() {
-    const now = new Date();
-    const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
-    const currentDateStr = mskTime.toISOString().split('T')[0];
-
-    userCoins += GAME_CONFIG.bonusAmount;
-    localStorage.setItem('khl_last_bonus_date', currentDateStr);
-    updateUI();
-    alert(`Ты получил ${GAME_CONFIG.bonusAmount} ${GAME_CONFIG.currencyName}! Следующий бонус будет доступен после 00:00 по Минску.`);
-});
 
 // --- ПРОФИЛЬ ---
 function adjustNicknameSize() {
