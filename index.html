@@ -1240,21 +1240,28 @@ document.getElementById('closeDetailBtn').addEventListener('click', function() {
         }
 
         // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
-        fetch('players.json?v=999')
-            .then(response => {
-                if (!response.ok) throw new Error('Ошибка сети');
-                return response.json();
-            })
-            .then(data => {
-                PLAYERS = data; 
-                console.log("База игроков загружена. Всего:", PLAYERS.length);
-                updateUI(); 
-                updateProfile(); 
-            })
-            .catch(error => {
-                alert("Ошибка загрузки базы игроков! Проверьте интернет.");
-                console.error(error);
-            });
+fetch('players.json?v=999')
+    .then(response => {
+        if (!response.ok) throw new Error('Файл players.json не найден (Ошибка 404)');
+        return response.json();
+    })
+    .then(data => {
+        PLAYERS = data; 
+        console.log("База игроков загружена. Всего:", PLAYERS.length);
+        
+        // Запускаем обновление интерфейса в try-catch, чтобы поймать ошибки отрисовки
+        try {
+            updateUI(); 
+            updateProfile(); 
+        } catch (renderError) {
+            alert("Ошибка при отрисовке интерфейса!\n" + renderError.message + "\nСкорее всего, повреждены сохранения (LocalStorage). Очистите кэш сайта.");
+            console.error("Ошибка отрисовки:", renderError);
+        }
+    })
+    .catch(error => {
+        alert("Ошибка загрузки базы игроков!\n" + error.message);
+        console.error("Ошибка fetch:", error);
+    });
     </script>
 </body>
 </html>
