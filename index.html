@@ -1717,33 +1717,38 @@ function claimMainQuestReward() {
 }
 
     // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
-    fetch('players.json?v=999')
-        // ... дальше идет твой старый код fetch ...
-
+fetch('players.json?v=1000') // Обновил версию для сброса кэша
     .then(response => {
         if (!response.ok) throw new Error('Файл players.json не найден (Ошибка 404)');
         return response.json();
     })
     .then(data => {
         PLAYERS = data; 
-        addQuestProgress('play'); // Ежедневный
-
-// Проверка на стрик входа (3 дня)
-const todayStr = new Date().toISOString().split('T')[0];
-if (!questsData.weekly.loginDays.includes(todayStr)) {
-    questsData.weekly.loginDays.push(todayStr);
-    // Оставляем только последние 3 дня
-    if (questsData.weekly.loginDays.length > 3) questsData.weekly.loginDays.shift();
-    addQuestProgress('login3', 1);
-}
         console.log("База игроков загружена. Всего:", PLAYERS.length);
         
-        // Запускаем обновление интерфейса в try-catch, чтобы поймать ошибки отрисовки
+        // --- ЗАЩИТА ОТ СТАРЫХ СОХРАНЕНИЙ ---
+        if (!questsData.weekly.loginDays) questsData.weekly.loginDays = [];
+        if (!questsData.daily.rewardsTaken) questsData.daily.rewardsTaken = {};
+        if (!questsData.weekly.rewardsTaken) questsData.weekly.rewardsTaken = {};
+
+        // --- ЛОГИКА КВЕСТА "ЗАЙТИ В ИГРУ" ---
+        addQuestProgress('play');
+        
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (!questsData.weekly.loginDays.includes(todayStr)) {
+            questsData.weekly.loginDays.push(todayStr);
+            if (questsData.weekly.loginDays.length > 3) questsData.weekly.loginDays.shift();
+            addQuestProgress('login3', 1);
+        }
+        localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+        // ------------------------------------
+
+        // Запускаем отрисовку
         try {
             updateUI(); 
             updateProfile(); 
         } catch (renderError) {
-            alert("Ошибка при отрисовке интерфейса!\n" + renderError.message + "\nСкорее всего, повреждены сохранения (LocalStorage). Очистите кэш сайта.");
+            alert("Ошибка при отрисовке интерфейса!\n" + renderError.message);
             console.error("Ошибка отрисовки:", renderError);
         }
     })
