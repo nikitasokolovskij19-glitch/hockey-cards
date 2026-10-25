@@ -631,7 +631,6 @@
     grid.innerHTML = '';
     const savedAvatar = localStorage.getItem('khl_user_avatar') || '';
 
-    // 1. Собираем уникальные клубы и их логотипы
     const uniqueClubs = [];
     const seenClubs = new Set();
     PLAYERS.forEach(p => {
@@ -641,30 +640,31 @@
         }
     });
 
-    // 2. Сортируем по алфавиту
     uniqueClubs.sort((a, b) => a.club.localeCompare(b.club));
 
-    // 3. Рендерим кружочки
     uniqueClubs.forEach(c => {
         const isSelected = savedAvatar === c.logo;
         const div = document.createElement('div');
+        
+        // Убрали padding, сделали тонкую белую рамку вместо широкого фона
         div.style.cssText = `
             aspect-ratio: 1 / 1; 
             border-radius: 50%; 
-            background: #fff; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             cursor: pointer;
-            border: ${isSelected ? '3px solid #3b82f6' : '2px solid rgba(255,255,255,0.1)'};
+            border: ${isSelected ? '3px solid #3b82f6' : '2px solid #ffffff'};
             box-shadow: ${isSelected ? '0 0 15px rgba(59,130,246,0.6)' : 'none'};
-            padding: 6px; 
             box-sizing: border-box; 
             transition: 0.2s;
-            overflow: hidden; /* <--- ДОБАВЛЕНО: Прячет углы картинки */
+            overflow: hidden; 
+            background: transparent;
         `;
-        // Добавлен border-radius: 50% для картинки
-        div.innerHTML = `<img src="${c.logo}" style="width:100%; height:100%; object-fit:contain; border-radius: 50%;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
+        
+        // Картинка теперь заполняет весь круг (width: 100%)
+        div.innerHTML = `<img src="${c.logo}" style="width:100%; height:100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
+        
         div.onclick = () => changeUserAvatar(c.logo);
         grid.appendChild(div);
     });
