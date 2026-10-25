@@ -310,9 +310,13 @@
 
 <!-- ОКНО ВЫБОРА ИГРОКА В ЗВЕНО -->
 <div id="squadSelectView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; box-sizing: border-box;">
-    <h2 id="squadSelectTitle" style="color: #fbbf24; margin-bottom: 20px;">Выбери игрока</h2>
-    <div id="squadSelectList" style="width: 100%; max-width: 320px; padding: 0 15px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-bottom: 50px;"></div>
-    <button onclick="document.getElementById('squadSelectView').style.display='none'" style="position: fixed; bottom: 20px; background: rgba(51, 65, 85, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; width: 300px; font-weight: 800; cursor: pointer; z-index: 10000;">Закрыть</button>
+    <h2 id="squadSelectTitle" style="color: #fbbf24; margin-bottom: 15px; font-size: 20px; text-align: center;">Выбери игрока</h2>
+    
+    <div id="squadSelectList" style="width: 100%; max-width: 340px; padding: 0 10px 100px 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; box-sizing: border-box; flex: 1;"></div>
+    
+    <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(to top, #020617 80%, transparent); display: flex; justify-content: center; box-sizing: border-box;">
+        <button onclick="document.getElementById('squadSelectView').style.display='none'" style="background: rgba(51, 65, 85, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; width: 100%; max-width: 300px; font-weight: 800; cursor: pointer; z-index: 10000;">Закрыть</button>
+    </div>
 </div>
 
 <!-- ОКНО ПРОДАЖИ ДУБЛИКАТОВ -->
@@ -1050,12 +1054,15 @@ function renderSquad() {
 function openSquadSelection(requiredPos, slotIndex) {
     const currentPlayer = squad[slotIndex];
     document.getElementById('squadSelectTitle').innerText = currentPlayer ? `Заменить: ${requiredPos}` : `Выбор: ${requiredPos}`;
+    
     const listContainer = document.getElementById('squadSelectList');
     listContainer.innerHTML = '';
 
+    // 1. Кнопка "Убрать игрока" (если слот занят)
     if (currentPlayer) {
         const removeBtn = document.createElement('div');
-        removeBtn.style.cssText = 'background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 15px; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);';
+        // Растягиваем кнопку на всю ширину сетки
+        removeBtn.style.cssText = 'grid-column: 1 / -1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);';
         removeBtn.innerText = 'Убрать игрока из звена ❌';
         removeBtn.onclick = () => {
             squad[slotIndex] = null;
@@ -1066,12 +1073,17 @@ function openSquadSelection(requiredPos, slotIndex) {
         listContainer.appendChild(removeBtn);
     }
 
+    // 2. Фильтруем доступных игроков
     let availablePlayers = collection.filter(p => p.pos === requiredPos);
     availablePlayers = availablePlayers.filter(p => !squad.some(s => s && s.name === p.name && s.season === p.season));
 
     if (availablePlayers.length === 0) {
-        listContainer.innerHTML = '<p style="text-align: center; color: #aaa; margin-top: 20px;">У тебя нет свободных карточек на эту позицию.<br>Открой паки или убери игрока из другого слота!</p>';
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.cssText = 'grid-column: 1 / -1; text-align: center; color: #aaa; margin-top: 20px;';
+        emptyMsg.innerHTML = '<p>У тебя нет свободных карточек на эту позицию.<br>Открой паки или убери игрока из другого слота!</p>';
+        listContainer.appendChild(emptyMsg);
     } else {
+        // 3. Группируем дубликаты и СОРТИРУЕМ ПО СИЛЕ
         const grouped = {};
         availablePlayers.forEach(player => {
             const key = `${player.name}_${player.season}`;
@@ -1079,13 +1091,28 @@ function openSquadSelection(requiredPos, slotIndex) {
             grouped[key].count += 1;
         });
 
-        Object.values(grouped).forEach(player => {
+        const groupedArray = Object.values(grouped);
+        
+        // Сортировка по убыванию OVR
+        groupedArray.sort((a, b) => {
+            const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
+            const ovrB = Math.round((b.sc + b.br + b.ps + b.si + b.end + b.skate) / 6);
+            return ovrB - ovrA;
+        });
+
+        // 4. Рисуем красивые карточки
+        groupedArray.forEach(player => {
             const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-            const btn = document.createElement('div');
-            btn.style.cssText = 'background: rgba(30, 41, 59, 0.6); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);';
-            btn.innerHTML = `<div style="display: flex; align-items: center; gap: 10px;"><div style="font-weight: bold;">${player.name}</div><div style="font-size: 12px; color: #aaa;">${player.season}</div></div><div style="color: #fbbf24; font-weight: bold; font-size: 18px;">${overall}</div>`;
+            const rarityColor = getRarityInfo(overall).color;
+
+            const cardWrapper = document.createElement('div');
+            cardWrapper.className = 'mini-card-wrapper'; // Берем стили из коллекции
+            cardWrapper.style.border = `2px solid ${rarityColor}`;
             
-            btn.onclick = () => {
+            // Используем функцию генерации мини-карточки, которую мы писали ранее
+            cardWrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
+            
+            cardWrapper.onclick = () => {
                 squad[slotIndex] = player;
                 localStorage.setItem('khl_squad', JSON.stringify(squad));
                 document.getElementById('squadSelectView').style.display = 'none';
@@ -1094,7 +1121,8 @@ function openSquadSelection(requiredPos, slotIndex) {
                 addQuestProgress('squad');
                 if (squad.every(s => s !== null)) addQuestProgress('fullSquad', 1);
             };
-            listContainer.appendChild(btn);
+            
+            listContainer.appendChild(cardWrapper);
         });
     }
     document.getElementById('squadSelectView').style.display = 'flex';
