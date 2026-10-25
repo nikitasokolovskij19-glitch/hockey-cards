@@ -84,7 +84,7 @@
         .back-stat-row span:last-child { font-weight: 800; color: white; }
         .divider { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #3b82f6, transparent); margin: 15px 0; }
 
-        #shopView { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; min-height: 100dvh; overflow-y: auto; padding-top: 20px; box-sizing: border-box; }
+        #shopView { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; min-height: 100dvh; overflow-y: auto; padding-top: 20px; padding-bottom: 100px; box-sizing: border-box; }
         .profile-banner { position: absolute; top: 0; left: 0; width: 100%; padding: 15px 20px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), transparent); z-index: 100; }
         .avatar-container { position: relative; cursor: pointer; }
         .profile-avatar { width: 55px; height: 55px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 25px; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); overflow: hidden; }
@@ -104,7 +104,19 @@
         .collection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; padding: 0 10px 50px 10px; box-sizing: border-box; }
         .mini-card-wrapper { width: 100%; aspect-ratio: 95 / 135; position: relative; overflow: hidden; border-radius: 10px; cursor: pointer; }
 
-        .bottom-menu { position: absolute; bottom: 20px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 0 20px; box-sizing: border-box; }
+        .bottom-menu { 
+    position: fixed; 
+    bottom: 0; 
+    left: 0;
+    width: 100%; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    padding: 15px 20px calc(20px + env(safe-area-inset-bottom)) 20px; 
+    box-sizing: border-box; 
+    background: linear-gradient(to top, #020617 80%, transparent); 
+    z-index: 1000;
+        }
         .btn-row { display: flex; gap: 10px; width: 100%; justify-content: center; }
         .btn-main { flex: 1; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; border: none; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; position: relative; }
         .btn-shop { background: linear-gradient(135deg, #e11d48, #be123c); box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4); }
@@ -139,19 +151,24 @@
 
     <div id="shopView">
         <div class="profile-banner">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="avatar-container" onclick="document.getElementById('profileView').style.display='flex'">
-                    <div class="profile-avatar" id="user-avatar">👤</div>
-                    <div class="level-badge" id="user-level">1</div>
-                </div>
-                <div class="profile-info">
-                    <div class="profile-name" id="user-name">Загрузка...</div>
-                    <div class="profile-rating">Сила: <span id="user-rating">0</span> OVR</div>
-                </div>
-            </div>
-            <div class="balance-display">
-                <span id="coinDisplay">100</span> 💵
-            </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="avatar-container" onclick="document.getElementById('profileView').style.display='flex'">
+            <div class="profile-avatar" id="user-avatar">👤</div>
+            <div class="level-badge" id="user-level">1</div>
+        </div>
+        <div class="profile-info">
+            <div class="profile-name" id="user-name">Загрузка...</div>
+            <div class="profile-rating">Сила: <span id="user-rating">0</span> OVR</div>
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <!-- НОВАЯ КНОПКА КАЛЕНДАРЯ -->
+        <div id="calendarBtn" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🎁</div>
+        
+        <div class="balance-display" style="height: 45px; box-sizing: border-box; display: flex; align-items: center;">
+            <span id="coinDisplay">100</span> 💵
+        </div>
+    </div>
         </div>
 
         <div class="squad-container">
@@ -170,18 +187,17 @@
         </div>
 
         <div class="bottom-menu">
-            <button class="btn-main" id="calendarBtn" style="background: linear-gradient(135deg, #f59e0b, #d97706); width: 100%; max-width: 300px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
-                📅 ЕЖЕДНЕВНАЯ НАГРАДА
-            </button>
-            <button class="btn-main btn-quests" id="questsBtn">
-                КВЕСТЫ
-                <div class="quest-alert" id="questAlert" style="display: none;">!</div>
-            </button>
-            <div class="btn-row">
-                <button class="btn-main btn-shop" id="goToPacksBtn">МАГАЗИН 🛒</button>
-                <button class="btn-main btn-collection" id="viewCollectionBtn">КОЛЛЕКЦИЯ 📁</button>
-            </div>
-            <button class="btn-bonus" id="bonusBtn" style="display: none; width: 100%; margin-top: 5px; padding: 12px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 14px;">🎁 Получить бонус</button>
+    <div class="btn-row" style="max-width: 340px;">
+        <!-- Кнопка Магазина -->
+        <button class="btn-main btn-shop" id="goToPacksBtn" style="flex: 1; padding: 12px 5px; font-size: 13px;">МАГАЗИН 🛒</button>
+        <!-- Кнопка Коллекции -->
+        <button class="btn-main btn-collection" id="viewCollectionBtn" style="flex: 1; padding: 12px 5px; font-size: 13px;">КОЛЛЕКЦИЯ 📁</button>
+        <!-- Кнопка Квестов с индикатором -->
+        <button class="btn-main btn-quests" id="questsBtn" style="flex: 1; padding: 12px 5px; font-size: 13px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1);">
+            КВЕСТЫ
+            <div class="quest-alert" id="questAlert" style="display: none; top: -8px; right: -8px; left: auto;">!</div>
+        </button>
+    </div>
         </div>
     </div>
     <!-- ЭКРАН ПАКОВ -->
