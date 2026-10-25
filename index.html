@@ -132,6 +132,16 @@
         .pack-price { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 10px; font-size: 14px; font-weight: 800; color: #fbbf24; }
         
         .btn-nav { background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        
+        /* Обертка для мини-карточек в коллекции */
+.mini-card-wrapper {
+    width: 100%;
+    aspect-ratio: 95 / 135; /* Сохраняем пропорции карточки */
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    cursor: pointer;
+}
     </style>
 </head>
 <body>
@@ -251,7 +261,7 @@
 </div>
 <!-- ЭКРАН ПАКОВ -->
 <div id="packsView" style="display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 20px;">
-    <h2>Выбери сезон</h2>
+    <h2 style="font-size: 16px; margin-bottom: 15px;">Моя коллекция</h2>2
     <div id="seasonsListContainer"></div>
 </div>
 
@@ -578,54 +588,61 @@
     }
 
     function generatePlayerMiniCardHTML(player, showCount) {
-        let rarityColor = "#9ca3af";
-        if (player.rarity_num === 2) rarityColor = "#a3e635";
-        if (player.rarity_num === 3) rarityColor = "#3b82f6";
-        if (player.rarity_num === 4) rarityColor = "#fbbf24";
-        if (player.rarity_num === 5) rarityColor = "#be123c";
-        const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-        
-        return `
-            <div class="squad-slot" style="border-color:${rarityColor}; border-style:solid; cursor:pointer;">
-                <img src="${player.img}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; z-index: 1;" onerror="this.style.display='none';">
-                <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 65%; background: linear-gradient(to top, #0f172a 40%, transparent); z-index: 2;"></div>
-                <div style="position: absolute; top: 0; left: 0; background: rgba(15,23,42,0.85); color: ${rarityColor}; font-weight: 800; font-size: 14px; padding: 3px 6px; border-bottom-right-radius: 8px; z-index: 3; border-right: 1px solid ${rarityColor}; border-bottom: 1px solid ${rarityColor};">
-                    ${overall}
+    let rarityColor = "#9ca3af";
+    if (player.rarity_num === 2) rarityColor = "#a3e635";
+    if (player.rarity_num === 3) rarityColor = "#3b82f6";
+    if (player.rarity_num === 4) rarityColor = "#fbbf24";
+    if (player.rarity_num === 5) rarityColor = "#be123c";
+    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+    
+    return `
+        <div style="position: relative; width: 100%; height: 100%;">
+            <img src="${player.img}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; z-index: 1;" onerror="this.style.display='none';">
+            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 65%; background: linear-gradient(to top, #0f172a 40%, transparent); z-index: 2;"></div>
+            <div style="position: absolute; top: 0; left: 0; background: rgba(15,23,42,0.85); color: ${rarityColor}; font-weight: 800; font-size: 14px; padding: 3px 6px; border-bottom-right-radius: 8px; z-index: 3; border-right: 1px solid ${rarityColor}; border-bottom: 1px solid ${rarityColor};">
+                ${overall}
+            </div>
+            <div style="position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; background: #ffffff; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); overflow: hidden;">
+                <img src="${player.logo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none';">
+            </div>
+            <div style="position: absolute; bottom: 5px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 3; padding: 0 4px; box-sizing: border-box;">
+                <div style="font-size: 9px; font-weight: 800; text-transform: uppercase; width: 100%; text-align: center; text-shadow: 1px 1px 2px black; line-height: 1.1; white-space: normal; word-break: break-word; margin-bottom: 2px;">
+                    ${player.name}
                 </div>
-                <div style="position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; background: #ffffff; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); overflow: hidden;">
-                    <img src="${player.logo}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none';">
-                </div>
-                <div style="position: absolute; bottom: 5px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 3; padding: 0 4px; box-sizing: border-box;">
-                    <div style="font-size: 9px; font-weight: 800; text-transform: uppercase; width: 100%; text-align: center; text-shadow: 1px 1px 2px black; line-height: 1.1; white-space: normal; word-break: break-word; margin-bottom: 2px;">
-                        ${player.name}
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 10px; color: #cbd5e1; font-weight: 700;">
-                        <span>${player.flag || '🏳️'}</span>
-                        <span>${player.number || ''}</span>
-                        ${showCount && player.count > 1 ? `<span style="background:#e11d48; color:white; border-radius:4px; padding:0 4px; font-size:9px;">x${player.count}</span>` : ''}
-                    </div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 10px; color: #cbd5e1; font-weight: 700;">
+                    <span>${player.flag || '🏳️'}</span>
+                    <span>${player.number || ''}</span>
+                    ${showCount && player.count > 1 ? `<span style="background:#e11d48; color:white; border-radius:4px; padding:0 4px; font-size:9px;">x${player.count}</span>` : ''}
                 </div>
             </div>
-        `;
+        </div>
+    `;
     }
 
     function renderSquad() {
-        for (let i = 0; i < 6; i++) {
-            const slot = document.getElementById(`slot-${i}`);
-            const player = squad[i];
+    for (let i = 0; i < 6; i++) {
+        const slot = document.getElementById(`slot-${i}`);
+        const player = squad[i];
 
-            if (player) {
-                slot.style.background = '#0f172a';
-                slot.style.padding = '0'; 
-                slot.innerHTML = generatePlayerMiniCardHTML(player, false);
-            } else {
-                const posName = (i < 3) ? "НАП" : (i < 5 ? "ЗАЩ" : "ВРТ");
-                slot.style.background = 'rgba(30, 41, 59, 0.4)';
-                slot.style.border = '2px dashed rgba(255,255,255,0.2)';
-                slot.style.padding = '10px'; 
-                slot.innerHTML = `<span class="slot-pos">${posName}</span><div class="slot-plus">+</div>`;
-            }
+        if (player) {
+            let rarityColor = "#9ca3af";
+            if (player.rarity_num === 2) rarityColor = "#a3e635";
+            if (player.rarity_num === 3) rarityColor = "#3b82f6";
+            if (player.rarity_num === 4) rarityColor = "#fbbf24";
+            if (player.rarity_num === 5) rarityColor = "#be123c";
+
+            slot.style.background = '#0f172a';
+            slot.style.border = `2px solid ${rarityColor}`; // Сплошная рамка нужного цвета
+            slot.style.padding = '0'; 
+            slot.innerHTML = generatePlayerMiniCardHTML(player, false);
+        } else {
+            const posName = (i < 3) ? "НАП" : (i < 5 ? "ЗАЩ" : "ВРТ");
+            slot.style.background = 'rgba(30, 41, 59, 0.4)';
+            slot.style.border = '2px dashed rgba(255,255,255,0.2)';
+            slot.style.padding = '10px'; 
+            slot.innerHTML = `<span class="slot-pos">${posName}</span><div class="slot-plus">+</div>`;
         }
+    }
     }
 
     function openSquadSelection(requiredPos, slotIndex) {
@@ -942,7 +959,7 @@ function renderSeasonsList(container) {
     });
 }
 
-function renderSeasonPlayers(teamName, season) {
+    function renderSeasonPlayers(teamName, season) {
     document.getElementById('collectionContent').style.display = 'none';
     document.getElementById('innerCollectionView').style.display = 'block';
     document.getElementById('globalBackBtn').style.display = 'flex';
@@ -976,15 +993,24 @@ function renderSeasonPlayers(teamName, season) {
         grid.className = 'collection-grid';
         
         groupedArray.forEach(player => {
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
-            const cardEl = wrapper.firstElementChild;
-            cardEl.addEventListener('click', () => openDetailView(player));
-            grid.appendChild(cardEl);
+            const cardWrapper = document.createElement('div');
+            cardWrapper.className = 'mini-card-wrapper';
+            
+            let rarityColor = "#9ca3af";
+            if (player.rarity_num === 2) rarityColor = "#a3e635";
+            if (player.rarity_num === 3) rarityColor = "#3b82f6";
+            if (player.rarity_num === 4) rarityColor = "#fbbf24";
+            if (player.rarity_num === 5) rarityColor = "#be123c";
+            
+            cardWrapper.style.border = `2px solid ${rarityColor}`;
+            cardWrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
+            cardWrapper.addEventListener('click', () => openDetailView(player));
+            grid.appendChild(cardWrapper);
         });
         list.appendChild(grid);
     }
-}
+    }
+    
       function openDetailView(player) {
     currentViewPlayer = player;
     document.getElementById('d-name').innerText = player.name;
@@ -1067,6 +1093,13 @@ function renderSeasonPlayers(teamName, season) {
 
     detailView.style.display = 'flex';
     document.getElementById('flipCard').classList.remove('flipped');
+
+        detailView.style.display = 'flex';
+    document.getElementById('flipCard').classList.remove('flipped');
+    
+    // СКРЫВАЕМ ГЛОБАЛЬНЫЕ КНОПКИ
+    document.getElementById('globalHomeBtn').style.display = 'none';
+    document.getElementById('globalBackBtn').style.display = 'none';
 }
 
 document.getElementById('flipCard').addEventListener('click', function() {
@@ -1144,6 +1177,19 @@ document.getElementById('closeDetailBtn').addEventListener('click', function() {
             }
             renderCollection();
         }
+    
+        document.getElementById('closeDetailBtn').addEventListener('click', function() {
+    document.getElementById('detailView').style.display = 'none';
+    document.getElementById('flipCard').classList.remove('flipped');
+    
+    // Возвращаем кнопки, если мы находимся в коллекции
+    if (document.getElementById('collectionView').style.display === 'flex') {
+        document.getElementById('globalHomeBtn').style.display = 'flex';
+        if (document.getElementById('innerCollectionView').style.display === 'block') {
+            document.getElementById('globalBackBtn').style.display = 'flex';
+        }
+    }
+});
 
         // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
         fetch('players.json?v=999')
