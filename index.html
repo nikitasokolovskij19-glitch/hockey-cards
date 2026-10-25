@@ -312,7 +312,7 @@
 <div id="squadSelectView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px; box-sizing: border-box;">
     <h2 id="squadSelectTitle" style="color: #fbbf24; margin-bottom: 15px; font-size: 20px; text-align: center;">Выбери игрока</h2>
     
-    <div id="squadSelectList" style="width: 100%; max-width: 340px; padding: 0 10px 100px 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; box-sizing: border-box; flex: 1;"></div>
+    <div id="squadSelectList" style="width: 100%; max-width: 340px; padding: 0 10px 100px 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; box-sizing: border-box; flex: 1; min-height: 0; align-content: start;"></div>
     
     <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(to top, #020617 80%, transparent); display: flex; justify-content: center; box-sizing: border-box;">
         <button onclick="document.getElementById('squadSelectView').style.display='none'" style="background: rgba(51, 65, 85, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; width: 100%; max-width: 300px; font-weight: 800; cursor: pointer; z-index: 10000;">Закрыть</button>
@@ -1059,19 +1059,19 @@ function openSquadSelection(requiredPos, slotIndex) {
     listContainer.innerHTML = '';
 
     // 1. Кнопка "Убрать игрока" (если слот занят)
-    if (currentPlayer) {
-        const removeBtn = document.createElement('div');
-        // Растягиваем кнопку на всю ширину сетки
-        removeBtn.style.cssText = 'grid-column: 1 / -1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);';
-        removeBtn.innerText = 'Убрать игрока из звена ❌';
-        removeBtn.onclick = () => {
-            squad[slotIndex] = null;
-            localStorage.setItem('khl_squad', JSON.stringify(squad));
-            document.getElementById('squadSelectView').style.display = 'none';
-            renderSquad(); updateProfile();
-        };
-        listContainer.appendChild(removeBtn);
-    }
+if (currentPlayer) {
+    const removeBtn = document.createElement('div');
+    // Делаем кнопку нормального размера по центру
+    removeBtn.style.cssText = 'grid-column: 1 / -1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); height: fit-content; align-self: center; justify-self: center; width: 100%; max-width: 280px;';
+    removeBtn.innerText = 'Убрать игрока из звена ❌';
+    removeBtn.onclick = () => {
+        squad[slotIndex] = null;
+        localStorage.setItem('khl_squad', JSON.stringify(squad));
+        document.getElementById('squadSelectView').style.display = 'none';
+        renderSquad(); updateProfile();
+    };
+    listContainer.appendChild(removeBtn);
+}
 
     // 2. Фильтруем доступных игроков
     let availablePlayers = collection.filter(p => p.pos === requiredPos);
