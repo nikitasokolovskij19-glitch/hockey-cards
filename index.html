@@ -170,6 +170,9 @@
         </div>
 
         <div class="bottom-menu">
+            <button class="btn-main" id="calendarBtn" style="background: linear-gradient(135deg, #f59e0b, #d97706); width: 100%; max-width: 300px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
+                📅 ЕЖЕДНЕВНАЯ НАГРАДА
+            </button>
             <button class="btn-main btn-quests" id="questsBtn">
                 КВЕСТЫ
                 <div class="quest-alert" id="questAlert" style="display: none;">!</div>
@@ -286,6 +289,18 @@
             <button onclick="document.getElementById('sellModalView').style.display='none'" style="flex: 1; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Отмена</button>
             <button onclick="confirmSale()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);">Продать</button>
         </div>
+    </div>
+</div>
+
+    <!-- ОКНО КАЛЕНДАРЯ -->
+<div id="calendarModalView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 10000; flex-direction: column; align-items: center; justify-content: center;">
+    <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #f59e0b; border-radius: 24px; padding: 25px; width: 320px; text-align: center; box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);">
+        <h3 style="margin-top: 0; font-size: 20px; color: white; margin-bottom: 5px;">Ежедневный вход</h3>
+        <div style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Заходи каждый день и забирай награды!</div>
+        
+        <div id="calendarGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;"></div>
+        
+        <button onclick="document.getElementById('calendarModalView').style.display='none'" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
     </div>
 </div>
 
@@ -566,6 +581,48 @@ function updateUI() {
             bonusBtn.innerText = `🎁 Получить бонус (+${GAME_CONFIG.bonusAmount} ${GAME_CONFIG.currency})`;
         }
     }
+        updateQuestAlert();
+}
+
+// --- ПРОВЕРКА УВЕДОМЛЕНИЯ НА КВЕСТАХ ---
+function updateQuestAlert() {
+    const alertEl = document.getElementById('questAlert');
+    if (!alertEl) return;
+
+    let hasUnclaimed = false;
+
+    // Проверяем ежедневные
+    const dQuests = [
+        { id: 'play', target: 1 }, { id: 'open1', target: 1 }, 
+        { id: 'sell1', target: 1 }, { id: 'squad', target: 1 }, { id: 'open3', target: 3 }
+    ];
+    let allDailyDone = true;
+    dQuests.forEach(q => {
+        const progress = questsData.daily[q.id] || 0;
+        if (progress >= q.target && !questsData.daily.rewardsTaken[q.id]) hasUnclaimed = true;
+        if (progress < q.target) allDailyDone = false;
+    });
+    if (allDailyDone && !questsData.daily.mainClaimed) hasUnclaimed = true;
+
+    // Проверяем еженедельные
+    const wQuests = [
+        { id: 'open10', target: 10 }, { id: 'sell5', target: 5 }, 
+        { id: 'fullSquad', target: 6 }, { id: 'epicDrop', target: 1 }, { id: 'login3', target: 3 }
+    ];
+    let allWeeklyDone = true;
+    wQuests.forEach(q => {
+        const progress = questsData.weekly[q.id] || 0;
+        if (progress >= q.target && !questsData.weekly.rewardsTaken[q.id]) hasUnclaimed = true;
+        if (progress < q.target) allWeeklyDone = false;
+    });
+    if (allWeeklyDone && !questsData.weekly.mainClaimed) hasUnclaimed = true;
+
+    // Показываем или скрываем восклицательный знак
+    if (hasUnclaimed) {
+        alertEl.style.display = 'flex';
+    } else {
+        alertEl.style.display = 'none';
+    }
 }
 
 document.getElementById('bonusBtn').addEventListener('click', function() {
@@ -790,6 +847,7 @@ function renderQuests() {
     } else rewardBtn.innerText = '🔒 Выполните все квесты';
 
     list.appendChild(rewardBtn);
+    updateQuestAlert();
 }
 
 function claimSmallReward(questId, amount) {
@@ -1358,6 +1416,87 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             else renderSeasonPlayers(null, parts[0].replace('Сезон ', ''));
         }
 
+                // --- ЛОГИКА КАЛЕНДАРЯ ---
+let calendarData = JSON.parse(localStorage.getItem('khl_calendar')) || { weekStart: '', claimedDays: [] };
+
+function getMonday(d) {
+    d = new Date(d);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.setDate(diff));
+    return monday.toISOString().split('T')[0];
+}
+
+function checkCalendarReset() {
+    const currentMonday = getMonday(new Date());
+    if (calendarData.weekStart !== currentMonday) {
+        calendarData = { weekStart: currentMonday, claimedDays: [] };
+        localStorage.setItem('khl_calendar', JSON.stringify(calendarData));
+    }
+}
+
+document.getElementById('calendarBtn').onclick = () => {
+    checkCalendarReset();
+    renderCalendar();
+    document.getElementById('calendarModalView').style.display = 'flex';
+};
+
+function renderCalendar() {
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const rewards = ['50 💵', '100 💵', '📦 Пак', '150 💵', '200 💵', '📦 Пак', '500 💵'];
+    
+    // Текущий день недели (Пн = 0, Вс = 6)
+    let currentDayIndex = new Date().getDay() - 1; 
+    if (currentDayIndex === -1) currentDayIndex = 6;
+
+    days.forEach((day, index) => {
+        const isClaimed = calendarData.claimedDays.includes(index);
+        const isToday = index === currentDayIndex;
+        const isLocked = index > currentDayIndex;
+
+        const div = document.createElement('div');
+        div.style.cssText = `background: ${isClaimed ? 'rgba(16, 185, 129, 0.2)' : (isToday ? 'rgba(245, 158, 11, 0.2)' : 'rgba(30, 41, 59, 0.6)')}; border: 2px solid ${isClaimed ? '#10b981' : (isToday ? '#f59e0b' : 'rgba(255,255,255,0.1)')}; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;`;
+        
+        let btnText = rewards[index];
+        if (isClaimed) btnText = '✅';
+        else if (isLocked) btnText = '🔒';
+
+        div.innerHTML = `<div style="font-weight: 800; font-size: 14px; color: ${isClaimed ? '#10b981' : 'white'};">${day}</div><div style="font-size: 12px; font-weight: bold; color: #fbbf24;">${btnText}</div>`;
+
+        if (isToday && !isClaimed) {
+            div.style.cursor = 'pointer';
+            div.onclick = () => claimCalendarReward(index, rewards[index]);
+        }
+        grid.appendChild(div);
+    });
+}
+
+function claimCalendarReward(dayIndex, rewardStr) {
+    if (calendarData.claimedDays.includes(dayIndex)) return;
+    calendarData.claimedDays.push(dayIndex);
+    localStorage.setItem('khl_calendar', JSON.stringify(calendarData));
+
+    if (rewardStr.includes('💵')) {
+        const amount = parseInt(rewardStr);
+        userCoins += amount;
+        alert(`Вы получили ${amount} 💵!`);
+    } else if (rewardStr.includes('Пак')) {
+        // Логика выдачи пака
+        const season = "2025/26"; // Выдаем пак текущего сезона
+        let availablePlayers = PLAYERS.filter(p => p.season === season);
+        if (availablePlayers.length > 0) {
+            const p = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+            collection.push(p);
+            localStorage.setItem('khl_collection', JSON.stringify(collection));
+            alert(`Вы получили бесплатный пак! Выпал: ${p.name}`);
+        }
+    }
+    updateUI();
+    renderCalendar();
+}
+
                 // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
         fetch('players.json?v=1001')
             .then(response => {
@@ -1389,4 +1528,4 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             });
     </script>
 </body>
-</html>2
+</html>
