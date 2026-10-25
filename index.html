@@ -1038,6 +1038,116 @@ function renderSeasonPlayers(teamName, season) {
         list.appendChild(grid);
     }
 }
+
+    function openDetailView(player) {
+    currentViewPlayer = player;
+    document.getElementById('d-name').innerText = player.name;
+    document.getElementById('d-season').innerText = player.season;
+    document.getElementById('d-pos').innerText = player.pos;
+    
+    let posColor = "#ef4444"; 
+    if (player.pos === "Защитник") posColor = "#3b82f6"; 
+    if (player.pos === "Вратарь") posColor = "#10b981"; 
+    document.getElementById('d-pos').style.color = posColor;
+
+    document.getElementById('d-sc').innerText = player.sc;
+    document.getElementById('d-br').innerText = player.br;
+    document.getElementById('d-ps').innerText = player.ps;
+    document.getElementById('d-si').innerText = player.si;
+    document.getElementById('d-end').innerText = player.end;
+    document.getElementById('d-skate').innerText = player.skate;
+    document.getElementById('d-number').innerText = player.number || "";
+    document.getElementById('d-flag').innerText = player.flag || '🏳️'; 
+    
+    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+    document.getElementById('d-overall').innerText = overall;
+    
+    document.getElementById('d-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
+    document.getElementById('d-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
+
+    let detailBorderColor = "#9ca3af";
+    let detailRarityText = "Обычная";
+
+    if (player.rarity_num === 2) { detailBorderColor = "#a3e635"; detailRarityText = "Редкая"; }
+    if (player.rarity_num === 3) { detailBorderColor = "#3b82f6"; detailRarityText = "Супер редкая"; }
+    if (player.rarity_num === 4) { detailBorderColor = "#fbbf24"; detailRarityText = "Легендарная"; }
+    if (player.rarity_num === 5) { detailBorderColor = "#be123c"; detailRarityText = "Эпическая"; }
+    
+    const dRarityEl = document.getElementById('d-rarity');
+    dRarityEl.innerText = detailRarityText;
+    dRarityEl.style.color = detailBorderColor;
+    dRarityEl.style.borderColor = detailBorderColor;
+    dRarityEl.style.display = 'block';
+
+    const sellBtn = document.getElementById('detailSellBtn');
+    const sellPrice = overall * GAME_CONFIG.sellMultiplier;
+    
+    const inSquad = squad.some(s => s && s.name === player.name && s.season === player.season);
+    const totalCount = collection.filter(p => p.name === player.name && p.season === player.season).length;
+
+    if (inSquad && totalCount === 1) {
+        sellBtn.innerText = `Игрок в звене 🏒`;
+        sellBtn.style.background = '#475569';
+        sellBtn.style.cursor = 'not-allowed';
+        sellBtn.style.boxShadow = 'none';
+        sellBtn.onclick = () => alert('Этот игрок находится в вашем звене. Уберите его из звена, чтобы продать.');
+    } else {
+        sellBtn.innerText = `Продать (${sellPrice} 💵)`;
+        sellBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        sellBtn.style.cursor = 'pointer';
+        sellBtn.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.4)';
+        
+        sellBtn.onclick = () => {
+            const maxSellable = inSquad ? totalCount - 1 : totalCount;
+            if (maxSellable > 1) {
+                openSellModal(player, maxSellable, overall);
+            } else {
+                executeSale(player, 1, overall);
+            }
+        };
+    }
+
+    const backSide = document.getElementById('detailBack');
+    let html = `<h3 style="margin-top: 0; font-size: 18px; color: white;">${player.name}</h3><div class="stats-section"><div class="stats-header">Регулярный чемпионат</div><div class="back-stat-row"><span>Игры:</span> <span>${player.reg_stats.games}</span></div><div class="back-stat-row"><span>Голы:</span> <span>${player.reg_stats.goals}</span></div><div class="back-stat-row"><span>Пасы:</span> <span>${player.reg_stats.assists}</span></div><div class="back-stat-row"><span>Очки:</span> <span>${player.reg_stats.points}</span></div><div class="back-stat-row"><span>Штраф:</span> <span>${player.reg_stats.penalty}</span></div></div>`;
+
+    if (player.playoff_stats) {
+        html += `<div class="divider"></div><div class="stats-section"><div class="stats-header" style="color: #e11d48;">Плей-офф</div><div class="back-stat-row"><span>Игры:</span> <span>${player.playoff_stats.games}</span></div><div class="back-stat-row"><span>Голы:</span> <span>${player.playoff_stats.goals}</span></div><div class="back-stat-row"><span>Пасы:</span> <span>${player.playoff_stats.assists}</span></div><div class="back-stat-row"><span>Очки:</span> <span>${player.playoff_stats.points}</span></div><div class="back-stat-row"><span>Штраф:</span> <span>${player.playoff_stats.penalty}</span></div></div>`;
+    } else { html += `<div style="height: 40px;"></div>`; }
+
+    html += `<div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
+    backSide.innerHTML = html;
+
+    const detailCard = document.querySelector('#detailView .card');
+    if (detailCard) {
+        detailCard.style.setProperty('--card-border-color', detailBorderColor);
+        detailCard.style.borderColor = detailBorderColor;
+    }
+    const detailBack = document.getElementById('detailBack');
+    if (detailBack) detailBack.style.setProperty('--card-border-color', detailBorderColor);
+
+    detailView.style.display = 'flex';
+    document.getElementById('flipCard').classList.remove('flipped');
+    
+    document.getElementById('globalHomeBtn').style.display = 'none';
+    document.getElementById('globalBackBtn').style.display = 'none';
+}
+
+document.getElementById('flipCard').addEventListener('click', function() {
+    this.classList.toggle('flipped');
+});
+
+document.getElementById('closeDetailBtn').addEventListener('click', function() {
+    detailView.style.display = 'none';
+    document.getElementById('flipCard').classList.remove('flipped');
+    
+    if (document.getElementById('collectionView').style.display === 'flex') {
+        document.getElementById('globalHomeBtn').style.display = 'flex';
+        if (document.getElementById('innerCollectionView').style.display === 'block') {
+            document.getElementById('globalBackBtn').style.display = 'flex';
+        }
+    }
+});
+    
         // --- ФУНКЦИИ ПРОДАЖИ ---
         let currentSellPlayer = null;
         let currentSellPrice = 0;
