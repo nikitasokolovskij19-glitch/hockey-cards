@@ -1185,13 +1185,10 @@ playersToShow.forEach(player => {
             const cardWrapper = document.createElement('div');
             cardWrapper.className = 'mini-card-wrapper';
             
-            let rarityColor = "#9ca3af";
-            if (player.rarity_num === 2) rarityColor = "#a3e635";
-            if (player.rarity_num === 3) rarityColor = "#3b82f6";
-            if (player.rarity_num === 4) rarityColor = "#fbbf24";
-            if (player.rarity_num === 5) rarityColor = "#be123c";
-            
-            cardWrapper.style.border = `2px solid ${rarityColor}`;
+            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+const rarityColor = getRarityInfo(overall).color;
+
+cardWrapper.style.border = `2px solid ${rarityColor}`;
             cardWrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
             cardWrapper.addEventListener('click', () => openDetailView(player));
             grid.appendChild(cardWrapper);
