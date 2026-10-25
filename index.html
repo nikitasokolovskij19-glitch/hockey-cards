@@ -221,7 +221,10 @@
     <div id="profileView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
         <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #3b82f6; border-radius: 24px; padding: 30px; width: 300px; text-align: center; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);">
             <div style="width: 90px; height: 90px; border-radius: 50%; background: #3b82f6; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 45px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);">👤</div>
-            <h2 style="margin: 0 0 5px 0; font-size: 24px;" id="profile-modal-name">Игрок</h2>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px;">
+    <h2 style="margin: 0; font-size: 24px;" id="profile-modal-name">Игрок</h2>
+    <button onclick="openNicknameModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 0; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">📝</button>
+            </div>
             <div style="color: #fbbf24; font-weight: 800; font-size: 18px; margin-bottom: 20px;">Уровень: <span id="profile-modal-level">1</span></div>
             
             <div style="text-align: left; font-size: 12px; color: #cbd5e1; margin-bottom: 5px;">Прогресс уровня:</div>
@@ -229,13 +232,6 @@
                 <div id="profile-exp-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.3s;"></div>
             </div>
             <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 20px;"><span id="profile-exp-text">0 / 100</span> XP</div>
-
-            <div style="margin-bottom: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <div style="font-size: 14px; color: #fbbf24; font-weight: bold; margin-bottom: 10px;">Сменить никнейм</div>
-                <input type="text" id="nicknameInput" maxlength="15" placeholder="От 3 до 15 символов" style="width: 100%; padding: 12px; border-radius: 8px; background: #0f172a; border: 1px solid #3b82f6; color: white; text-align: center; font-size: 16px; box-sizing: border-box; margin-bottom: 8px; outline: none;">
-                <div id="nicknameError" style="color: #ef4444; font-size: 12px; margin-bottom: 8px; display: none;">Ник должен быть от 3 до 15 символов!</div>
-                <button onclick="saveNickname()" style="width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">Сохранить ник</button>
-            </div>
 
             <button class="btn-close" onclick="document.getElementById('profileView').style.display='none'" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
         </div>
@@ -273,6 +269,22 @@
             <button onclick="document.getElementById('sortModalView').style.display='none'" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Отмена</button>
         </div>
     </div>
+
+    <!-- ОКНО СМЕНЫ НИКНЕЙМА -->
+<div id="nicknameModalView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 10000; flex-direction: column; align-items: center; justify-content: center;">
+    <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #3b82f6; border-radius: 24px; padding: 25px; width: 300px; text-align: center; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);">
+        <h3 style="margin-top: 0; font-size: 20px; color: white; margin-bottom: 20px;">Сменить никнейм</h3>
+        
+        <input type="text" id="nicknameInput" maxlength="15" placeholder="От 3 до 15 символов" style="width: 100%; padding: 12px; border-radius: 8px; background: #0f172a; border: 1px solid #3b82f6; color: white; text-align: center; font-size: 16px; box-sizing: border-box; margin-bottom: 8px; outline: none;">
+        <div id="nicknameError" style="color: #ef4444; font-size: 12px; margin-bottom: 15px; display: none;">Ник должен быть от 3 до 15 символов!</div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button onclick="document.getElementById('nicknameModalView').style.display='none'" style="flex: 1; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Отмена</button>
+            <button onclick="saveNickname()" style="flex: 1; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">Сохранить</button>
+        </div>
+    </div>
+</div>
+    
 <!-- ОКНО ВЫПАДЕНИЯ -->
 <div id="revealView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
     <h2 id="revealText" style="color: #fbbf24; margin-bottom: 20px; transform: translateY(-50px); opacity: 0; transition: 0.5s;">Тебе выпал...</h2>
@@ -427,19 +439,19 @@
         "2013/14", "2012/13", "2011/12", "2010/11", "2009/10"
     ];
 
-    // --- ГЛОБАЛЬНАЯ НАВИГАЦИЯ ---
     function goHome() {
-        document.getElementById('profileView').style.display = 'none';
-        document.getElementById('detailView').style.display = 'none';
-        document.getElementById('squadSelectView').style.display = 'none';
-        document.getElementById('sellModalView').style.display = 'none';
-        document.getElementById('sortModalView').style.display = 'none';
-        document.getElementById('packsView').style.display = 'none';
-        document.getElementById('collectionView').style.display = 'none';
-        
-        document.getElementById('shopView').style.display = 'flex';
-        document.getElementById('globalHomeBtn').style.display = 'none';
-        document.getElementById('globalBackBtn').style.display = 'none';
+    document.getElementById('profileView').style.display = 'none';
+    document.getElementById('nicknameModalView').style.display = 'none'; // <--- ДОБАВИТЬ ВОТ ЭТУ СТРОКУ
+    document.getElementById('detailView').style.display = 'none';
+    document.getElementById('squadSelectView').style.display = 'none';
+    document.getElementById('sellModalView').style.display = 'none';
+    document.getElementById('sortModalView').style.display = 'none';
+    document.getElementById('packsView').style.display = 'none';
+    document.getElementById('collectionView').style.display = 'none';
+    
+    document.getElementById('shopView').style.display = 'flex';
+    document.getElementById('globalHomeBtn').style.display = 'none';
+    document.getElementById('globalBackBtn').style.display = 'none';
     }
 
     function goBack() {
@@ -575,20 +587,33 @@
     }
 
     function saveNickname() {
-        const input = document.getElementById('nicknameInput');
-        const errorText = document.getElementById('nicknameError');
-        const newName = input.value.trim();
+    const input = document.getElementById('nicknameInput');
+    const errorText = document.getElementById('nicknameError');
+    const newName = input.value.trim();
 
-        if (newName.length < 3 || newName.length > 15) {
-            errorText.style.display = 'block';
-            return;
-        }
-
-        errorText.style.display = 'none';
-        localStorage.setItem('khl_nickname', newName);
-        updateProfile();
-        alert('Никнейм успешно изменен!');
+    if (newName.length < 3 || newName.length > 15) {
+        errorText.style.display = 'block';
+        return;
     }
+
+    errorText.style.display = 'none';
+    localStorage.setItem('khl_nickname', newName);
+    updateProfile();
+    
+    // Закрываем окно смены ника после успешного сохранения
+    document.getElementById('nicknameModalView').style.display = 'none';
+    alert('Никнейм успешно изменен!');
+    }
+
+    function openNicknameModal() {
+    // Заполняем инпут текущим ником
+    document.getElementById('nicknameInput').value = document.getElementById('profile-modal-name').innerText;
+    // Прячем старые ошибки
+    document.getElementById('nicknameError').style.display = 'none';
+    // Показываем окно
+    document.getElementById('nicknameModalView').style.display = 'flex';
+    }
+    
 // --- ЗВЕНО ---
 function generatePlayerMiniCardHTML(player, showCount) {
     let rarityColor = "#9ca3af";
@@ -989,12 +1014,12 @@ function renderSeasonPlayers(teamName, season) {
     let playersToShow = teamName ? collection.filter(p => p.club === teamName && p.season === season) : collection.filter(p => p.season === season);
 
     const grouped = {};
-    playersToShow.forEach(player => {
-        const shortName = player.name.substring(0, 5).toLowerCase();
-        const key = `${shortName}_${player.season}`;
-        if (!grouped[key]) grouped[key] = { ...player, count: 0 };
-        grouped[key].count += 1;
-    });
+playersToShow.forEach(player => {
+    // ИСПОЛЬЗУЕМ ПОЛНОЕ ИМЯ И СЕЗОН В КАЧЕСТВЕ УНИКАЛЬНОГО КЛЮЧА
+    const key = `${player.name}_${player.season}`;
+    if (!grouped[key]) grouped[key] = { ...player, count: 0 };
+    grouped[key].count += 1;
+});
 
     const groupedArray = Object.values(grouped);
     
