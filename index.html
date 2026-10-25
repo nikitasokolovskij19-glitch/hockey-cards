@@ -8,15 +8,15 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
         
         body { 
-    background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+    background: #000000; /* СДЕЛАЛИ ЧЕРНЫЙ ФОН */
     background-attachment: fixed; background-size: cover; color: white; 
     font-family: 'Montserrat', sans-serif; 
     display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-    height: 100dvh; /* Фиксируем высоту экрана */
+    height: 100dvh; 
     margin: 0; 
-    overflow: hidden; /* Запрещаем скролл на главной */
+    overflow: hidden; 
     position: relative;
-}
+        }
 
 #shopView { 
     display: flex; 
@@ -32,13 +32,23 @@
 }
 
         .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
-        .bg-logo { position: absolute; top: -100px; opacity: 0.05; filter: grayscale(100%) brightness(200%); animation: dropDown linear infinite; border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1; }
-        @keyframes dropDown {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.05; }
-            90% { opacity: 0.05; }
-            100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
-        }
+        .bg-logo { 
+    position: absolute; 
+    top: -100px; 
+    opacity: 0.15; /* СДЕЛАЛИ ЯРЧЕ (было 0.05) */
+    filter: grayscale(30%) brightness(150%); /* Добавили сочности */
+    animation: dropDown linear infinite; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    aspect-ratio: 1 / 1; 
+}
+
+@keyframes dropDown {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.15; } /* Синхронизировали с новым значением */
+    90% { opacity: 0.15; }
+    100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
+}
 
         h2 { margin-top: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.3); text-align: center; }
         
