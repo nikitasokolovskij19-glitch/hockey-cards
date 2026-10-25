@@ -3,8 +3,7 @@
         "name": "Сергей Мозякин", "club": "Металлург Мг", "season": "2016/17", "pos": "Нападающий", "number": "#10", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Metallurg_Logo.svg.jpg", 
         "sc": 90, "br": 99, "ps": 97, "si": 85, "end": 92, "skate": 94, "rarity": "Эпическая", "rarity_num": 5, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 60, "goals": 48, "assists": 35, "points": 83, "penalty": 20 }, 
         "playoff_stats": { "games": 18, "goals": 7, "assists": 10, "points": 17, "penalty": 4 } 
     },
@@ -12,8 +11,7 @@
         "name": "Павел Дацюк", "club": "СКА", "season": "2016/17", "pos": "Нападающий", "number": "#13", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Ska_Logo.svg.jpg", 
         "sc": 92, "br": 88, "ps": 99, "si": 80, "end": 90, "skate": 95, "rarity": "Эпическая", "rarity_num": 5, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 60, "goals": 12, "assists": 35, "points": 47, "penalty": 16 }, 
         "playoff_stats": { "games": 18, "goals": 4, "assists": 12, "points": 16, "penalty": 6 } 
     },
@@ -21,8 +19,7 @@
         "name": "Александр Овечкин", "club": "Динамо М", "season": "2012/13", "pos": "Нападающий", "number": "#32", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Dynamo_Moscow_Logo.svg.jpg", 
         "sc": 99, "br": 96, "ps": 75, "si": 90, "end": 93, "skate": 88, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 31, "goals": 19, "assists": 21, "points": 40, "penalty": 14 }, 
         "playoff_stats": { "games": 15, "goals": 8, "assists": 7, "points": 15, "penalty": 8 } 
     },
@@ -30,8 +27,7 @@
         "name": "Данис Зарипов", "club": "Ак Барс", "season": "2014/15", "pos": "Нападающий", "number": "#25", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/AkBars_Logo.svg.jpg", 
         "sc": 92, "br": 90, "ps": 88, "si": 75, "end": 85, "skate": 90, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 60, "goals": 25, "assists": 35, "points": 60, "penalty": 12 }, 
         "playoff_stats": { "games": 20, "goals": 8, "assists": 10, "points": 18, "penalty": 10 } 
     },
@@ -39,8 +35,7 @@
         "name": "Илья Ковальчук", "club": "СКА", "season": "2015/16", "pos": "Нападающий", "number": "#17", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Ska_Logo.svg.jpg", 
         "sc": 94, "br": 92, "ps": 78, "si": 85, "end": 88, "skate": 89, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 50, "goals": 25, "assists": 15, "points": 40, "penalty": 30 }, 
         "playoff_stats": null 
     },
@@ -48,8 +43,7 @@
         "name": "Виталий Пинчук", "club": "Динамо Минск", "season": "2025/26", "pos": "Нападающий", "number": "#81", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Dinamo_Minsk_Logo.svg.jpg", 
         "sc": 85, "br": 84, "ps": 86, "si": 80, "end": 82, "skate": 88, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/IMG_20261024_130603.jpg", 
-        "flag": "🇧🇾", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/IMG_20261024_130603.jpg", "flag": "🇧🇾", 
         "reg_stats": { "games": 65, "goals": 20, "assists": 30, "points": 50, "penalty": 20 }, 
         "playoff_stats": { "games": 10, "goals": 2, "assists": 3, "points": 5, "penalty": 4 } 
     },
@@ -57,8 +51,7 @@
         "name": "Александр Радулов", "club": "Ак Барс", "season": "2025/26", "pos": "Нападающий", "number": "#47", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/AkBars_Logo.svg.jpg", 
         "sc": 88, "br": 85, "ps": 92, "si": 82, "end": 84, "skate": 86, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/lokomotiv-zaklyuchil-novyj-k.jpg", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/lokomotiv-zaklyuchil-novyj-k.jpg", "flag": "🇷🇺", 
         "reg_stats": { "games": 55, "goals": 15, "assists": 40, "points": 55, "penalty": 40 }, 
         "playoff_stats": { "games": 12, "goals": 4, "assists": 8, "points": 12, "penalty": 10 } 
     },
@@ -66,17 +59,15 @@
         "name": "Дамир Шарипзянов", "club": "Авангард", "season": "2025/26", "pos": "Защитник", "number": "#44", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Avangard_Logo.svg.jpg", 
         "sc": 75, "br": 82, "ps": 80, "si": 88, "end": 86, "skate": 84, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/17-DSC_8501.jpg", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/17-DSC_8501.jpg", "flag": "🇷🇺", 
         "reg_stats": { "games": 68, "goals": 5, "assists": 25, "points": 30, "penalty": 30 }, 
         "playoff_stats": { "games": 15, "goals": 1, "assists": 5, "points": 6, "penalty": 8 } 
     },
     { 
         "name": "Никита Трямкин", "club": "Автомобилист", "season": "2025/26", "pos": "Защитник", "number": "#88", 
-        "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Avtomobilist_Yekaterinburg_Logo.png", 
+        "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Avtomobilist_Logo.svg.jpg", 
         "sc": 72, "br": 80, "ps": 78, "si": 90, "end": 88, "skate": 82, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/IMG_20261024_130530.jpg", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/IMG_20261024_130530.jpg", "flag": "🇷🇺", 
         "reg_stats": { "games": 60, "goals": 4, "assists": 15, "points": 19, "penalty": 45 }, 
         "playoff_stats": { "games": 10, "goals": 0, "assists": 2, "points": 2, "penalty": 12 } 
     },
@@ -84,8 +75,7 @@
         "name": "Никита Гусев", "club": "Динамо М", "season": "2025/26", "pos": "Нападающий", "number": "#97", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Dynamo_Moscow_Logo.svg.jpg", 
         "sc": 88, "br": 85, "ps": 96, "si": 70, "end": 82, "skate": 90, "rarity": "Эпическая", "rarity_num": 5, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/IMG_20261024_130542.jpg", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/IMG_20261024_130542.jpg", "flag": "🇷🇺", 
         "reg_stats": { "games": 68, "goals": 22, "assists": 55, "points": 77, "penalty": 12 }, 
         "playoff_stats": { "games": 10, "goals": 3, "assists": 8, "points": 11, "penalty": 2 } 
     },
@@ -93,17 +83,15 @@
         "name": "Александр Никишин", "club": "СКА", "season": "2025/26", "pos": "Защитник", "number": "#21", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Ska_Logo.svg.jpg", 
         "sc": 82, "br": 88, "ps": 85, "si": 90, "end": 88, "skate": 86, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/photo_2025-01-23_10-55-20.jpg", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/photo_2025-01-23_10-55-20.jpg", "flag": "🇷🇺", 
         "reg_stats": { "games": 65, "goals": 15, "assists": 30, "points": 45, "penalty": 40 }, 
         "playoff_stats": { "games": 12, "goals": 2, "assists": 6, "points": 8, "penalty": 10 } 
     },
     { 
         "name": "Максим Шабанов", "club": "Трактор", "season": "2025/26", "pos": "Нападающий", "number": "#53", 
-        "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Tractor_Logo.svg.jpg",
+        "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Tractor_Logo.svg.jpg", 
         "sc": 86, "br": 84, "ps": 88, "si": 72, "end": 80, "skate": 92, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 70, "goals": 25, "assists": 40, "points": 65, "penalty": 20 }, 
         "playoff_stats": { "games": 15, "goals": 5, "assists": 9, "points": 14, "penalty": 6 } 
     },
@@ -111,8 +99,7 @@
         "name": "Николай Голдобин", "club": "Спартак", "season": "2025/26", "pos": "Нападающий", "number": "#77", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Spartak_Logo.svg.jpg", 
         "sc": 85, "br": 86, "ps": 88, "si": 75, "end": 82, "skate": 88, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 60, "goals": 28, "assists": 32, "points": 60, "penalty": 18 }, 
         "playoff_stats": null 
     },
@@ -120,8 +107,7 @@
         "name": "Роман Канцеров", "club": "Металлург Мг", "season": "2025/26", "pos": "Нападающий", "number": "#9", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Metallurg_Logo.svg.jpg", 
         "sc": 84, "br": 85, "ps": 82, "si": 72, "end": 80, "skate": 88, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 65, "goals": 22, "assists": 25, "points": 47, "penalty": 10 }, 
         "playoff_stats": { "games": 18, "goals": 6, "assists": 8, "points": 14, "penalty": 4 } 
     },
@@ -129,8 +115,7 @@
         "name": "Артем Галимов", "club": "Ак Барс", "season": "2025/26", "pos": "Нападающий", "number": "#95", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/AkBars_Logo.svg.jpg", 
         "sc": 82, "br": 80, "ps": 85, "si": 75, "end": 84, "skate": 86, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 68, "goals": 18, "assists": 28, "points": 46, "penalty": 14 }, 
         "playoff_stats": { "games": 10, "goals": 2, "assists": 4, "points": 6, "penalty": 2 } 
     },
@@ -138,8 +123,7 @@
         "name": "Илья Набоков", "club": "Металлург Мг", "season": "2025/26", "pos": "Вратарь", "number": "#1", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Metallurg_Logo.svg.jpg", 
         "sc": 70, "br": 70, "ps": 85, "si": 88, "end": 90, "skate": 80, "rarity": "Эпическая", "rarity_num": 5, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 50, "goals": 0, "assists": 2, "points": 2, "penalty": 2 }, 
         "playoff_stats": { "games": 20, "goals": 0, "assists": 1, "points": 1, "penalty": 0 } 
     },
@@ -147,9 +131,8 @@
         "name": "Тимур Билялов", "club": "Ак Барс", "season": "2025/26", "pos": "Вратарь", "number": "#50", 
         "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/AkBars_Logo.svg.jpg", 
         "sc": 65, "br": 65, "ps": 88, "si": 85, "end": 92, "skate": 75, "rarity": "Легендарная", "rarity_num": 4, 
-        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", 
-        "flag": "🇷🇺", 
+        "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Datsyuk_1x.png", "flag": "🇷🇺", 
         "reg_stats": { "games": 45, "goals": 0, "assists": 1, "points": 1, "penalty": 0 }, 
         "playoff_stats": { "games": 15, "goals": 0, "assists": 0, "points": 0, "penalty": 0 } 
     }
-        ]
+]
