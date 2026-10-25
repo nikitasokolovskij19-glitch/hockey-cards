@@ -589,13 +589,18 @@
         updateProfile();
         alert('Никнейм успешно изменен!');
     }
+    // Функция для автоматического определения цвета и названия редкости
+function getRarityInfo(overall) {
+    if (overall >= 95) return { color: "#be123c", text: "Эпическая" };
+    if (overall >= 85) return { color: "#fbbf24", text: "Легендарная" };
+    if (overall >= 75) return { color: "#3b82f6", text: "Супер редкая" };
+    if (overall >= 60) return { color: "#a3e635", text: "Редкая" };
+    return { color: "#9ca3af", text: "Обычная" };
+}
   // --- ЗВЕНО ---
 function generatePlayerMiniCardHTML(player, showCount) {
-    let rarityColor = "#9ca3af";
-    if (player.rarity_num === 2) rarityColor = "#a3e635";
-    if (player.rarity_num === 3) rarityColor = "#3b82f6";
-    if (player.rarity_num === 4) rarityColor = "#fbbf24";
-    if (player.rarity_num === 5) rarityColor = "#be123c";
+    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+let rarityColor = getRarityInfo(overall).color;
 
     const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
     
@@ -629,16 +634,13 @@ function renderSquad() {
         const player = squad[i];
 
         if (player) {
-            let rarityColor = "#9ca3af";
-            if (player.rarity_num === 2) rarityColor = "#a3e635";
-            if (player.rarity_num === 3) rarityColor = "#3b82f6";
-            if (player.rarity_num === 4) rarityColor = "#fbbf24";
-            if (player.rarity_num === 5) rarityColor = "#be123c";
+    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+    let rarityColor = getRarityInfo(overall).color;
 
-            slot.style.background = '#0f172a';
-            slot.style.border = `2px solid ${rarityColor}`;
-            slot.style.padding = '0'; 
-            slot.innerHTML = generatePlayerMiniCardHTML(player, false);
+    slot.style.background = '#0f172a';
+    slot.style.border = `2px solid ${rarityColor}`;
+    slot.style.padding = '0'; 
+    slot.innerHTML = generatePlayerMiniCardHTML(player, false);
         } else {
             const posName = (i < 3) ? "НАП" : (i < 5 ? "ЗАЩ" : "ВРТ");
             slot.style.background = 'rgba(30, 41, 59, 0.4)';
@@ -798,20 +800,21 @@ function buyPack(season, price) {
     document.getElementById('r-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('r-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
-    // Логика цветов и редкости
-    let borderColor = "#9ca3af";
-    let rarityText = "Обычная";
-    
-    if (player.rarity_num === 2) { borderColor = "#a3e635"; rarityText = "Редкая"; }
-    if (player.rarity_num === 3) { borderColor = "#3b82f6"; rarityText = "Супер редкая"; }
-    if (player.rarity_num === 4) { borderColor = "#fbbf24"; rarityText = "Легендарная"; }
-    if (player.rarity_num === 5) { borderColor = "#be123c"; rarityText = "Эпическая"; }
+    // --- НОВАЯ ЛОГИКА РЕДКОСТИ ---
+const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+const rarityInfo = getRarityInfo(overall);
 
-    const rRarityEl = document.getElementById('r-rarity');
-    rRarityEl.innerText = rarityText;
-    rRarityEl.style.color = borderColor;
-    rRarityEl.style.borderColor = borderColor;
-    rRarityEl.style.display = 'block';
+const borderColor = rarityInfo.color;
+const rarityText = rarityInfo.text;
+
+const rRarityEl = document.getElementById('r-rarity');
+rRarityEl.innerText = rarityText;
+rRarityEl.style.color = borderColor;
+rRarityEl.style.borderColor = borderColor;
+rRarityEl.style.display = 'block';
+
+document.getElementById('revealCard').style.setProperty('--card-border-color', borderColor);
+document.getElementById('revealCard').style.borderColor = borderColor;
 
     document.getElementById('revealCard').style.setProperty('--card-border-color', borderColor);
     document.getElementById('revealCard').style.borderColor = borderColor;
@@ -1024,11 +1027,9 @@ function renderSeasonPlayers(teamName, season) {
             const cardWrapper = document.createElement('div');
             cardWrapper.className = 'mini-card-wrapper';
             
-            let rarityColor = "#9ca3af";
-            if (player.rarity_num === 2) rarityColor = "#a3e635";
-            if (player.rarity_num === 3) rarityColor = "#3b82f6";
-            if (player.rarity_num === 4) rarityColor = "#fbbf24";
-            if (player.rarity_num === 5) rarityColor = "#be123c";
+            const pOvr = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+const rColor = getRarityInfo(pOvr).color;
+cardWrapper.style.border = `2px solid ${rColor}`;
             
             cardWrapper.style.border = `2px solid ${rarityColor}`;
             cardWrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
@@ -1064,20 +1065,16 @@ function renderSeasonPlayers(teamName, season) {
     document.getElementById('d-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('d-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
-    // Логика цветов и редкости
-    let detailBorderColor = "#9ca3af";
-    let detailRarityText = "Обычная";
+    // --- НОВАЯ ЛОГИКА РЕДКОСТИ ---
+const rarityInfo = getRarityInfo(overall);
+const detailBorderColor = rarityInfo.color;
+const detailRarityText = rarityInfo.text;
 
-    if (player.rarity_num === 2) { detailBorderColor = "#a3e635"; detailRarityText = "Редкая"; }
-    if (player.rarity_num === 3) { detailBorderColor = "#3b82f6"; detailRarityText = "Супер редкая"; }
-    if (player.rarity_num === 4) { detailBorderColor = "#fbbf24"; detailRarityText = "Легендарная"; }
-    if (player.rarity_num === 5) { detailBorderColor = "#be123c"; detailRarityText = "Эпическая"; }
-    
-    const dRarityEl = document.getElementById('d-rarity');
-    dRarityEl.innerText = detailRarityText;
-    dRarityEl.style.color = detailBorderColor;
-    dRarityEl.style.borderColor = detailBorderColor;
-    dRarityEl.style.display = 'block';
+const dRarityEl = document.getElementById('d-rarity');
+dRarityEl.innerText = detailRarityText;
+dRarityEl.style.color = detailBorderColor;
+dRarityEl.style.borderColor = detailBorderColor;
+dRarityEl.style.display = 'block';
 
     // Логика продажи
     const sellBtn = document.getElementById('detailSellBtn');
