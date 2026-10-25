@@ -760,9 +760,13 @@ let currentQuestTab = 'daily';
 
 function checkQuestResets() {
     const now = new Date();
-    const today = now.toISOString().split('T')[0];
-    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay(); 
-    const startOfWeek = new Date(now.setDate(now.getDate() - dayOfWeek + 1));
+    // Переводим на время Минска (UTC+3)
+    const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+    const today = mskTime.toISOString().split('T')[0];
+    
+    // Получаем понедельник текущей недели (тоже по Минску)
+    const dayOfWeek = mskTime.getDay() === 0 ? 7 : mskTime.getDay(); 
+    const startOfWeek = new Date(mskTime.setDate(mskTime.getDate() - dayOfWeek + 1));
     const currentWeek = startOfWeek.toISOString().split('T')[0];
 
     let changed = false;
@@ -1533,24 +1537,26 @@ function claimCalendarReward(dayIndex, rewardStr) {
                 updateUI(); 
                 updateProfile(); 
                 
-                // Засчитываем ежедневный вход
-                addQuestProgress('play');
-                
-                // Засчитываем вход для недельного стрика (3 дня подряд)
-                const todayStr = new Date().toISOString().split('T')[0];
-                if (!questsData.weekly.loginDays.includes(todayStr)) {
-                    questsData.weekly.loginDays.push(todayStr);
-                    if (questsData.weekly.loginDays.length > 3) {
-                        questsData.weekly.loginDays.shift();
-                    }
-                    addQuestProgress('login3', 1);
-                }
-                localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+                // Засчитываем вход
+addQuestProgress('play');
+
+const now = new Date();
+const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+const todayStr = mskTime.toISOString().split('T')[0];
+
+if (!questsData.weekly.loginDays.includes(todayStr)) {
+    questsData.weekly.loginDays.push(todayStr);
+    if (questsData.weekly.loginDays.length > 3) {
+        questsData.weekly.loginDays.shift();
+    }
+    addQuestProgress('login3', 1);
+}
+localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
             })
             .catch(error => {
                 alert("Ошибка загрузки базы: " + error.message);
                 console.error(error);
             });
-    </script>
+</script>
 </body>
 </html>
