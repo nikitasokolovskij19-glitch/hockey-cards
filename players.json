@@ -48,8 +48,8 @@
         "playoff_stats": { "games": 10, "goals": 2, "assists": 3, "points": 5, "penalty": 4 } 
     },
     { 
-        "name": "Александр Радулов", "club": "Ак Барс", "season": "2025/26", "pos": "Нападающий", "number": "#47", 
-        "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/AkBars_Logo.svg.jpg", 
+        "name": "Александр Радулов", "club": "Локомотив", "season": "2025/26", "pos": "Нападающий", "number": "#47", 
+        "logo": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Locomotiv_Logo.svg.jpg", 
         "sc": 88, "br": 85, "ps": 92, "si": 82, "end": 84, "skate": 86, "rarity": "Легендарная", "rarity_num": 4, 
         "img": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/lokomotiv-zaklyuchil-novyj-k.jpg", "flag": "🇷🇺", 
         "reg_stats": { "games": 55, "goals": 15, "assists": 40, "points": 55, "penalty": 40 }, 
