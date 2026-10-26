@@ -1145,12 +1145,25 @@ cardWrapper.style.border = `2px solid ${rarityColor}`;
 function renderPackButtons() {
     const container = document.getElementById('seasonsListContainer');
     container.innerHTML = '';
+    
     ALL_SEASONS.forEach(season => {
+        // Считаем, сколько игроков в этом сезоне
         const playerCount = PLAYERS.filter(p => p.season === season).length;
+        
+        // Если игроков нет, пропускаем этот сезон (не создаем для него пак)
+        if (playerCount === 0) return; 
+
         const btn = document.createElement('div');
         btn.className = 'pack-card';
-        if (season === "2025/26") btn.classList.add('new-season');
-        btn.innerHTML = `<div class="pack-icon">${season === "2025/26" ? "🔥" : "📦"}</div><div class="pack-season">${season}</div><div class="pack-count">${playerCount} карточек</div><div class="pack-price">${GAME_CONFIG.packPrice} ${GAME_CONFIG.currency}</div>`;
+        if (season === "2025/26") btn.classList.add('new-season'); // Подсветка для нового сезона
+
+        btn.innerHTML = `
+            <div class="pack-icon">${season === "2025/26" ? "🔥" : "📦"}</div>
+            <div class="pack-season">${season}</div>
+            <div class="pack-count">${playerCount} карточек</div>
+            <div class="pack-price">${GAME_CONFIG.packPrice} ${GAME_CONFIG.currency}</div>
+        `;
+        
         btn.addEventListener('click', () => buyPack(season, GAME_CONFIG.packPrice));
         container.appendChild(btn);
     });
