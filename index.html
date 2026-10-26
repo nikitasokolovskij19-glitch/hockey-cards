@@ -408,7 +408,7 @@
                     </div>
                 </div>
                 <div class="info-table-right">
-                    <div class="info-number" id="r-number">#10</div>
+                    <div class="info-number" id="r-number" style="font-size: 26px; margin-bottom: 5px;">#00</div>
                     <div class="player-flag" id="r-flag">🇷🇺</div>
                 </div>
             </div>
@@ -1239,19 +1239,19 @@ function openSquadSelection(requiredPos, slotIndex) {
     listContainer.innerHTML = '';
 
     // 1. Кнопка "Убрать игрока" (если слот занят)
-if (currentPlayer) {
-    const removeBtn = document.createElement('div');
-    removeBtn.style.cssText = 'grid-column: 1 / -1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); height: fit-content; align-self: center; justify-self: center; width: 100%; max-width: 280px;';
-    removeBtn.innerText = 'Убрать игрока из звена ❌';
-    removeBtn.onclick = () => {
-        squad[slotIndex] = null;
-        localStorage.setItem('khl_squad', JSON.stringify(squad));
-        document.getElementById('squadSelectView').style.display = 'none';
-        renderSquad(); updateProfile();
-    };
-    listContainer.appendChild(removeBtn);
-}
-    
+    if (currentPlayer) {
+        const removeBtn = document.createElement('div');
+        removeBtn.style.cssText = 'grid-column: 1 / -1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); height: fit-content; align-self: center; justify-self: center; width: 100%; max-width: 280px;';
+        removeBtn.innerText = 'Убрать игрока из звена ❌';
+        removeBtn.onclick = () => {
+            squad[slotIndex] = null;
+            localStorage.setItem('khl_squad', JSON.stringify(squad));
+            document.getElementById('squadSelectView').style.display = 'none';
+            renderSquad(); updateProfile();
+        };
+        listContainer.appendChild(removeBtn);
+    }
+
     // 2. Фильтруем доступных игроков
     let availablePlayers = collection.filter(p => p.pos === requiredPos);
     availablePlayers = availablePlayers.filter(p => !squad.some(s => s && s.name === p.name && s.season === p.season));
@@ -1273,24 +1273,19 @@ if (currentPlayer) {
         const groupedArray = Object.values(grouped);
         
         // Сортировка по убыванию OVR
-        groupedArray.sort((a, b) => {
-            const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
-            const ovrB = Math.round((b.sc + b.br + b.ps + b.si + b.end + b.skate) / 6);
-            return ovrB - ovrA;
-        });
+        groupedArray.sort((a, b) => getPlayerOVR(b) - getPlayerOVR(a));
 
         // 4. Рисуем красивые карточки
         groupedArray.forEach(player => {
-            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-            const rarityColor = getRarityInfo(overall).color;
+            const overall = getPlayerOVR(player);
+            const rarityColor = getRarityInfo(overall).color; // БЕРЕМ ЦВЕТ ИЗ РЕДКОСТИ
 
             const cardWrapper = document.createElement('div');
-cardWrapper.className = 'mini-card-wrapper';
-cardWrapper.style.aspectRatio = 'auto'; /* Отключаем пропорции */
-cardWrapper.style.height = '100%';      /* Растягиваем на всю высоту строки */
-cardWrapper.style.border = `2px solid ${rarityColor}`;
+            cardWrapper.className = 'mini-card-wrapper'; 
+            cardWrapper.style.border = `2px solid ${rarityColor}`; // ПРИМЕНЯЕМ РАМКУ
+            cardWrapper.style.borderRadius = '10px';
+            cardWrapper.style.overflow = 'hidden';
             
-            // Используем функцию генерации мини-карточки, которую мы писали ранее
             cardWrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
             
             cardWrapper.onclick = () => {
