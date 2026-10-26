@@ -1521,13 +1521,14 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     }
 
     // --- ЗАДНЯЯ СТОРОНА ---
+const// --- ЗАДНЯЯ СТОРОНА ---
 const backSide = document.getElementById('detailBack');
 
 // Обертка, которая прижимает всё к верху
 let html = `<div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100%; box-sizing: border-box; padding-top: 10px;">`;
 
-// ИФ сверху
-html += `<h3 style="margin-top: 0; margin-bottom: 8px; font-size: 24px; color: white; text-align: center; text-transform: uppercase; text-shadow: 0 2px 5px rgba(0,0,0,0.5); width: 100%;">${player.name}</h3>`;
+// ИФ сверху (добавили id="backPlayerName" и white-space: nowrap)
+html += `<h3 id="backPlayerName" style="margin-top: 0; margin-bottom: 8px; font-size: 24px; color: white; text-align: center; text-transform: uppercase; text-shadow: 0 2px 5px rgba(0,0,0,0.5); width: 100%; white-space: nowrap;">${player.name}</h3>`;
 
 // Дата рождения и Хват
 html += `<div style="font-size: 14px; color: #cbd5e1; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 12px; font-weight: 600; width: 100%;">
@@ -1573,10 +1574,23 @@ if (player.pos === "Вратарь") {
 // Подсказка внизу
 html += `<div style="margin-top: auto; padding-bottom: 10px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
 
-// Закрываем обертку
 html += `</div>`;
 
 backSide.innerHTML = html;
+
+// --- АВТО-УМЕНЬШЕНИЕ ШРИФТА ИМЕНИ ---
+const nameEl = document.getElementById('backPlayerName');
+if (nameEl) {
+    let currentSize = 24;
+    nameEl.style.fontSize = currentSize + 'px';
+    // Пока текст шире, чем контейнер, и размер больше 14px — уменьшаем
+    while (nameEl.scrollWidth > nameEl.clientWidth && currentSize > 14) {
+        currentSize -= 1;
+        nameEl.style.fontSize = currentSize + 'px';
+    }
+}
+
+// ... (дальше идет код с detailCard.style.setProperty и т.д., он остается без изменений) ...
     const detailCard = document.querySelector('#detailView .card');
     if (detailCard) { detailCard.style.setProperty('--card-border-color', rarity.color); detailCard.style.borderColor = rarity.color; }
     if (backSide) backSide.style.setProperty('--card-border-color', rarity.color);
