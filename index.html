@@ -1453,7 +1453,7 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             }
         }
 
-        function openDetailView(player) {
+            function openDetailView(player) {
     currentViewPlayer = player;
     document.getElementById('d-name').innerText = player.name;
     document.getElementById('d-season').innerText = player.season;
@@ -1465,6 +1465,7 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     const overall = getPlayerOVR(player);
     document.getElementById('d-overall').innerText = overall;
 
+    // Отрисовка статов на лицевой стороне
     const statBlocks = document.querySelectorAll('#detailFront .stats .stat');
     if (player.pos === "Вратарь") {
         statBlocks[0].innerHTML = `РЕА <span>${player.rea || 0}</span>`;
@@ -1519,7 +1520,8 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
         };
     }
 
-                const backSide = document.getElementById('detailBack');
+    // --- ЗАДНЯЯ СТОРОНА ---
+    const backSide = document.getElementById('detailBack');
     let html = `<h3 style="margin-top: 0; font-size: 18px; color: white; margin-bottom: 5px;">${player.name}</h3>`;
     
     // Добавляем Дату Рождения и Хват
@@ -1538,7 +1540,6 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     const reg = player.reg_stats || {};
     const po = player.playoff_stats || {};
 
-    // Генерация строк со статистикой
     const createRow = (label, regVal, poVal) => `
         <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 5px; font-size: 13px; color: #cbd5e1; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
             <div style="text-align: left;">${label}</div>
@@ -1573,7 +1574,7 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     document.getElementById('flipCard').classList.remove('flipped');
     document.getElementById('globalHomeBtn').style.display = 'none';
     document.getElementById('globalBackBtn').style.display = 'none';
-        }
+            }
             
         document.getElementById('flipCard').addEventListener('click', function() { this.classList.toggle('flipped'); });
         document.getElementById('closeDetailBtn').addEventListener('click', function() {
