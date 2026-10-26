@@ -82,7 +82,7 @@
         .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
         .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
         .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 24px; box-sizing: border-box; }
-        .flip-card-back { background: linear-gradient(145deg, #0f172a, #1e293b); border: 2px solid var(--card-border-color, #3b82f6); transform: rotateY(180deg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); }
+        .flip-card-back { background: linear-gradient(145deg, #0f172a, #1e293b); border: 2px solid var(--card-border-color, #3b82f6); transform: rotateY(180deg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 30px 25px 25px 25px; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); }
         .stats-section { width: 100%; margin-bottom: 10px; }
         .stats-header { font-size: 14px; color: #3b82f6; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid rgba(59, 130, 246, 0.3); padding-bottom: 4px; text-align: left; letter-spacing: 1px; }
         .back-stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 15px; color: #cbd5e1; }
@@ -1523,18 +1523,21 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     // --- ЗАДНЯЯ СТОРОНА ---
 const backSide = document.getElementById('detailBack');
 
-// ИФ сверху и крупнее
-let html = `<h3 style="margin-top: 15px; font-size: 24px; color: white; margin-bottom: 10px; text-align: center; text-transform: uppercase; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">${player.name}</h3>`;
+// Обертка, которая прижимает всё к верху
+let html = `<div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100%; box-sizing: border-box; padding-top: 10px;">`;
 
-// Дата рождения и Хват крупнее и с клюшкой
-html += `<div style="font-size: 15px; color: #cbd5e1; margin-bottom: 25px; display: flex; justify-content: center; align-items: center; gap: 15px; font-weight: 600;">
+// ИФ сверху
+html += `<h3 style="margin-top: 0; margin-bottom: 8px; font-size: 24px; color: white; text-align: center; text-transform: uppercase; text-shadow: 0 2px 5px rgba(0,0,0,0.5); width: 100%;">${player.name}</h3>`;
+
+// Дата рождения и Хват
+html += `<div style="font-size: 14px; color: #cbd5e1; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 12px; font-weight: 600; width: 100%;">
             <span>${player.dob || '—'}</span>
             <span style="color: #64748b;">|</span>
             <span>Хват🏒: ${player.handedness || '—'}</span>
          </div>`;
 
 // Заголовок таблицы
-html += `<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; font-size: 13px; font-weight: bold; color: #3b82f6; border-bottom: 1px solid rgba(59,130,246,0.3); padding-bottom: 5px; margin-bottom: 10px; width: 100%;">
+html += `<div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 10px; font-size: 13px; font-weight: bold; color: #3b82f6; border-bottom: 1px solid rgba(59,130,246,0.3); padding-bottom: 5px; margin-bottom: 5px; width: 100%;">
             <div style="text-align: left;">Статистика</div>
             <div style="text-align: center;">Регулярка</div>
             <div style="text-align: center; color: #e11d48;">Плей-офф</div>
@@ -1543,9 +1546,9 @@ html += `<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px
 const reg = player.reg_stats || {};
 const po = player.playoff_stats || {};
 
-// Функция создания строки (все колонки 1fr, текст выровнен)
+// Функция строки
 const createRow = (label, regVal, poVal) => `
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; font-size: 13px; color: #cbd5e1; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 10px; font-size: 14px; color: #cbd5e1; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); width: 100%;">
         <div style="text-align: left;">${label}</div>
         <div style="text-align: center; font-weight: bold; color: white;">${regVal !== undefined && regVal !== null ? regVal : '—'}</div>
         <div style="text-align: center; font-weight: bold; color: ${player.playoff_stats ? '#e11d48' : '#475569'};">${poVal !== undefined && poVal !== null ? poVal : '—'}</div>
@@ -1567,9 +1570,13 @@ if (player.pos === "Вратарь") {
     html += createRow('Штраф', reg.penalty, po.penalty);
 }
 
-html += `<div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
-backSide.innerHTML = html;
+// Подсказка внизу
+html += `<div style="margin-top: auto; padding-bottom: 10px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
 
+// Закрываем обертку
+html += `</div>`;
+
+backSide.innerHTML = html;
     const detailCard = document.querySelector('#detailView .card');
     if (detailCard) { detailCard.style.setProperty('--card-border-color', rarity.color); detailCard.style.borderColor = rarity.color; }
     if (backSide) backSide.style.setProperty('--card-border-color', rarity.color);
