@@ -1661,7 +1661,7 @@ function claimCalendarReward(dayIndex, rewardStr) {
 }
 
                 // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
-        fetch('players.json?v=1001')
+        fetch('players.json?time=' + new Date().getTime())
             .then(response => {
                 if (!response.ok) throw new Error('Файл не найден');
                 return response.json();
