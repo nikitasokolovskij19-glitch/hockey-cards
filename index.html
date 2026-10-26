@@ -1187,14 +1187,13 @@ function claimMainQuestReward() {
     }
     }
     
-  // --- ИГРОВОЙ ПРОЦЕСС: ЗВЕНО И МАГАЗИН ---
-function getRarityInfo(overall) {
-    if (overall >= 95) return { color: "#be123c", name: "Эпическая", num: 5 };
-    if (overall >= 85) return { color: "#fbbf24", name: "Легендарная", num: 4 };
-    if (overall >= 75) return { color: "#3b82f6", name: "Супер редкая", num: 3 };
-    if (overall >= 60) return { color: "#a3e635", name: "Редкая", num: 2 };
-    return { color: "#9ca3af", name: "Обычная", num: 1 };
-}
+  function getRarityInfo(overall) {
+    if (overall >= 90) return { color: "#be123c", name: "Эпическая", num: 5 }; // Бордовый
+    if (overall >= 80) return { color: "#fbbf24", name: "Легендарная", num: 4 }; // Желтый
+    if (overall >= 70) return { color: "#3b82f6", name: "Супер редкая", num: 3 }; // Синий
+    if (overall >= 65) return { color: "#a3e635", name: "Редкая", num: 2 }; // Салатовый
+    return { color: "#9ca3af", name: "Обычная", num: 1 }; // Серый
+  }
 
 function generatePlayerMiniCardHTML(player, showCount) {
     const overall = getPlayerOVR(player);
