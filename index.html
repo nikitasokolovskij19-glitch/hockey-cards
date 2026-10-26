@@ -1244,17 +1244,21 @@ function openSquadSelection(requiredPos, slotIndex) {
     document.getElementById('squadSelectTitle').innerText = currentPlayer ? `Заменить: ${requiredPos}` : `Выбор: ${requiredPos}`;
     
     const listContainer = document.getElementById('squadSelectList');
+    
+    // Увеличиваем высоту строки до 170px (с запасом) и задаем отступы
+    listContainer.style.cssText = 'position: absolute; top: 75px; bottom: 85px; left: 0; right: 0; padding: 0 10px 20px 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; align-content: start; grid-auto-rows: 170px;';
     listContainer.innerHTML = '';
 
-    // 1. Кнопка "Убрать игрока" (если слот занят)
+    // 1. Кнопка "Убрать игрока"
     if (currentPlayer) {
         const removeBtn = document.createElement('div');
-        removeBtn.style.cssText = 'grid-column: 1 / -1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); height: fit-content; align-self: center; justify-self: center; width: 100%; max-width: 280px;';
+        // Исправляем кнопку, чтобы она не сплющивалась
+        removeBtn.style.cssText = 'grid-column: 1 / -1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); height: 48px; align-self: center; justify-self: center; width: 100%; max-width: 280px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;';
         removeBtn.innerText = 'Убрать игрока из звена ❌';
         removeBtn.onclick = () => {
             squad[slotIndex] = null;
             localStorage.setItem('khl_squad', JSON.stringify(squad));
-            document.getElementById('squadSelectList').style.cssText = 'position: absolute; top: 75px; bottom: 85px; left: 0; right: 0; padding: 0 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; align-content: start; grid-auto-rows: 140px;';
+            document.getElementById('squadSelectView').style.display = 'none';
             renderSquad(); updateProfile();
         };
         listContainer.appendChild(removeBtn);
@@ -1283,17 +1287,22 @@ function openSquadSelection(requiredPos, slotIndex) {
         // Сортировка по убыванию OVR
         groupedArray.sort((a, b) => getPlayerOVR(b) - getPlayerOVR(a));
 
-        // 4. Рисуем красивые карточки
+        // 4. Рисуем карточки
         groupedArray.forEach(player => {
             const overall = getPlayerOVR(player);
-            const rarityColor = getRarityInfo(overall).color; // БЕРЕМ ЦВЕТ ИЗ РЕДКОСТИ
+            const rarityColor = getRarityInfo(overall).color;
 
             const cardWrapper = document.createElement('div');
-cardWrapper.className = 'mini-card-wrapper'; 
-cardWrapper.style.border = `2px solid ${rarityColor}`; 
-cardWrapper.style.borderRadius = '10px';
-cardWrapper.style.overflow = 'hidden';
-cardWrapper.style.boxSizing = 'border-box'; // <--- ДОБАВИТЬ ВОТ ЭТО
+            cardWrapper.className = 'mini-card-wrapper'; 
+            cardWrapper.style.border = `2px solid ${rarityColor}`; 
+            cardWrapper.style.borderRadius = '10px';
+            cardWrapper.style.overflow = 'hidden';
+            cardWrapper.style.boxSizing = 'border-box';
+            
+            // ВОТ ГЛАВНЫЕ ИСПРАВЛЕНИЯ:
+            cardWrapper.style.width = '100%';
+            cardWrapper.style.height = '100%'; // Прижимаем к высоте строки
+            cardWrapper.style.aspectRatio = 'auto'; // Отключаем пропорции, чтобы не ломали сетку
             
             cardWrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
             
@@ -1312,7 +1321,7 @@ cardWrapper.style.boxSizing = 'border-box'; // <--- ДОБАВИТЬ ВОТ ЭТ
     }
     document.getElementById('squadSelectView').style.display = 'flex';
 }
-
+                
 function renderPackButtons() {
     const container = document.getElementById('seasonsListContainer');
     container.innerHTML = '';
