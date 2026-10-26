@@ -794,7 +794,7 @@ function updateProfile() {
     for (let i = 0; i < 6; i++) {
         if (squad[i]) {
             const p = squad[i];
-            squadTotalRating += Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
+            squadTotalRating += getPlayerOVR(p);
         }
     }
     const averageRating = (squadTotalRating / 6).toFixed(1);
@@ -1059,7 +1059,7 @@ function renderSquad() {
         const slot = document.getElementById(`slot-${i}`);
         const player = squad[i];
         if (player) {
-            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+            const overall = getPlayerOVR(player);
             const rarityColor = getRarityInfo(overall).color;
             slot.style.background = '#0f172a';
             slot.style.border = `2px solid ${rarityColor}`;
