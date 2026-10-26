@@ -458,7 +458,7 @@
                                 </div>
                             </div>
                             <div class="info-table-right">
-                                <div class="info-number" id="d-number">#10</div>
+                                <div class="info-number" id="r-number" style="font-size: 26px; margin-bottom: 5px;">#00</div>
                                 <div class="player-flag" id="d-flag">🇷🇺</div>
                             </div>
                         </div>
@@ -1365,6 +1365,7 @@ else if (roll > 70) targetRarityNum = 2;    // 19% Редкая
     document.getElementById('r-name').innerText = player.name;
     document.getElementById('r-season').innerText = player.season;
     document.getElementById('r-position').innerText = player.pos;
+    document.getElementById('r-number').innerText = player.number || "";
     
     let posColor = "#ef4444"; 
     if (player.pos === "Защитник") posColor = "#3b82f6"; 
@@ -1676,15 +1677,15 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
         };
     }
 
-    // --- ЗАДНЯЯ СТОРОНА ---
+// --- ЗАДНЯЯ СТОРОНА ---
 const backSide = document.getElementById('detailBack');
 
 // Обертка, которая прижимает всё к верху
 let html = `<div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100%; box-sizing: border-box; padding-top: 10px;">`;
 
-// ИФ сверху (добавили id="backPlayerName" и white-space: nowrap)
-html += `<h3 id="backPlayerName" style="margin-top: 0; margin-bottom: 8px; font-size: 24px; color: white; text-align: center; text-transform: uppercase; text-shadow: 0 2px 5px rgba(0,0,0,0.5); width: 100%; white-space: nowrap;">${player.name}</h3>`;
-
+// ИФ сверху (уменьшили базовый шрифт до 22, добавили padding и box-sizing)
+html += `<h3 id="backPlayerName" style="margin-top: 0; margin-bottom: 8px; font-size: 22px; color: white; text-align: center; text-transform: uppercase; text-shadow: 0 2px 5px rgba(0,0,0,0.5); width: 100%; padding: 0 10px; box-sizing: border-box; white-space: nowrap;">${player.name}</h3>`;
+                
 // Дата рождения и Хват
 html += `<div style="margin-bottom: 20px; width: 100%; display: flex; justify-content: center;">
             <div id="backDobHand" style="font-size: 14px; color: #cbd5e1; display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap;">
@@ -1738,10 +1739,10 @@ backSide.innerHTML = html;
 // --- АВТО-УМЕНЬШЕНИЕ ШРИФТА ИМЕНИ ---
 const nameEl = document.getElementById('backPlayerName');
 if (nameEl) {
-    let currentSize = 24;
+    let currentSize = 22;
     nameEl.style.fontSize = currentSize + 'px';
-    // Пока текст шире, чем контейнер, и размер больше 14px — уменьшаем
-    while (nameEl.scrollWidth > nameEl.clientWidth && currentSize > 14) {
+    // Пока текст шире контейнера, уменьшаем (до минимума 12px)
+    while (nameEl.scrollWidth > nameEl.clientWidth && currentSize > 12) {
         currentSize -= 1;
         nameEl.style.fontSize = currentSize + 'px';
     }
