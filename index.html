@@ -1499,6 +1499,12 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             renderCollection();
         });
 
+        function countUniqueCards(playersArray) {
+    const uniqueKeys = new Set();
+    playersArray.forEach(p => uniqueKeys.add(`${p.name}_${p.season}`));
+    return uniqueKeys.size;
+        }
+
         function renderCollection() {
             const container = document.getElementById('collectionContent');
             container.innerHTML = '';
@@ -1507,74 +1513,87 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
         }
 
         function renderTeamsGrid(container) {
-            const uniqueTeams = [];
-            collection.forEach(p => { if (!uniqueTeams.includes(p.club)) uniqueTeams.push(p.club); });
-            uniqueTeams.sort((a, b) => a.localeCompare(b));
+    const uniqueTeams = [];
+    collection.forEach(p => { if (!uniqueTeams.includes(p.club)) uniqueTeams.push(p.club); });
+    uniqueTeams.sort((a, b) => a.localeCompare(b));
 
-            if (uniqueTeams.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>'; return; }
+    if (uniqueTeams.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>'; return; }
 
-            const grid = document.createElement('div');
-            grid.style.cssText = 'display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; padding: 0 10px 50px 10px; box-sizing: border-box;';
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; padding: 0 10px 50px 10px; box-sizing: border-box;';
 
-            uniqueTeams.forEach(teamName => {
-                const player = collection.find(p => p.club === teamName);
-                const logo = player ? player.logo : 'КХЛ';
-                const btn = document.createElement('div');
-                btn.style.cssText = 'background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; aspect-ratio: 1 / 1; box-sizing: border-box; overflow: hidden;';
-                
-                btn.innerHTML = `
-                    <div style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); overflow: hidden; background: #fff;">
-                        <img src="${logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px; border-radius: 50%;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">
-                    </div>
-                    <div style="font-size: 9px; font-weight: 700; text-align: center; color: #cbd5e1; line-height: 1.1; word-wrap: break-word; width: 100%;">
-                        ${teamName}
-                    </div>
-                `;
-                btn.addEventListener('click', () => { renderTeamSeasons(teamName); });
-                grid.appendChild(btn);
-            });
-            container.appendChild(grid);
+    uniqueTeams.forEach(teamName => {
+        const player = collection.find(p => p.club === teamName);
+        const logo = player ? player.logo : 'КХЛ';
+        
+        // Считаем уникальные карточки для этой команды
+        const userHas = countUniqueCards(collection.filter(p => p.club === teamName));
+        const totalInGame = countUniqueCards(PLAYERS.filter(p => p.club === teamName));
+
+        const btn = document.createElement('div');
+        btn.style.cssText = 'background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 8px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; aspect-ratio: 1 / 1; box-sizing: border-box; overflow: hidden;';
+        
+        btn.innerHTML = `
+            <div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); overflow: hidden; background: #fff;">
+                <img src="${logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px; border-radius: 50%;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">
+            </div>
+            <div style="font-size: 9px; font-weight: 700; text-align: center; color: #cbd5e1; line-height: 1.1; word-wrap: break-word; width: 100%; margin-bottom: 2px;">
+                ${teamName}
+            </div>
+            <div style="font-size: 10px; font-weight: 800; color: #fbbf24; background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 4px;">
+                ${userHas} / ${totalInGame}
+            </div>
+        `;
+        btn.addEventListener('click', () => { renderTeamSeasons(teamName); });
+        grid.appendChild(btn);
+    });
+    container.appendChild(grid);
         }
 
         function renderTeamSeasons(teamName) {
-            document.getElementById('collectionContent').style.display = 'none';
-            document.getElementById('innerCollectionView').style.display = 'block';
-            document.getElementById('globalBackBtn').style.display = 'flex';
-            document.getElementById('sortBtn').style.display = 'none'; 
-            document.getElementById('innerCollectionTitle').innerText = teamName;
-            
-            const list = document.getElementById('innerCollectionList');
-            list.innerHTML = '';
+    document.getElementById('collectionContent').style.display = 'none';
+    document.getElementById('innerCollectionView').style.display = 'block';
+    document.getElementById('globalBackBtn').style.display = 'flex';
+    document.getElementById('sortBtn').style.display = 'none'; 
+    document.getElementById('innerCollectionTitle').innerText = teamName;
+    
+    const list = document.getElementById('innerCollectionList');
+    list.innerHTML = '';
 
-            const teamPlayers = collection.filter(p => p.club === teamName);
-            const uniqueSeasons = [];
-            teamPlayers.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
-            uniqueSeasons.sort((a, b) => b.localeCompare(a));
+    const teamPlayers = collection.filter(p => p.club === teamName);
+    const uniqueSeasons = [];
+    teamPlayers.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
+    uniqueSeasons.sort((a, b) => b.localeCompare(a));
 
-            uniqueSeasons.forEach(season => {
-                const count = teamPlayers.filter(p => p.season === season).length;
-                const btn = document.createElement('div');
-                btn.style.cssText = 'background: rgba(30, 41, 59, 0.6); padding: 16px 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #3b82f6; cursor: pointer; margin-bottom: 12px; transition: all 0.3s; backdrop-filter: blur(5px);';
-                btn.innerHTML = `<div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div><div style="color: #fbbf24; font-weight: bold;">${count} игроков</div>`;
-                btn.addEventListener('click', () => { renderSeasonPlayers(teamName, season); });
-                list.appendChild(btn);
-            });
+    uniqueSeasons.forEach(season => {
+        const userHas = countUniqueCards(teamPlayers.filter(p => p.season === season));
+        const totalInGame = countUniqueCards(PLAYERS.filter(p => p.club === teamName && p.season === season));
+
+        const btn = document.createElement('div');
+        btn.style.cssText = 'background: rgba(30, 41, 59, 0.6); padding: 16px 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #3b82f6; cursor: pointer; margin-bottom: 12px; transition: all 0.3s; backdrop-filter: blur(5px);';
+        btn.innerHTML = `<div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div><div style="color: #fbbf24; font-weight: bold;">${userHas} / ${totalInGame}</div>`;
+        btn.addEventListener('click', () => { renderSeasonPlayers(teamName, season); });
+        list.appendChild(btn);
+    });
         }
 
         function renderSeasonsList(container) {
-            const uniqueSeasons = [];
-            collection.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
-            if (uniqueSeasons.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>'; return; }
-            uniqueSeasons.sort((a, b) => b.localeCompare(a));
+    // Берем сезоны из всех игроков, чтобы видеть общее количество
+    const uniqueSeasons = [];
+    PLAYERS.forEach(p => { if (!uniqueSeasons.includes(p.season)) uniqueSeasons.push(p.season); });
+    if (uniqueSeasons.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa;">Коллекция пуста. Откройте паки!</p>'; return; }
+    uniqueSeasons.sort((a, b) => b.localeCompare(a));
 
-            uniqueSeasons.forEach(season => {
-                const btn = document.createElement('div');
-                btn.style.cssText = 'background: rgba(30, 41, 59, 0.6); padding: 16px 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #3b82f6; cursor: pointer; margin-bottom: 12px; transition: all 0.3s; backdrop-filter: blur(5px); margin-left: 10px; margin-right: 10px;';
-                const count = collection.filter(p => p.season === season).length;
-                btn.innerHTML = `<div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div><div style="color: #fbbf24; font-weight: bold;">${count} игроков</div>`;
-                btn.addEventListener('click', () => { renderSeasonPlayers(null, season); });
-                container.appendChild(btn);
-            });
+    uniqueSeasons.forEach(season => {
+        const userHas = countUniqueCards(collection.filter(p => p.season === season));
+        const totalInGame = countUniqueCards(PLAYERS.filter(p => p.season === season));
+
+        const btn = document.createElement('div');
+        btn.style.cssText = 'background: rgba(30, 41, 59, 0.6); padding: 16px 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #3b82f6; cursor: pointer; margin-bottom: 12px; transition: all 0.3s; backdrop-filter: blur(5px); margin-left: 10px; margin-right: 10px;';
+        btn.innerHTML = `<div style="font-weight: bold; font-size: 16px;">Сезон ${season}</div><div style="color: #fbbf24; font-weight: bold;">${userHas} / ${totalInGame}</div>`;
+        btn.addEventListener('click', () => { renderSeasonPlayers(null, season); });
+        container.appendChild(btn);
+    });
         }
 
         function renderSeasonPlayers(teamName, season) {
