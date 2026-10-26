@@ -1443,6 +1443,10 @@ document.getElementById('r-overall').innerText = overall;
     revealCard.style.setProperty('--card-border-color', rarity.color);
     revealCard.style.borderColor = rarity.color;
     revealView.style.display = 'flex';
+
+// Скрываем глобальные кнопки при выпадении карточки
+document.getElementById('globalHomeBtn').style.display = 'none';
+document.getElementById('globalBackBtn').style.display = 'none';
     
     revealCard.style.transform = 'scale(0)';
     revealText.style.opacity = '0';
