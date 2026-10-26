@@ -328,16 +328,21 @@
 </div>
 
 <!-- ОКНО ВЫБОРА ИГРОКА В ЗВЕНО -->
-<div id="squadSelectView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 9999; box-sizing: border-box; overflow: hidden;">
+<div id="squadSelectView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 15px; box-sizing: border-box;">
     
-    <h2 id="squadSelectTitle" style="color: #fbbf24; margin-top: 20px; margin-bottom: 15px; font-size: 20px; text-align: center;">Выбери игрока</h2>
-    
-    <!-- ЖЕСТКО ЗАДАЕМ РАМКИ: СВЕРХУ 75px, СНИЗУ 85px. ТУТ СКРОЛЛ 100% БУДЕТ РАБОТАТЬ -->
-    <div id="squadSelectList" style="position: absolute; top: 75px; bottom: 85px; left: 0; right: 0; padding: 0 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; align-content: start; grid-auto-rows: 145px;"></div>
-    
-    <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(to top, #020617 80%, transparent); display: flex; justify-content: center; box-sizing: border-box; z-index: 10000;">
-        <button onclick="document.getElementById('squadSelectView').style.display='none'" style="background: rgba(51, 65, 85, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; width: 100%; max-width: 300px; font-weight: 800; cursor: pointer;">Закрыть</button>
+    <!-- Новая шапка с кнопками -->
+    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; box-sizing: border-box; margin-bottom: 15px;">
+        <!-- Кнопка Назад (слева) -->
+        <button onclick="document.getElementById('squadSelectView').style.display='none'" style="background: rgba(30, 41, 59, 0.8); border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); color: white; backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">↩️</button>
+        
+        <h2 id="squadSelectTitle" style="color: #fbbf24; margin: 0; font-size: 20px; text-align: center; flex: 1;">Выбери игрока</h2>
+        
+        <!-- Контейнер для кнопки Удалить (справа) -->
+        <div id="squadRemoveBtnContainer" style="width: 45px; height: 45px;"></div>
     </div>
+
+    <!-- Сетка с карточками -->
+    <div id="squadSelectList" style="position: absolute; top: 75px; bottom: 20px; left: 0; right: 0; padding: 0 10px 20px 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; align-content: start; grid-auto-rows: 170px;"></div>
 </div>
 
 <!-- ОКНО ПРОДАЖИ ДУБЛИКАТОВ -->
@@ -1243,28 +1248,28 @@ function openSquadSelection(requiredPos, slotIndex) {
     const currentPlayer = squad[slotIndex];
     document.getElementById('squadSelectTitle').innerText = currentPlayer ? `Заменить: ${requiredPos}` : `Выбор: ${requiredPos}`;
     
-    const listContainer = document.getElementById('squadSelectList');
-    
-    // Увеличиваем высоту строки до 170px (с запасом) и задаем отступы
-    listContainer.style.cssText = 'position: absolute; top: 75px; bottom: 85px; left: 0; right: 0; padding: 0 10px 20px 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; align-content: start; grid-auto-rows: 170px;';
-    listContainer.innerHTML = '';
-
-    // 1. Кнопка "Убрать игрока"
+    // Управляем кнопкой удаления в шапке
+    const removeContainer = document.getElementById('squadRemoveBtnContainer');
+    removeContainer.innerHTML = ''; // Очищаем контейнер
     if (currentPlayer) {
-        const removeBtn = document.createElement('div');
-        // Исправляем кнопку, чтобы она не сплющивалась
-        removeBtn.style.cssText = 'grid-column: 1 / -1; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 12px; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); height: 48px; align-self: center; justify-self: center; width: 100%; max-width: 280px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;';
-        removeBtn.innerText = 'Убрать игрока из звена ❌';
+        const removeBtn = document.createElement('button');
+        removeBtn.style.cssText = 'background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.5); transition: 0.2s;';
+        removeBtn.innerText = '🗑️'; 
+        removeBtn.onmouseover = () => removeBtn.style.transform = 'scale(1.1)';
+        removeBtn.onmouseout = () => removeBtn.style.transform = 'scale(1)';
         removeBtn.onclick = () => {
             squad[slotIndex] = null;
             localStorage.setItem('khl_squad', JSON.stringify(squad));
             document.getElementById('squadSelectView').style.display = 'none';
             renderSquad(); updateProfile();
         };
-        listContainer.appendChild(removeBtn);
+        removeContainer.appendChild(removeBtn);
     }
 
-    // 2. Фильтруем доступных игроков
+    const listContainer = document.getElementById('squadSelectList');
+    listContainer.innerHTML = '';
+
+    // Фильтруем доступных игроков
     let availablePlayers = collection.filter(p => p.pos === requiredPos);
     availablePlayers = availablePlayers.filter(p => !squad.some(s => s && s.name === p.name && s.season === p.season));
 
@@ -1274,7 +1279,7 @@ function openSquadSelection(requiredPos, slotIndex) {
         emptyMsg.innerHTML = '<p>У тебя нет свободных карточек на эту позицию.<br>Открой паки или убери игрока из другого слота!</p>';
         listContainer.appendChild(emptyMsg);
     } else {
-        // 3. Группируем дубликаты и СОРТИРУЕМ ПО СИЛЕ
+        // Группируем дубликаты и СОРТИРУЕМ ПО СИЛЕ
         const grouped = {};
         availablePlayers.forEach(player => {
             const key = `${player.name}_${player.season}`;
@@ -1287,7 +1292,7 @@ function openSquadSelection(requiredPos, slotIndex) {
         // Сортировка по убыванию OVR
         groupedArray.sort((a, b) => getPlayerOVR(b) - getPlayerOVR(a));
 
-        // 4. Рисуем карточки
+        // Рисуем карточки
         groupedArray.forEach(player => {
             const overall = getPlayerOVR(player);
             const rarityColor = getRarityInfo(overall).color;
@@ -1298,11 +1303,9 @@ function openSquadSelection(requiredPos, slotIndex) {
             cardWrapper.style.borderRadius = '10px';
             cardWrapper.style.overflow = 'hidden';
             cardWrapper.style.boxSizing = 'border-box';
-            
-            // ВОТ ГЛАВНЫЕ ИСПРАВЛЕНИЯ:
             cardWrapper.style.width = '100%';
-            cardWrapper.style.height = '100%'; // Прижимаем к высоте строки
-            cardWrapper.style.aspectRatio = 'auto'; // Отключаем пропорции, чтобы не ломали сетку
+            cardWrapper.style.height = '100%'; 
+            cardWrapper.style.aspectRatio = 'auto'; 
             
             cardWrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
             
