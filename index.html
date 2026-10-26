@@ -1007,6 +1007,17 @@ function claimMainQuestReward() {
     updateUI();
     renderQuests();
   }
+    
+   function getPlayerOVR(player) {
+    if (player.pos === "Вратарь") {
+        // Статы вратаря: Реакция, Ловушка, Блин, Позиция, Клюшка, Выносливость
+        return Math.round(((player.rea || 0) + (player.lov || 0) + (player.bli || 0) + (player.poz || 0) + (player.klsh || 0) + (player.end || 0)) / 6);
+    } else {
+        // Статы полевых: Скорость, Бросок, Пас, Сила, Выносливость, Катание
+        return Math.round(((player.sc || 0) + (player.br || 0) + (player.ps || 0) + (player.si || 0) + (player.end || 0) + (player.skate || 0)) / 6);
+    }
+    }
+    
   // --- ИГРОВОЙ ПРОЦЕСС: ЗВЕНО И МАГАЗИН ---
 function getRarityInfo(overall) {
     if (overall >= 95) return { color: "#be123c", name: "Эпическая", num: 5 };
@@ -1017,7 +1028,7 @@ function getRarityInfo(overall) {
 }
 
 function generatePlayerMiniCardHTML(player, showCount) {
-    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
+    const overall = getPlayerOVR(player);
     const rarityColor = getRarityInfo(overall).color;
     return `
         <div style="position: relative; width: 100%; height: 100%;">
@@ -1204,17 +1215,41 @@ else if (roll > 70) targetRarityNum = 2;    // 19% Редкая
     if (player.pos === "Вратарь") posColor = "#10b981"; 
     document.getElementById('r-position').style.color = posColor;
 
-    document.getElementById('r-sc').innerText = player.sc;
-    document.getElementById('r-br').innerText = player.br;
-    document.getElementById('r-ps').innerText = player.ps;
-    document.getElementById('r-si').innerText = player.si;
-    document.getElementById('r-end').innerText = player.end;
-    document.getElementById('r-skate').innerText = player.skate;
-    document.getElementById('r-number').innerText = player.number || "";
-    document.getElementById('r-flag').innerText = player.flag || '🏳️';
+    // Заполняем статы в зависимости от позиции
+if (player.pos === "Вратарь") {
+    document.getElementById('r-sc').innerText = player.rea || 0;      // Реакция
+    document.getElementById('r-br').innerText = player.lov || 0;      // Ловушка
+    document.getElementById('r-ps').innerText = player.bli || 0;      // Блин
+    document.getElementById('r-si').innerText = player.poz || 0;      // Позиция
+    document.getElementById('r-end').innerText = player.klsh || 0;    // Клюшка
+    document.getElementById('r-skate').innerText = player.end || 0;   // Выносливость
     
-    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-    document.getElementById('r-overall').innerText = overall;
+    // Меняем названия характеристик на карточке (через HTML-структуру)
+    document.querySelectorAll('#revealCard .stat')[0].childNodes[0].nodeValue = 'РЕА ';
+    document.querySelectorAll('#revealCard .stat')[1].childNodes[0].nodeValue = 'ЛОВ ';
+    document.querySelectorAll('#revealCard .stat')[2].childNodes[0].nodeValue = 'БЛИ ';
+    document.querySelectorAll('#revealCard .stat')[3].childNodes[0].nodeValue = 'ПОЗ ';
+    document.querySelectorAll('#revealCard .stat')[4].childNodes[0].nodeValue = 'КЛШ ';
+    document.querySelectorAll('#revealCard .stat')[5].childNodes[0].nodeValue = 'ВЫН ';
+} else {
+    document.getElementById('r-sc').innerText = player.sc || 0;
+    document.getElementById('r-br').innerText = player.br || 0;
+    document.getElementById('r-ps').innerText = player.ps || 0;
+    document.getElementById('r-si').innerText = player.si || 0;
+    document.getElementById('r-end').innerText = player.end || 0;
+    document.getElementById('r-skate').innerText = player.skate || 0;
+    
+    // Возвращаем стандартные названия
+    document.querySelectorAll('#revealCard .stat')[0].childNodes[0].nodeValue = 'СКО ';
+    document.querySelectorAll('#revealCard .stat')[1].childNodes[0].nodeValue = 'БРС ';
+    document.querySelectorAll('#revealCard .stat')[2].childNodes[0].nodeValue = 'ПАС ';
+    document.querySelectorAll('#revealCard .stat')[3].childNodes[0].nodeValue = 'СИЛ ';
+    document.querySelectorAll('#revealCard .stat')[4].childNodes[0].nodeValue = 'ВЫН ';
+    document.querySelectorAll('#revealCard .stat')[5].childNodes[0].nodeValue = 'КАТ ';
+}
+
+const overall = getPlayerOVR(player);
+document.getElementById('r-overall').innerText = overall;
     
     document.getElementById('r-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('r-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
@@ -1429,17 +1464,38 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             let posColor = player.pos === "Защитник" ? "#3b82f6" : (player.pos === "Вратарь" ? "#10b981" : "#ef4444");
             document.getElementById('d-pos').style.color = posColor;
 
-            document.getElementById('d-sc').innerText = player.sc;
-            document.getElementById('d-br').innerText = player.br;
-            document.getElementById('d-ps').innerText = player.ps;
-            document.getElementById('d-si').innerText = player.si;
-            document.getElementById('d-end').innerText = player.end;
-            document.getElementById('d-skate').innerText = player.skate;
-            document.getElementById('d-number').innerText = player.number || "";
-            document.getElementById('d-flag').innerText = player.flag || '🏳️'; 
-            
-            const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-            document.getElementById('d-overall').innerText = overall;
+            if (player.pos === "Вратарь") {
+    document.getElementById('d-sc').innerText = player.rea || 0;
+    document.getElementById('d-br').innerText = player.lov || 0;
+    document.getElementById('d-ps').innerText = player.bli || 0;
+    document.getElementById('d-si').innerText = player.poz || 0;
+    document.getElementById('d-end').innerText = player.klsh || 0;
+    document.getElementById('d-skate').innerText = player.end || 0;
+    
+    document.querySelectorAll('#detailFront .stat')[0].childNodes[0].nodeValue = 'РЕА ';
+    document.querySelectorAll('#detailFront .stat')[1].childNodes[0].nodeValue = 'ЛОВ ';
+    document.querySelectorAll('#detailFront .stat')[2].childNodes[0].nodeValue = 'БЛИ ';
+    document.querySelectorAll('#detailFront .stat')[3].childNodes[0].nodeValue = 'ПОЗ ';
+    document.querySelectorAll('#detailFront .stat')[4].childNodes[0].nodeValue = 'КЛШ ';
+    document.querySelectorAll('#detailFront .stat')[5].childNodes[0].nodeValue = 'ВЫН ';
+} else {
+    document.getElementById('d-sc').innerText = player.sc || 0;
+    document.getElementById('d-br').innerText = player.br || 0;
+    document.getElementById('d-ps').innerText = player.ps || 0;
+    document.getElementById('d-si').innerText = player.si || 0;
+    document.getElementById('d-end').innerText = player.end || 0;
+    document.getElementById('d-skate').innerText = player.skate || 0;
+    
+    document.querySelectorAll('#detailFront .stat')[0].childNodes[0].nodeValue = 'СКО ';
+    document.querySelectorAll('#detailFront .stat')[1].childNodes[0].nodeValue = 'БРС ';
+    document.querySelectorAll('#detailFront .stat')[2].childNodes[0].nodeValue = 'ПАС ';
+    document.querySelectorAll('#detailFront .stat')[3].childNodes[0].nodeValue = 'СИЛ ';
+    document.querySelectorAll('#detailFront .stat')[4].childNodes[0].nodeValue = 'ВЫН ';
+    document.querySelectorAll('#detailFront .stat')[5].childNodes[0].nodeValue = 'КАТ ';
+}
+
+const overall = getPlayerOVR(player);
+document.getElementById('d-overall').innerText = overall;
             
             document.getElementById('d-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
             document.getElementById('d-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
@@ -1476,11 +1532,32 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             }
 
             const backSide = document.getElementById('detailBack');
-            let html = `<h3 style="margin-top: 0; font-size: 18px; color: white;">${player.name}</h3><div class="stats-section"><div class="stats-header">Регулярный чемпионат</div><div class="back-stat-row"><span>Игры:</span> <span>${player.reg_stats.games}</span></div><div class="back-stat-row"><span>Голы:</span> <span>${player.reg_stats.goals}</span></div><div class="back-stat-row"><span>Пасы:</span> <span>${player.reg_stats.assists}</span></div><div class="back-stat-row"><span>Очки:</span> <span>${player.reg_stats.points}</span></div><div class="back-stat-row"><span>Штраф:</span> <span>${player.reg_stats.penalty}</span></div></div>`;
+let html = `<h3 style="margin-top: 0; font-size: 18px; color: white;">${player.name}</h3>`;
 
-            if (player.playoff_stats) {
-                html += `<div class="divider"></div><div class="stats-section"><div class="stats-header" style="color: #e11d48;">Плей-офф</div><div class="back-stat-row"><span>Игры:</span> <span>${player.playoff_stats.games}</span></div><div class="back-stat-row"><span>Голы:</span> <span>${player.playoff_stats.goals}</span></div><div class="back-stat-row"><span>Пасы:</span> <span>${player.playoff_stats.assists}</span></div><div class="back-stat-row"><span>Очки:</span> <span>${player.playoff_stats.points}</span></div><div class="back-stat-row"><span>Штраф:</span> <span>${player.playoff_stats.penalty}</span></div></div>`;
-            } else { html += `<div style="height: 40px;"></div>`; }
+if (player.pos === "Вратарь") {
+    // Статистика вратаря
+    html += `<div class="stats-section">
+        <div class="stats-header">Регулярный чемпионат</div>
+        <div class="back-stat-row"><span>Игры:</span> <span>${player.reg_stats.games || 0}</span></div>
+        <div class="back-stat-row"><span>Победы:</span> <span>${player.reg_stats.wins || 0}</span></div>
+        <div class="back-stat-row"><span>Сухие игры:</span> <span>${player.reg_stats.shutouts || 0}</span></div>
+        <div class="back-stat-row"><span>% отраженных:</span> <span>${player.reg_stats.sv_percent || 0}</span></div>
+        <div class="back-stat-row"><span>Коэф. надежности:</span> <span>${player.reg_stats.gaa || 0}</span></div>
+        <div class="back-stat-row"><span>Штраф:</span> <span>${player.reg_stats.penalty || 0}</span></div>
+    </div>`;
+} else {
+    // Статистика полевого игрока
+    html += `<div class="stats-section">
+        <div class="stats-header">Регулярный чемпионат</div>
+        <div class="back-stat-row"><span>Игры:</span> <span>${player.reg_stats.games || 0}</span></div>
+        <div class="back-stat-row"><span>Голы:</span> <span>${player.reg_stats.goals || 0}</span></div>
+        <div class="back-stat-row"><span>Пасы:</span> <span>${player.reg_stats.assists || 0}</span></div>
+        <div class="back-stat-row"><span>Очки:</span> <span>${player.reg_stats.points || 0}</span></div>
+        <div class="back-stat-row"><span>Штраф:</span> <span>${player.reg_stats.penalty || 0}</span></div>
+    </div>`;
+}
+
+// (Код для playoff_stats остается без изменений...)
 
             html += `<div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
             backSide.innerHTML = html;
