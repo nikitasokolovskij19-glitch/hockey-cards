@@ -1423,17 +1423,15 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             const groupedArray = Object.values(grouped);
             
             groupedArray.sort((a, b) => {
-                if (currentSortMode === 'rating') {
-                    const ovrA = Math.round((a.sc + a.br + a.ps + a.si + a.end + a.skate) / 6);
-                    const ovrB = Math.round((b.sc + b.br + b.ps + b.si + b.end + b.skate) / 6);
-                    return ovrB - ovrA;
-                } else if (currentSortMode === 'firstName') {
-                    return a.name.localeCompare(b.name);
-                } else if (currentSortMode === 'lastName') {
-                    return a.name.trim().split(' ').pop().localeCompare(b.name.trim().split(' ').pop());
-                }
-                return 0;
-            });
+    if (currentSortMode === 'rating') {
+        return getPlayerOVR(b) - getPlayerOVR(a); // <--- ТЕПЕРЬ ИСПОЛЬЗУЕМ НОВУЮ ФУНКЦИЮ
+    } else if (currentSortMode === 'firstName') {
+        return a.name.localeCompare(b.name);
+    } else if (currentSortMode === 'lastName') {
+        return a.name.trim().split(' ').pop().localeCompare(b.name.trim().split(' ').pop());
+    }
+    return 0;
+});
 
             if (groupedArray.length === 0) { 
                 list.innerHTML = '<p style="text-align:center; color:#aaa; padding-top: 20px;">Игроков нет.</p>'; 
@@ -1442,14 +1440,15 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
                 grid.className = 'collection-grid';
                 
                 groupedArray.forEach(player => {
-                    const cardWrapper = document.createElement('div');
-                    cardWrapper.className = 'mini-card-wrapper';
-                    const overall = Math.round((player.sc + player.br + player.ps + player.si + player.end + player.skate) / 6);
-                    cardWrapper.style.border = `2px solid ${getRarityInfo(overall).color}`;
-                    cardWrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
-                    cardWrapper.addEventListener('click', () => openDetailView(player));
-                    grid.appendChild(cardWrapper);
-                });
+    const cardWrapper = document.createElement('div');
+    cardWrapper.className = 'mini-card-wrapper';
+    
+    const overall = getPlayerOVR(player); // <--- ИСПОЛЬЗУЕМ НОВУЮ ФУНКЦИЮ
+    cardWrapper.style.border = `2px solid ${getRarityInfo(overall).color}`;
+    cardWrapper.innerHTML = generatePlayerMiniCardHTML(player, true);
+    cardWrapper.addEventListener('click', () => openDetailView(player));
+    grid.appendChild(cardWrapper);
+});
                 list.appendChild(grid);
             }
         }
