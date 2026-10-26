@@ -1173,11 +1173,13 @@ function buyPack(season, price) {
     if (userCoins < price) { alert(`У тебя не хватает ${GAME_CONFIG.currencyName}!`); return; }
     
     const roll = Math.random() * 100; 
-    let targetRarityNum = 1;
-    if (roll > 99.5) targetRarityNum = 5;
-    else if (roll > 95) targetRarityNum = 4;
-    else if (roll > 85) targetRarityNum = 3;
-    else if (roll > 60) targetRarityNum = 2;
+let targetRarityNum = 1;
+
+if (roll > 99.5) targetRarityNum = 5;       // 0.5% Эпическая
+else if (roll > 97) targetRarityNum = 4;    // 2.5% Легендарная
+else if (roll > 89) targetRarityNum = 3;    // 8% Супер редкая
+else if (roll > 70) targetRarityNum = 2;    // 19% Редкая
+// Остальные 70% (от 0 до 70) — Обычная
 
     let availablePlayers = PLAYERS.filter(p => p.season === season && p.rarity_num === targetRarityNum);
     if (availablePlayers.length === 0) availablePlayers = PLAYERS.filter(p => p.season === season);
