@@ -702,6 +702,30 @@ function addExp(amount) {
     updateProfile();
 }
 
+    function sanitizeUserData() {
+    // Очищаем звено от игроков, которых больше нет в базе
+    let squadChanged = false;
+    for (let i = 0; i < squad.length; i++) {
+        if (squad[i]) {
+            const exists = PLAYERS.some(p => p.name === squad[i].name && p.season === squad[i].season);
+            if (!exists) {
+                squad[i] = null;
+                squadChanged = true;
+            }
+        }
+    }
+    if (squadChanged) {
+        localStorage.setItem('khl_squad', JSON.stringify(squad));
+    }
+
+    // Очищаем коллекцию от несуществующих игроков
+    const initialLength = collection.length;
+    collection = collection.filter(c => PLAYERS.some(p => p.name === c.name && p.season === c.season));
+    if (collection.length !== initialLength) {
+        localStorage.setItem('khl_collection', JSON.stringify(collection));
+    }
+    }
+
 function updateUI() {
     coinDisplay.innerText = userCoins;
     localStorage.setItem('khl_coins', userCoins);
@@ -1530,10 +1554,12 @@ let html = `<div style="width: 100%; display: flex; flex-direction: column; alig
 html += `<h3 id="backPlayerName" style="margin-top: 0; margin-bottom: 8px; font-size: 24px; color: white; text-align: center; text-transform: uppercase; text-shadow: 0 2px 5px rgba(0,0,0,0.5); width: 100%; white-space: nowrap;">${player.name}</h3>`;
 
 // Дата рождения и Хват
-html += `<div style="font-size: 14px; color: #cbd5e1; margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 12px; font-weight: 600; width: 100%;">
-            <span>${player.dob || '—'}</span>
-            <span style="color: #64748b;">|</span>
-            <span>Хват🏒: ${player.handedness || '—'}</span>
+html += `<div style="margin-bottom: 20px; width: 100%; display: flex; justify-content: center;">
+            <div id="backDobHand" style="font-size: 14px; color: #cbd5e1; display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap;">
+                <span>${player.dob || '—'}</span>
+                <span style="color: #64748b;">|</span>
+                <span>Хват🏒: ${player.handedness || '—'}</span>
+            </div>
          </div>`;
 
 // Заголовок таблицы
@@ -1586,6 +1612,16 @@ if (nameEl) {
     while (nameEl.scrollWidth > nameEl.clientWidth && currentSize > 14) {
         currentSize -= 1;
         nameEl.style.fontSize = currentSize + 'px';
+    }
+}
+                // --- АВТО-УМЕНЬШЕНИЕ ДАТЫ И ХВАТА ---
+const dobHandEl = document.getElementById('backDobHand');
+if (dobHandEl) {
+    let currentSize = 14;
+    dobHandEl.style.fontSize = currentSize + 'px';
+    while (dobHandEl.scrollWidth > dobHandEl.parentElement.clientWidth && currentSize > 10) {
+        currentSize -= 1;
+        dobHandEl.style.fontSize = currentSize + 'px';
     }
 }
 
@@ -1774,9 +1810,13 @@ function claimCalendarReward(dayIndex, rewardStr) {
                 return response.json();
             })
             .then(data => {
-                PLAYERS = data; 
-                updateUI(); 
-                updateProfile(); 
+    PLAYERS = data; 
+    
+    sanitizeUserData(); // <--- ДОБАВИТЬ ВОТ ЭТУ СТРОКУ
+    
+    updateUI(); 
+    updateProfile(); 
+    // ... остальной код 
                 
                 // Засчитываем вход
 addQuestProgress('play');
