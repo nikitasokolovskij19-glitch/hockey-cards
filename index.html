@@ -1518,48 +1518,48 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             else executeSale(player, 1, overall);
         };
     }
+
                 const backSide = document.getElementById('detailBack');
-    let html = `<h3 style="margin-top: 0; font-size: 18px; color: white;">${player.name}</h3>`;
+    let html = `<h3 style="margin-top: 0; font-size: 18px; color: white; margin-bottom: 5px;">${player.name}</h3>`;
+    
+    // Добавляем Дату Рождения и Хват
+    html += `<div style="font-size: 11px; color: #94a3b8; margin-bottom: 15px; display: flex; justify-content: center; gap: 15px;">
+                <span>${player.dob || '—'}</span>
+                <span>Хват: ${player.handedness || '—'}</span>
+             </div>`;
+
+    // Заголовок таблицы
+    html += `<div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 5px; font-size: 12px; font-weight: bold; color: #3b82f6; border-bottom: 1px solid rgba(59,130,246,0.3); padding-bottom: 5px; margin-bottom: 8px; text-align: center;">
+                <div style="text-align: left;">Статистика</div>
+                <div>Регулярка</div>
+                <div>Плей-офф</div>
+             </div>`;
+
+    const reg = player.reg_stats || {};
+    const po = player.playoff_stats || {};
+
+    // Генерация строк со статистикой
+    const createRow = (label, regVal, poVal) => `
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 5px; font-size: 13px; color: #cbd5e1; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <div style="text-align: left;">${label}</div>
+            <div style="text-align: center; font-weight: bold; color: white;">${regVal !== undefined && regVal !== null ? regVal : '—'}</div>
+            <div style="text-align: center; font-weight: bold; color: ${player.playoff_stats ? '#fbbf24' : '#475569'};">${poVal !== undefined && poVal !== null ? poVal : '—'}</div>
+        </div>
+    `;
 
     if (player.pos === "Вратарь") {
-        html += `<div class="stats-section">
-            <div class="stats-header">Регулярный чемпионат</div>
-            <div class="back-stat-row"><span>Игры:</span> <span>${player.reg_stats.games || 0}</span></div>
-            <div class="back-stat-row"><span>Победы:</span> <span>${player.reg_stats.wins || 0}</span></div>
-            <div class="back-stat-row"><span>Сухие игры:</span> <span>${player.reg_stats.shutouts || 0}</span></div>
-            <div class="back-stat-row"><span>% отраженных:</span> <span>${player.reg_stats.sv_percent || 0}</span></div>
-            <div class="back-stat-row"><span>Коэф. надежности:</span> <span>${player.reg_stats.gaa || 0}</span></div>
-            <div class="back-stat-row"><span>Штраф:</span> <span>${player.reg_stats.penalty || 0}</span></div>
-        </div>`;
+        html += createRow('Игры', reg.games, po.games);
+        html += createRow('Победы', reg.wins, po.wins);
+        html += createRow('Сухие', reg.shutouts, po.shutouts);
+        html += createRow('% отраж.', reg.sv_percent, po.sv_percent);
+        html += createRow('КН', reg.gaa, po.gaa);
+        html += createRow('Штраф', reg.penalty, po.penalty);
     } else {
-        html += `<div class="stats-section">
-            <div class="stats-header">Регулярный чемпионат</div>
-            <div class="back-stat-row"><span>Игры:</span> <span>${player.reg_stats.games || 0}</span></div>
-            <div class="back-stat-row"><span>Голы:</span> <span>${player.reg_stats.goals || 0}</span></div>
-            <div class="back-stat-row"><span>Пасы:</span> <span>${player.reg_stats.assists || 0}</span></div>
-            <div class="back-stat-row"><span>Очки:</span> <span>${player.reg_stats.points || 0}</span></div>
-            <div class="back-stat-row"><span>Штраф:</span> <span>${player.reg_stats.penalty || 0}</span></div>
-        </div>`;
-    }
-
-    if (player.playoff_stats) {
-        html += `<div class="divider"></div><div class="stats-section"><div class="stats-header" style="color: #e11d48;">Плей-офф</div>`;
-        if (player.pos === "Вратарь") {
-             html += `<div class="back-stat-row"><span>Игры:</span> <span>${player.playoff_stats.games || 0}</span></div>
-                      <div class="back-stat-row"><span>Победы:</span> <span>${player.playoff_stats.wins || 0}</span></div>
-                      <div class="back-stat-row"><span>Сухие игры:</span> <span>${player.playoff_stats.shutouts || 0}</span></div>
-                      <div class="back-stat-row"><span>% отраженных:</span> <span>${player.playoff_stats.sv_percent || 0}</span></div>
-                      <div class="back-stat-row"><span>Коэф. надежности:</span> <span>${player.playoff_stats.gaa || 0}</span></div>`;
-        } else {
-             html += `<div class="back-stat-row"><span>Игры:</span> <span>${player.playoff_stats.games || 0}</span></div>
-                      <div class="back-stat-row"><span>Голы:</span> <span>${player.playoff_stats.goals || 0}</span></div>
-                      <div class="back-stat-row"><span>Пасы:</span> <span>${player.playoff_stats.assists || 0}</span></div>
-                      <div class="back-stat-row"><span>Очки:</span> <span>${player.playoff_stats.points || 0}</span></div>
-                      <div class="back-stat-row"><span>Штраф:</span> <span>${player.playoff_stats.penalty || 0}</span></div>`;
-        }
-        html += `</div>`;
-    } else { 
-        html += `<div style="height: 40px;"></div>`; 
+        html += createRow('Игры', reg.games, po.games);
+        html += createRow('Голы', reg.goals, po.goals);
+        html += createRow('Пасы', reg.assists, po.assists);
+        html += createRow('Очки', reg.points, po.points);
+        html += createRow('Штраф', reg.penalty, po.penalty);
     }
 
     html += `<div style="margin-top: 15px; font-size: 12px; color: #64748b;">Нажми, чтобы перевернуть</div>`;
@@ -1574,7 +1574,7 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     document.getElementById('globalHomeBtn').style.display = 'none';
     document.getElementById('globalBackBtn').style.display = 'none';
         }
-
+            
         document.getElementById('flipCard').addEventListener('click', function() { this.classList.toggle('flipped'); });
         document.getElementById('closeDetailBtn').addEventListener('click', function() {
             detailView.style.display = 'none';
