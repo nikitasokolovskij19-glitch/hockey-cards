@@ -511,7 +511,10 @@
             <b style="color: #fbbf24;">Готовы собрать состав?</b>
         </div>
         
-        <button onclick="openTournamentSquadBuilder()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);">СОЗДАТЬ КОМАНДУ</button>
+        <button class="..." onclick="handleTournamentBtnClick()" ...>
+    <div>🏆</div>
+    <div>ТУРНИР</div>
+        </button>
         
         <button onclick="document.getElementById('tournamentRulesView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
     </div>
@@ -596,7 +599,7 @@
 
     <!-- Кнопки управления -->
     <div style="position: fixed; bottom: 20px; display: flex; gap: 10px; width: 100%; max-width: 340px; padding: 0 10px; box-sizing: border-box; z-index: 10000;">
-        <button id="startTournamentBtn" onclick="runTournament()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">▶ ИГРАТЬ МАТЧ</button>
+        <button id="tournamentPlayBtn" onclick="runTournament()" style="...">
         <button onclick="document.getElementById('tournamentView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="flex: 1; background: rgba(51, 65, 85, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
     </div>
 </div>
@@ -2175,6 +2178,19 @@ document.getElementById('tournamentBtn').onclick = () => {
     document.getElementById('globalHomeBtn').style.display = 'flex';
 };
 
+    function handleTournamentBtnClick() {
+    // Если турнир уже запущен и не завершен
+    if (tournamentSchedule && tournamentSchedule.length > 0 && currentRoundIndex < tournamentSchedule.length) {
+        document.getElementById('tournamentSquadBuilder').style.display = 'none';
+        document.getElementById('tournamentView').style.display = 'flex';
+        document.getElementById('globalHomeBtn').style.display = 'flex';
+        prepareTournament();
+    } else {
+        // Если турнира нет, открываем сборку
+        openTournamentSquadBuilder();
+    }2
+    }
+
 // 2. Открытие сборщика
 function openTournamentSquadBuilder() {
     document.getElementById('tournamentRulesView').style.display = 'none';
@@ -2918,16 +2934,15 @@ function closeDayResults() {
     updateUI();
     
     // СБРАСЫВАЕМ ТУРНИР
-    tournamentSchedule = [];
-    currentRoundIndex = 0;
+tournamentSchedule = [];
+currentRoundIndex = 0;
+localStorage.removeItem('khl_active_tournament'); // Очищаем сохранение
     
     // Возвращаемся на главный экран
     document.getElementById('tournamentView').style.display = 'none';
     document.getElementById('shopView').style.display = 'flex';
     document.getElementById('globalHomeBtn').style.display = 'none';
     }
-
-    
 
 function prepareTournament() {
     const statusEl = document.getElementById('tournamentStatus');
@@ -2949,7 +2964,18 @@ function prepareTournament() {
         startBtn.innerText = `▶ ИГРАТЬ ДЕНЬ ${currentRoundIndex + 1}`;
         startBtn.onclick = runTournament; // Возвращаем клик для игры
     }
-}
+        // --- СОХРАНЕНИЕ ТУРНИРА В ПАМЯТЬ ---
+    if (tournamentSchedule && tournamentSchedule.length > 0) {
+        localStorage.setItem('khl_active_tournament', JSON.stringify({
+            schedule: tournamentSchedule,
+            data: tournamentData,
+            playerStats: tournamentPlayerStats,
+            roundIndex: currentRoundIndex,
+            squad: tournamentSquad,
+            bench: tournamentBench
+        }));
+    }
+} // <-- Вот эта скобка закрывает функцию prepareTournament
 
     // --- ТУРНИР: ТАБЛИЦА И ВКЛАДКИ ---
 let currentTournamentStatsTab = 'points'; // По умолчанию вкладка "Очки"
@@ -3161,7 +3187,25 @@ function renderTournamentStats() {
     
     updateUI(); 
     updateProfile(); 
-    // ... остальной код 
+                // --- ВОССТАНОВЛЕНИЕ ТУРНИРА ПРИ СТАРТЕ ---
+const savedTourney = localStorage.getItem('khl_active_tournament');
+if (savedTourney) {
+    try {
+        const t = JSON.parse(savedTourney);
+        // Если турнир еще не доигран, восстанавливаем данные
+        if (t.schedule && t.roundIndex < t.schedule.length) {
+            tournamentSchedule = t.schedule;
+            tournamentData = t.data;
+            tournamentPlayerStats = t.playerStats;
+            currentRoundIndex = t.roundIndex;
+            tournamentSquad = t.squad;
+            tournamentBench = t.bench;
+        } else {
+            localStorage.removeItem('khl_active_tournament'); // Очищаем, если турнир уже был завершен
+        }
+    } catch(e) { console.error("Ошибка загрузки турнира:", e); }
+}
+// ------------------------------------------
                 
                 // Засчитываем вход
 addQuestProgress('play');
