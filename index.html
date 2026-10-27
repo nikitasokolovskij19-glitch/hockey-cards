@@ -2972,54 +2972,87 @@ function changeStatsTab(tab) {
 function renderTournamentStats() {
     const list = document.getElementById('tournamentStatsList');
     list.innerHTML = '';
-    
-    // Превращаем объект в массив
     let playersArray = Object.values(tournamentPlayerStats);
 
+    // === ВКЛАДКА ВРАТАРЕЙ ===
     if (currentTournamentStatsTab === 'goalies') {
-    let goaliesArray = playersArray.filter(p => p.pos === "Вратарь" && p.shotsAgainst > 0);
-    
-    // Сортируем по коэффициенту надежности (чем больше, тем лучше)
-    goaliesArray.sort((a, b) => {
-        let svA = a.shotsAgainst > 0 ? a.saves / a.shotsAgainst : 0;
-        let svB = b.shotsAgainst > 0 ? b.saves / b.shotsAgainst : 0;
-        return svB - svA;
-    });
-
-    if (goaliesArray.length === 0) {
-        list.innerHTML = '<div style="text-align: center; padding: 20px; color: #64748b;">Нет данных по вратарям.</div>';
-        return;
-    }
-
-    let html = `
-        <div style="display: grid; grid-template-columns: 30px 1fr 60px; gap: 5px; font-size: 11px; color: #64748b; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px;">
-            <div>#</div>
-            <div>Вратарь</div>
-            <div style="text-align: right;">КН (Сейвы)</div>
-        </div>`;
+        let goaliesArray = playersArray.filter(p => p.pos === "Вратарь" && p.shotsAgainst > 0);
         
-    goaliesArray.forEach((p, index) => {
-        let svp = p.shotsAgainst > 0 ? (p.saves / p.shotsAgainst) : 0;
-        let svpStr = svp.toFixed(3); // Три знака после запятой
-        
-        html += `
-            <div style="display: grid; grid-template-columns: 30px 1fr 60px; gap: 5px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
-                <div style="color: #64748b; font-weight: bold;">${index + 1}</div>
-                <div>
-                    <div style="font-weight: bold; color: white; font-size: 13px;">${p.name}</div>
-                    <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 15px; font-weight: 900; color: #3b82f6;">${svpStr}</div>
-                    <div style="font-size: 9px; color: #64748b;">${p.saves}/${p.shotsAgainst}</div>
-                </div>
+        goaliesArray.sort((a, b) => {
+            let svA = a.shotsAgainst > 0 ? a.saves / a.shotsAgainst : 0;
+            let svB = b.shotsAgainst > 0 ? b.saves / b.shotsAgainst : 0;
+            return svB - svA;
+        });
+
+        if (goaliesArray.length === 0) {
+            list.innerHTML = '<div style="text-align: center; padding: 20px; color: #64748b;">Нет данных по вратарям.</div>';
+            return;
+        }
+
+        let html = `
+            <div style="display: grid; grid-template-columns: 30px 1fr 60px; gap: 5px; font-size: 11px; color: #64748b; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px;">
+                <div>#</div>
+                <div>Вратарь</div>
+                <div style="text-align: right;">КН (Сейвы)</div>
             </div>`;
-    });
-    list.innerHTML = html;
-    }
+            
+        goaliesArray.forEach((p, index) => {
+            let svp = p.shotsAgainst > 0 ? (p.saves / p.shotsAgainst) : 0;
+            let svpStr = svp.toFixed(3);
+            
+            html += `
+                <div style="display: grid; grid-template-columns: 30px 1fr 60px; gap: 5px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                    <div style="color: #64748b; font-weight: bold;">${index + 1}</div>
+                    <div>
+                        <div style="font-weight: bold; color: white; font-size: 13px;">${p.name}</div>
+                        <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 15px; font-weight: 900; color: #3b82f6;">${svpStr}</div>
+                        <div style="font-size: 9px; color: #64748b;">${p.saves}/${p.shotsAgainst}</div>
+                    </div>
+                </div>`;
+        });
+        list.innerHTML = html;
 
     // === ВКЛАДКИ ПОЛЕВЫХ ИГРОКОВ (Очки, Голы, Пасы) ===
     } else {
+        let filteredArray = playersArray.filter(p => p.pos !== "Вратарь" && p[currentTournamentStatsTab] > 0);
+        filteredArray.sort((a, b) => b[currentTournamentStatsTab] - a[currentTournamentStatsTab]);
+
+        if (filteredArray.length === 0) {
+            list.innerHTML = '<div style="text-align: center; padding: 20px; color: #64748b;">Нет данных.</div>';
+            return;
+        }
+
+        let labelShort = 'О';
+        if (currentTournamentStatsTab === 'goals') labelShort = 'Г';
+        if (currentTournamentStatsTab === 'assists') labelShort = 'П';
+
+        let html = `
+            <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; font-size: 11px; color: #64748b; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px;">
+                <div>#</div>
+                <div>Игрок</div>
+                <div style="text-align: right;">${labelShort}</div>
+            </div>`;
+            
+        filteredArray.forEach((p, index) => {
+            html += `
+                <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                    <div style="color: #64748b; font-weight: bold;">${index + 1}</div>
+                    <div>
+                        <div style="font-weight: bold; color: white; font-size: 13px;">${p.name}</div>
+                        <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
+                    </div>
+                    <div style="text-align: right; font-size: 18px; font-weight: 900; color: #fbbf24;">${p[currentTournamentStatsTab]}</div>
+                </div>`;
+        });
+        list.innerHTML = html;
+    }
+} // <--- Вот здесь функция правильно закрывается
+
+    // === ВКЛАДКИ ПОЛЕВЫХ ИГРОКОВ (Очки, Голы, Пасы) ===
+ else {
         let filteredArray = playersArray.filter(p => p.pos !== "Вратарь" && p[currentTournamentStatsTab] > 0);
         filteredArray.sort((a, b) => b[currentTournamentStatsTab] - a[currentTournamentStatsTab]);
 
