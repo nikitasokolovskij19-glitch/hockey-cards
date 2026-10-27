@@ -636,6 +636,15 @@
     </div>
 </div>
 
+    <!-- ОКНО РЕЗУЛЬТАТОВ ДНЯ -->
+<div id="dayResultsView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(10px); z-index: 10002; flex-direction: column; align-items: center; justify-content: center;">
+    <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #fbbf24; border-radius: 24px; padding: 20px; width: 90%; max-width: 340px; box-sizing: border-box;">
+        <h3 style="text-align: center; margin-top: 0; color: #fbbf24; margin-bottom: 15px;">Результаты дня</h3>
+        <div id="dayResultsContent" style="font-size: 14px; color: #cbd5e1; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
+        <button onclick="closeDayResults()" style="width: 100%; padding: 12px; background: #fbbf24; color: #000; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">К таблице</button>
+    </div>
+</div>
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
     window.onerror = function(message, source, lineno, colno, error) {
@@ -2367,11 +2376,6 @@ function renderTournamentSquadSlots() {
 
     document.getElementById('tournamentFilterModal').style.display = 'flex';
     }
-    
-    // 5. Заглушка для старта (следующий шаг)
-function startTournament() {
-    alert("Состав собран верно! Переходим к генерации турнира (следующий шаг).");
-}
 
     // --- ТУРНИР: СЕТКА И ЗАПУСК ---
 let tournamentSchedule = [];
@@ -2423,7 +2427,16 @@ function startTournament() {
     
     // Создаем расписание и таблицу
     tournamentSchedule = generateSchedule(allTeams);
-    tournamentData = allTeams.map(team => ({ team, games: 0, wins: 0, losses: 0, points: 0 }));
+    tournamentData = allTeams.map(team => ({ 
+    team: team, 
+    logo: PLAYERS.find(p => p.club === team).logo,
+    games: 0, 
+    wins: 0, 
+    losses: 0, 
+    goalsFor: 0, 
+    goalsAgainst: 0, 
+    points: 0 
+}));
     tournamentPlayerStats = {};
     currentRoundIndex = 0;
     isTournamentRunning = false;
@@ -2704,12 +2717,17 @@ function updateStandings(teamA, scoreA, teamB, scoreB) {
     
     rA.games++; rB.games++;
     
+    // Считаем забитые и пропущенные
+    rA.goalsFor += scoreA;
+    rA.goalsAgainst += scoreB;
+    rB.goalsFor += scoreB;
+    rB.goalsAgainst += scoreA;
+    
     if (scoreA > scoreB) { 
         rA.wins++; rA.points += 2; rB.losses++; 
     } else if (scoreB > scoreA) { 
         rB.wins++; rB.points += 2; rA.losses++; 
     } else { 
-        // На случай, если симуляция как-то выдала ничью (хотя у нас есть ОТ и буллиты)
         rA.points += 1; rB.points += 1; 
     }
 }
@@ -2788,15 +2806,16 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
 function renderTournamentTable(playerTeam) {
     const tableContainer = document.getElementById('tournamentTableContainer');
     
-    let html = `<table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #cbd5e1;">
+    let html = `<table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #cbd5e1; table-layout: fixed;">
         <thead>
-            <tr style="border-bottom: 2px solid #334155; color: #94a3b8; font-size: 11px; text-transform: uppercase;">
-                <th style="padding: 8px 4px; text-align: left;">#</th>
-                <th style="padding: 8px 4px; text-align: left;">Команда</th>
-                <th style="padding: 8px 4px; text-align: center;">И</th>
-                <th style="padding: 8px 4px; text-align: center;">В</th>
-                <th style="padding: 8px 4px; text-align: center;">П</th>
-                <th style="padding: 8px 4px; text-align: right;">О</th>
+            <tr style="border-bottom: 2px solid #334155; color: #94a3b8; font-size: 10px; text-transform: uppercase;">
+                <th style="padding: 8px 2px; text-align: center; width: 12%;">#</th>
+                <th style="padding: 8px 2px; text-align: left; width: 36%;">Клуб</th>
+                <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Победы">В</th>
+                <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Поражения">П</th>
+                <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Голы забитые">ГЗ</th>
+                <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Голы пропущенные">ГП</th>
+                <th style="padding: 8px 2px; text-align: center; width: 12%;" title="Очки">О</th>
             </tr>
         </thead>
         <tbody>`;
@@ -2813,12 +2832,22 @@ function renderTournamentTable(playerTeam) {
         else if (index === 2) medal = '🥉 ';
 
         html += `<tr style="background: ${bg}; border-bottom: 1px solid #1e293b;">
-            <td style="padding: 10px 4px; font-weight: bold; color: ${color};">${index + 1}</td>
-            <td style="padding: 10px 4px; font-weight: ${fontWeight}; color: ${color};">${medal}${row.team}</td>
-            <td style="padding: 10px 4px; text-align: center;">${row.games}</td>
-            <td style="padding: 10px 4px; text-align: center; color: #10b981;">${row.wins}</td>
-            <td style="padding: 10px 4px; text-align: center; color: #ef4444;">${row.losses}</td>
-            <td style="padding: 10px 4px; text-align: right; font-weight: bold; color: #fbbf24; font-size: 15px;">${row.points}</td>
+            <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
+            
+            <td style="padding: 8px 2px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="width: 26px; height: 26px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                        <img src="${row.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px; box-sizing: border-box;">
+                    </div>
+                    <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal}${row.team}</span>
+                </div>
+            </td>
+            
+            <td style="padding: 8px 2px; text-align: center; color: #10b981; font-weight: bold;">${row.wins}</td>
+            <td style="padding: 8px 2px; text-align: center; color: #ef4444;">${row.losses}</td>
+            <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsFor}</td>
+            <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsAgainst}</td>
+            <td style="padding: 8px 2px; text-align: center; font-weight: bold; color: #fbbf24; font-size: 15px;">${row.points}</td>
         </tr>`;
     });
 
