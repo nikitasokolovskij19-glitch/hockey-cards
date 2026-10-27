@@ -2577,15 +2577,34 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
     }
     }
 
+        // --- ОВЕРТАЙМ И БУЛЛИТЫ ---
     let shootoutEvents = [];
+    
+    // Запоминаем счет после 3-го периода
+    let regScoreA = scoreA;
+    let regScoreB = scoreB;
+
     if (scoreA === scoreB) {
-        events.push({ period: 'OT', minute: 0, scoreA, scoreB, text: `<br><b style="color:#fbbf24;">--- ОВЕРТАЙМ ---</b>` });
+        events.push({ period: 'OT', minute: 1, scoreA, scoreB, text: `<br><b style="color:#fbbf24;">--- ОВЕРТАЙМ ---</b>` });
+        
         if (Math.random() < 0.5) { 
             let isA = Math.random() < probA;
-            if (isA) scoreA++; else scoreB++;
+            if (isA) { scoreA++; } else { scoreB++; }
+            
             let squad = isA ? squadA : squadB;
-            let shooter = squad.filter(p => p.pos !== "Вратарь")[Math.floor(Math.random() * squad.filter(p => p.pos !== "Вратарь").length)];
+            let field = squad.filter(p => p.pos !== "Вратарь");
+            let shooter = field[Math.floor(Math.random() * field.length)];
             recordStat(shooter, isA ? teamA : teamB, 'goal');
+            
+            // Сейв/Гол для вратаря в ОТ
+            let goalie = isA ? activeGoalieB : activeGoalieA;
+            if (goalie) {
+                let gkey = `${goalie.name}_${goalie.club}`;
+                if (tournamentPlayerStats[gkey]) {
+                    tournamentPlayerStats[gkey].shotsAgainst++;
+                    tournamentPlayerStats[gkey].goalsAgainst++;
+                }
+            }
             events.push({ period: 'OT', minute: 3, scoreA, scoreB, text: `🥅 <b style="color:#3b82f6;">${shooter.name}</b> приносит победу в овертайме!` });
         } else {
             events.push({ period: 'OT', minute: 5, scoreA, scoreB, text: `Овертайм завершен вничью.` });
@@ -2614,7 +2633,7 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
         scoreA += soA; scoreB += soB;
     }
 
-    return { events, shootoutEvents, scoreA, scoreB, stats };
+    return { events, shootoutEvents, scoreA, scoreB, regScoreA, regScoreB, stats };
 }
 
     function simulateVisualMatch(teamA, teamB, onComplete) {
@@ -2659,16 +2678,18 @@ function tick() {
     let maxMin = isOT ? 5 : 20;
     
     if (curMin >= maxMin) {
-        if (!isOT) {
-            if (curPer < 3) { curPer++; curMin = 1; }
-            else if (matchData.scoreA === matchData.scoreB) { isOT = true; curMin = 1; }
-            else return endMatch();
-        } else {
-            if (matchData.scoreA === matchData.scoreB) return startShootout();
-            else return endMatch();
-        }
+    if (!isOT) {
+        if (curPer < 3) { curPer++; curMin = 1; }
+        else if (matchData.regScoreA === matchData.regScoreB) { isOT = true; curMin = 1; }
+        else return endMatch();
     } else {
-        curMin++;
+        // Если в овертайме забили, завершаем. Если нет - буллиты.
+        let otGoal = allEvents.some(e => e.period === 'OT' && e.text.includes('🥅'));
+        if (!otGoal) return startShootout();
+        else return endMatch();
+    }
+} else {
+    curMin++;
     }
     setTimeout(tick, isOT ? 400 : 333); 
 }
@@ -2680,14 +2701,15 @@ function startShootout() {
     
     let soIdx = 0;
     function nextBullet() {
-        if (soIdx >= matchData.shootoutEvents.length) {
-            return endMatch();
-        }
-        let ev = matchData.shootoutEvents[soIdx];
-        logDiv.innerHTML += `<div style="margin-bottom: 8px;">${ev.text}</div>`;
-        logDiv.scrollTop = logDiv.scrollHeight;
-        soIdx++;
-        setTimeout(nextBullet, 1000); // 1 секунда на буллит
+    if (soIdx >= matchData.shootoutEvents.length) {
+        document.getElementById('match-score').innerText = `${matchData.scoreA} : ${matchData.scoreB}`; // Обновляем счет после буллитов
+        return endMatch();
+    }
+    let ev = matchData.shootoutEvents[soIdx];
+    logDiv.innerHTML += `<div style="margin-bottom: 8px;">${ev.text}</div>`;
+    logDiv.scrollTop = logDiv.scrollHeight;
+    soIdx++;
+    setTimeout(nextBullet, 1000); 
     }
     setTimeout(nextBullet, 1000);
 }
