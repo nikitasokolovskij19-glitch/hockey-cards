@@ -559,6 +559,83 @@
     </div>
 </div>
 
+    <!-- ЭКРАН ТУРНИРА (Таблица и Статистика) -->
+<div id="tournamentView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; padding-top: 20px; box-sizing: border-box;">
+    
+    <h2 style="font-size: 22px; color: #fbbf24; margin-bottom: 5px;">ТУРНИР КЛУБОВ</h2>
+    <div id="tournamentStatus" style="font-size: 14px; color: #cbd5e1; margin-bottom: 10px; text-align: center; padding: 0 20px;"></div>
+    
+    <!-- Вкладки -->
+    <div id="tournamentTabs" style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <button id="tabTournamentStandings" onclick="switchTournamentTab('standings')" style="padding: 10px 20px; border-radius: 10px; font-weight: bold; border: none; background: #3b82f6; color: white; cursor: pointer;">Таблица</button>
+        <button id="tabTournamentStats" onclick="switchTournamentTab('stats')" style="padding: 10px 20px; border-radius: 10px; font-weight: bold; border: none; background: rgba(51, 65, 85, 0.8); color: white; cursor: pointer;">Статистика</button>
+    </div>
+
+    <div id="tournamentMainContainer" style="width: 100%; max-width: 340px; flex: 1; overflow-y: auto; padding: 0 10px; box-sizing: border-box; margin-bottom: 80px;">
+        
+        <!-- Вкладка 1: Таблица -->
+        <div id="tournamentStandingsView" style="display: block;">
+            <div id="tournamentTableContainer"></div>
+        </div>
+
+        <!-- Вкладка 2: Статистика игроков -->
+        <div id="tournamentStatsView" style="display: none;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; background: rgba(15,23,42,0.8); border-radius: 8px; padding: 5px;">
+                <button onclick="changeStatsTab('points')" id="statTabPoints" style="flex: 1; padding: 8px; border: none; background: #fbbf24; color: #000; border-radius: 6px; font-weight: bold; cursor: pointer;">Очки</button>
+                <button onclick="changeStatsTab('goals')" id="statTabGoals" style="flex: 1; padding: 8px; border: none; background: transparent; color: #cbd5e1; border-radius: 6px; font-weight: bold; cursor: pointer;">Голы</button>
+                <button onclick="changeStatsTab('assists')" id="statTabAssists" style="flex: 1; padding: 8px; border: none; background: transparent; color: #cbd5e1; border-radius: 6px; font-weight: bold; cursor: pointer;">Передачи</button>
+                <button onclick="changeStatsTab('goalies')" id="statTabGoalies" style="flex: 1; padding: 8px; border: none; background: transparent; color: #cbd5e1; border-radius: 6px; font-weight: bold; cursor: pointer;">Вратари</button>
+            </div>
+            <div id="tournamentStatsList" style="font-size: 13px; color: #cbd5e1;"></div>
+        </div>
+    </div>
+
+    <!-- Кнопки управления -->
+    <div style="position: fixed; bottom: 20px; display: flex; gap: 10px; width: 100%; max-width: 340px; padding: 0 10px; box-sizing: border-box; z-index: 10000;">
+        <button id="startTournamentBtn" onclick="runTournament()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">▶ ИГРАТЬ МАТЧ</button>
+        <button onclick="document.getElementById('tournamentView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="flex: 1; background: rgba(51, 65, 85, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
+    </div>
+</div>
+
+<!-- ЭКРАН СИМУЛЯЦИИ МАТЧА -->
+<div id="matchSimView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(10px); z-index: 10001; flex-direction: column; align-items: center; padding: 20px; box-sizing: border-box;">
+    
+    <!-- Табло -->
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 340px; background: linear-gradient(145deg, #1e293b, #0f172a); padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
+            <img id="match-a-logo" src="" style="width: 45px; height: 45px; object-fit: contain; margin-bottom: 5px; border-radius: 50%; background: white; padding: 2px;">
+            <div id="match-a-name" style="font-size: 11px; font-weight: 800; text-align: center; color: #3b82f6;">Команда А</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; width: 40%;">
+            <div id="match-score" style="font-size: 34px; font-weight: 900; color: #fbbf24; text-shadow: 0 0 15px rgba(251,191,36,0.4); line-height: 1;">0 : 0</div>
+            <div id="match-time" style="font-size: 12px; color: #94a3b8; font-weight: 800; margin-top: 5px;">1 период • 00:00</div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
+            <img id="match-b-logo" src="" style="width: 45px; height: 45px; object-fit: contain; margin-bottom: 5px; border-radius: 50%; background: white; padding: 2px;">
+            <div id="match-b-name" style="font-size: 11px; font-weight: 800; text-align: center; color: #ef4444;">Команда Б</div>
+        </div>
+    </div>
+
+    <!-- Лента событий -->
+    <div id="match-log" style="width: 100%; max-width: 340px; flex: 1; background: rgba(30, 41, 59, 0.5); border-radius: 12px; padding: 15px; overflow-y: auto; font-size: 14px; color: #cbd5e1; border: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; margin-bottom: 20px;">
+        <div style="text-align: center; color: #64748b; margin-top: 50%; transform: translateY(-50%);">Матч начнется через мгновение...</div>
+    </div>
+
+    <div style="display: flex; gap: 10px; width: 100%; max-width: 340px;">
+        <button id="btn-view-stats" style="display: none; flex: 1; padding: 16px; background: rgba(51, 65, 85, 0.9); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer;">📊 Статистика</button>
+        <button id="match-continue-btn" style="display: none; flex: 1; padding: 16px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer;">Продолжить</button>
+    </div>
+</div>
+
+<!-- ОКНО СТАТИСТИКИ МАТЧА -->
+<div id="matchStatsView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(10px); z-index: 10002; flex-direction: column; align-items: center; justify-content: center;">
+    <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #3b82f6; border-radius: 24px; padding: 20px; width: 320px;">
+        <h3 style="text-align: center; margin-top: 0; color: white; margin-bottom: 20px;">Статистика матча</h3>
+        <div id="matchStatsContent" style="font-size: 13px; color: #cbd5e1; display: flex; flex-direction: column; gap: 10px;"></div>
+        <button onclick="document.getElementById('matchStatsView').style.display='none';" style="width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer;">Закрыть</button>
+    </div>
+</div>
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
     window.onerror = function(message, source, lineno, colno, error) {
@@ -2294,6 +2371,578 @@ function renderTournamentSquadSlots() {
     // 5. Заглушка для старта (следующий шаг)
 function startTournament() {
     alert("Состав собран верно! Переходим к генерации турнира (следующий шаг).");
+}
+
+    // --- ТУРНИР: СЕТКА И ЗАПУСК ---
+let tournamentSchedule = [];
+let currentRoundIndex = 0;
+let tournamentData = [];
+let tournamentPlayerStats = {};
+let isTournamentRunning = false;
+
+// Генерация расписания (каждый с каждым)
+function generateSchedule(teams) {
+    let schedule = [];
+    let teamsCopy = [...teams];
+    if (teamsCopy.length % 2 !== 0) teamsCopy.push("BYE"); 
+    
+    let n = teamsCopy.length;
+    let rounds = n - 1;
+    
+    for (let r = 0; r < rounds; r++) {
+        let roundMatches = [];
+        for (let i = 0; i < n / 2; i++) {
+            let teamA = teamsCopy[i];
+            let teamB = teamsCopy[n - 1 - i];
+            if (teamA !== "BYE" && teamB !== "BYE") {
+                roundMatches.push({ teamA, teamB });
+            }
+        }
+        schedule.push(roundMatches);
+        
+        // Ротация команд
+        let lastTeam = teamsCopy.pop();
+        teamsCopy.splice(1, 0, lastTeam);
+    }
+    return schedule;
+}
+
+// Запуск турнира (вызывается из сборщика звена)
+function startTournament() {
+    const playerTeam = tournamentSquad[0].club;
+    
+    // Ищем команды, из которых можно собрать звено, исключая команду игрока
+    const botTeams = [...new Set(PLAYERS.map(p => p.club))].filter(club => club !== playerTeam && canFormValidSquad(club));
+    
+    if (botTeams.length < 1) {
+        alert("В базе недостаточно команд для турнира!");
+        return;
+    }
+
+    const allTeams = [...botTeams, playerTeam];
+    
+    // Создаем расписание и таблицу
+    tournamentSchedule = generateSchedule(allTeams);
+    tournamentData = allTeams.map(team => ({ team, games: 0, wins: 0, losses: 0, points: 0 }));
+    tournamentPlayerStats = {};
+    currentRoundIndex = 0;
+    isTournamentRunning = false;
+
+    // Переключаем экраны
+    document.getElementById('tournamentSquadBuilder').style.display = 'none';
+    document.getElementById('tournamentView').style.display = 'flex';
+    document.getElementById('globalHomeBtn').style.display = 'flex';
+
+    prepareTournament();
+}
+
+    function generateMatchData(teamA, teamB, isPlayerMatch = false) {
+    let squadA, squadB, benchA = [], benchB = [], goaliesA = [], goaliesB = [];
+
+    if (teamA === tournamentSquad[0].club) {
+        squadA = tournamentSquad;
+        benchA = tournamentBench;
+        goaliesA = PLAYERS.filter(p => p.club === teamA && p.pos === "Вратарь");
+    } else {
+        let rawA = PLAYERS.filter(p => p.club === teamA).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
+        squadA = [...rawA.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawA.filter(p=>p.pos==="Защитник").slice(0,2), ...rawA.filter(p=>p.pos==="Вратарь").slice(0,1)];
+        goaliesA = rawA.filter(p => p.pos === "Вратарь");
+    }
+
+    if (teamB === tournamentSquad[0].club) {
+        squadB = tournamentSquad;
+        benchB = tournamentBench;
+        goaliesB = PLAYERS.filter(p => p.club === teamB && p.pos === "Вратарь");
+    } else {
+        let rawB = PLAYERS.filter(p => p.club === teamB).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
+        squadB = [...rawB.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawB.filter(p=>p.pos==="Защитник").slice(0,2), ...rawB.filter(p=>p.pos==="Вратарь").slice(0,1)];
+        goaliesB = rawB.filter(p => p.pos === "Вратарь");
+    }
+
+    const strA = squadA.reduce((sum, p) => sum + getPlayerOVR(p), 0) / 6;
+    const strB = squadB.reduce((sum, p) => sum + getPlayerOVR(p), 0) / 6;
+    const probA = strA / (strA + strB);
+
+    let events = [];
+    let scoreA = 0, scoreB = 0;
+    let changedGoalieA = false, changedGoalieB = false;
+
+    let stats = {
+        shotsA: Math.floor(Math.random() * 15) + 20, shotsB: Math.floor(Math.random() * 15) + 20,
+        pimA: Math.floor(Math.random() * 10), pimB: Math.floor(Math.random() * 10),
+        hitsA: Math.floor(Math.random() * 15) + 10, hitsB: Math.floor(Math.random() * 15) + 10,
+        faceoffsA: 50, faceoffsB: 50, savesA: 0, savesB: 0
+    };
+    if (strA > strB) { stats.faceoffsA = 55; stats.faceoffsB = 45; }
+    else if (strB > strA) { stats.faceoffsA = 45; stats.faceoffsB = 55; }
+    stats.shotsA += Math.floor((strA - strB) / 2);
+    stats.shotsB += Math.floor((strB - strA) / 2);
+
+    const recordStat = (player, team, type) => {
+        const key = `${player.name}_${team}`;
+        if (!tournamentPlayerStats[key]) tournamentPlayerStats[key] = { name: player.name, team: team, pos: player.pos, goals: 0, assists: 0, points: 0, saves: 0, goalsAgainst: 0 };
+        if (type === 'goal') { tournamentPlayerStats[key].goals++; if(player.pos !== "Вратарь") tournamentPlayerStats[key].points++; }
+        if (type === 'assist') { tournamentPlayerStats[key].assists++; if(player.pos !== "Вратарь") tournamentPlayerStats[key].points++; }
+        if (type === 'save') { tournamentPlayerStats[key].saves++; }
+        if (type === 'ga') { tournamentPlayerStats[key].goalsAgainst++; }
+    };
+
+    for (let period = 1; period <= 3; period++) {
+        if (period === 2 && (scoreB - scoreA >= 3) && !changedGoalieA && goaliesA.length > 1) {
+            events.push({ period, minute: 0, scoreA, scoreB, text: `🔄 <b>Замена вратаря в ${teamA}:</b> ${goaliesA[0].name} уходит, ${goaliesA[1].name} вступает в игру.` });
+            changedGoalieA = true;
+        }
+        if (period === 2 && (scoreA - scoreB >= 3) && !changedGoalieB && goaliesB.length > 1) {
+            events.push({ period, minute: 0, scoreA, scoreB, text: `🔄 <b>Замена вратаря в ${teamB}:</b> ${goaliesB[0].name} уходит, ${goaliesB[1].name} вступает в игру.` });
+            changedGoalieB = true;
+        }
+
+        for (let minute = 1; minute <= 20; minute++) {
+            if (Math.random() < 0.07) { 
+                let isTeamA = Math.random() < probA;
+                let activeSquad = isTeamA ? squadA.filter(p=>p.pos!=="Вратарь") : squadB.filter(p=>p.pos!=="Вратарь");
+                let activeBench = isTeamA ? benchA.filter(p=>p.pos!=="Вратарь") : benchB.filter(p=>p.pos!=="Вратарь");
+                let teamName = isTeamA ? teamA : teamB;
+                
+                let useBench = Math.random() < 0.2 && activeBench.length > 0;
+                let pool = useBench ? activeBench : activeSquad;
+                if (pool.length === 0) pool = activeSquad;
+                
+                let scorer = pool[Math.floor(Math.random() * pool.length)];
+                let assist = pool.filter(p => p !== scorer)[Math.floor(Math.random() * (pool.length - 1))];
+                
+                recordStat(scorer, teamName, 'goal');
+                let text = `🏒 <b style="color:${isTeamA ? '#3b82f6' : '#ef4444'};">${scorer.name}</b>`;
+                if (assist) {
+                    recordStat(assist, teamName, 'assist');
+                    text += ` (${assist.name})`;
+                }
+
+                let currentGoalie = isTeamA ? (changedGoalieB && goaliesB.length > 1 ? goaliesB[1] : goaliesB[0]) : (changedGoalieA && goaliesA.length > 1 ? goaliesA[1] : goaliesA[0]);
+                if (currentGoalie) recordStat(currentGoalie, isTeamA ? teamB : teamA, 'ga');
+
+                if (isTeamA) scoreA++; else scoreB++;
+                events.push({ period, minute, scoreA, scoreB, text: text });
+            }
+        }
+    }
+
+    if (scoreA === scoreB) {
+        events.push({ period: 'ОТ', minute: 0, scoreA, scoreB, text: `<br><b style="color:#fbbf24;">--- ОВЕРТАЙМ ---</b>` });
+        for (let minute = 1; minute <= 5; minute++) {
+            if (Math.random() < 0.1) {
+                let isTeamA = Math.random() < probA;
+                let teamScores = (isTeamA ? squadA : squadB).filter(p => p.pos !== "Вратарь");
+                let scorer = teamScores[Math.floor(Math.random() * teamScores.length)];
+                let teamName = isTeamA ? teamA : teamB;
+                recordStat(scorer, teamName, 'goal');
+                if (isTeamA) scoreA++; else scoreB++;
+                events.push({ period: 'ОТ', minute, scoreA, scoreB, text: `🏒 <b style="color:${isTeamA ? '#3b82f6' : '#ef4444'};">${scorer.name}</b> (Победный гол!)` });
+                break;
+            }
+        }
+    }
+
+    let shootoutEvents = [];
+    if (scoreA === scoreB) {
+        shootoutEvents.push({ text: `<br><b style="color:#fbbf24;">--- СЕРИЯ БУЛЛИТОВ ---</b>` });
+        let soA = 0, soB = 0, round = 1, isDone = false;
+        const getShotProb = (p) => 0.3 + (getPlayerOVR(p) - 70) * 0.01;
+
+        while (!isDone) {
+            let shooterA = squadA[Math.floor(Math.random() * squadA.length)];
+            let isGoalA = Math.random() < getShotProb(shooterA);
+            if (isGoalA) soA++;
+            shootoutEvents.push({ text: `[${teamA}] ${shooterA.name}: <b>${isGoalA ? '✅ ЗАБИЛ' : '❌ НЕ ЗАБИЛ'}</b>` });
+
+            let shooterB = squadB[Math.floor(Math.random() * squadB.length)];
+            let isGoalB = Math.random() < getShotProb(shooterB);
+            if (isGoalB) soB++;
+            shootoutEvents.push({ text: `[${teamB}] ${shooterB.name}: <b>${isGoalB ? '✅ ЗАБИЛ' : '❌ НЕ ЗАБИЛ'}</b>` });
+
+            if (round >= 3 && soA !== soB) isDone = true;
+            else if (soA > soB + (3 - round) || soB > soA + (3 - round)) isDone = true;
+            round++;
+        }
+        if (soA > soB) scoreA++; else scoreB++;
+        shootoutEvents.push({ text: `<br><b style="color:#10b981;">ПОБЕДА ПО БУЛЛИТАМ: ${soA > soB ? teamA : teamB} (${soA}:${soB})</b>` });
+    }
+
+    stats.savesA = Math.max(0, stats.shotsB - scoreB);
+    stats.savesB = Math.max(0, stats.shotsA - scoreA);
+
+    return { events, shootoutEvents, scoreA, scoreB, stats };
+    }
+
+    // --- ТУРНИР: ВИЗУАЛИЗАЦИЯ МАТЧА ---
+function simulateVisualMatch(teamA, teamB, onComplete) {
+    document.getElementById('match-a-name').innerText = teamA;
+    document.getElementById('match-a-logo').src = PLAYERS.find(p => p.club === teamA).logo;
+    document.getElementById('match-b-name').innerText = teamB;
+    document.getElementById('match-b-logo').src = PLAYERS.find(p => p.club === teamB).logo;
+    document.getElementById('match-score').innerText = '0 : 0';
+    document.getElementById('match-time').innerText = '1 период • 00:00';
+    document.getElementById('match-log').innerHTML = '';
+    document.getElementById('match-continue-btn').style.display = 'none';
+    document.getElementById('btn-view-stats').style.display = 'none';
+    document.getElementById('matchSimView').style.display = 'flex';
+
+    const matchData = generateMatchData(teamA, teamB, true);
+    let allEvents = [...matchData.events, ...matchData.shootoutEvents];
+    
+    let currentEvent = 0;
+    function playEvent() {
+        if (currentEvent < allEvents.length) {
+            let ev = allEvents[currentEvent];
+            if (ev.scoreA !== undefined) {
+                document.getElementById('match-score').innerText = `${ev.scoreA} : ${ev.scoreB}`;
+                document.getElementById('match-time').innerText = ev.period === 'ОТ' ? `Овертайм • ${ev.minute}:00` : `${ev.period} период • ${ev.minute}:00`;
+            }
+            let logDiv = document.getElementById('match-log');
+            if (currentEvent === 0) logDiv.innerHTML = '';
+            logDiv.innerHTML += `<div style="margin-bottom: 8px;">${ev.text}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            currentEvent++;
+            
+            let delay = ev.text.includes('✅') || ev.text.includes('❌') ? 800 : 1500;
+            setTimeout(playEvent, delay);
+        } else {
+            document.getElementById('match-time').innerText = "Матч окончен";
+            document.getElementById('match-log').innerHTML += `<div style="text-align: center; font-size: 18px; font-weight: bold; color: #fbbf24; margin-top: 20px;">ФИНАЛЬНЫЙ СВИСТОК</div>`;
+            document.getElementById('match-continue-btn').style.display = 'block';
+            document.getElementById('btn-view-stats').style.display = 'block';
+
+            document.getElementById('btn-view-stats').onclick = () => {
+                const statsDiv = document.getElementById('matchStatsContent');
+                statsDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px; color: #94a3b8; font-size: 11px;">
+                        <div style="width: 30%; text-align: left;">${teamA}</div>
+                        <div style="width: 40%; text-align: center;">Статистика</div>
+                        <div style="width: 30%; text-align: right;">${teamB}</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="width: 30%; text-align: left; font-weight: bold; color: white;">${matchData.stats.shotsA}</div>
+                        <div style="width: 40%; text-align: center; color: #94a3b8;">Броски</div>
+                        <div style="width: 30%; text-align: right; font-weight: bold; color: white;">${matchData.stats.shotsB}</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="width: 30%; text-align: left; font-weight: bold; color: white;">${matchData.stats.hitsA}</div>
+                        <div style="width: 40%; text-align: center; color: #94a3b8;">Силовые</div>
+                        <div style="width: 30%; text-align: right; font-weight: bold; color: white;">${matchData.stats.hitsB}</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="width: 30%; text-align: left; font-weight: bold; color: white;">${matchData.stats.faceoffsA}%</div>
+                        <div style="width: 40%; text-align: center; color: #94a3b8;">Вбрасывания</div>
+                        <div style="width: 30%; text-align: right; font-weight: bold; color: white;">${matchData.stats.faceoffsB}%</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="width: 30%; text-align: left; font-weight: bold; color: white;">${matchData.stats.pimA}</div>
+                        <div style="width: 40%; text-align: center; color: #94a3b8;">Штраф (мин)</div>
+                        <div style="width: 30%; text-align: right; font-weight: bold; color: white;">${matchData.stats.pimB}</div>
+                    </div>
+                `;
+                document.getElementById('matchStatsView').style.display = 'flex';
+            };
+
+            document.getElementById('match-continue-btn').onclick = () => {
+                document.getElementById('matchSimView').style.display = 'none';
+                onComplete(matchData.scoreA, matchData.scoreB);
+            };
+        }
+    }
+    setTimeout(playEvent, 1000);
+}
+
+    // --- ТУРНИР: ЗАПУСК ДНЯ И ОБРАБОТКА РЕЗУЛЬТАТОВ ---
+function runTournament() {
+    if (isTournamentRunning) return;
+    
+    const playerTeam = tournamentSquad[0].club;
+    let currentRoundMatches = tournamentSchedule[currentRoundIndex];
+    
+    let playerMatch = currentRoundMatches.find(m => m.teamA === playerTeam || m.teamB === playerTeam);
+    
+    isTournamentRunning = true;
+    document.getElementById('startTournamentBtn').style.display = 'none';
+
+    if (!playerMatch) {
+        // Если у команды выходной в этом раунде
+        processRoundResults(currentRoundMatches, playerTeam, null, 0, 0);
+    } else {
+        let opponent = playerMatch.teamA === playerTeam ? playerMatch.teamB : playerMatch.teamA;
+        simulateVisualMatch(playerTeam, opponent, (scorePlayer, scoreOpp) => {
+            processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp);
+        });
+    }
+}
+
+function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp) {
+    let roundResults = [];
+    
+    roundMatches.forEach(m => {
+        // Если это матч с участием игрока, берем готовые результаты
+        if (m.teamA === playerTeam && m.teamB === opponent) {
+            roundResults.push({ teamA: playerTeam, scoreA: scorePlayer, teamB: opponent, scoreB: scoreOpp });
+            updateStandings(playerTeam, scorePlayer, opponent, scoreOpp);
+        } else if (m.teamA === opponent && m.teamB === playerTeam) {
+             roundResults.push({ teamA: opponent, scoreA: scoreOpp, teamB: playerTeam, scoreB: scorePlayer });
+             updateStandings(opponent, scoreOpp, playerTeam, scorePlayer);
+        } else {
+            // Если это матч между ботами, симулируем его в фоне
+            const matchData = generateMatchData(m.teamA, m.teamB, false);
+            roundResults.push({ teamA: m.teamA, scoreA: matchData.scoreA, teamB: m.teamB, scoreB: matchData.scoreB });
+            updateStandings(m.teamA, matchData.scoreA, m.teamB, matchData.scoreB);
+        }
+    });
+
+    showDayResults(roundResults, playerTeam);
+}
+
+function updateStandings(teamA, scoreA, teamB, scoreB) {
+    let rA = tournamentData.find(t => t.team === teamA);
+    let rB = tournamentData.find(t => t.team === teamB);
+    
+    rA.games++; rB.games++;
+    
+    if (scoreA > scoreB) { 
+        rA.wins++; rA.points += 2; rB.losses++; 
+    } else if (scoreB > scoreA) { 
+        rB.wins++; rB.points += 2; rA.losses++; 
+    } else { 
+        // На случай, если симуляция как-то выдала ничью (хотя у нас есть ОТ и буллиты)
+        rA.points += 1; rB.points += 1; 
+    }
+}
+
+    // --- ТУРНИР: РЕЗУЛЬТАТЫ ДНЯ И ПЕРЕХОД ---
+function showDayResults(results, playerTeam) {
+    const content = document.getElementById('dayResultsContent');
+    content.innerHTML = '';
+    
+    results.forEach(r => {
+        const isPlayerMatch = (r.teamA === playerTeam || r.teamB === playerTeam);
+        const bg = isPlayerMatch ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.05)';
+        const color = isPlayerMatch ? '#3b82f6' : 'white';
+        
+        content.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: ${bg}; padding: 8px; border-radius: 8px;">
+                <span style="flex: 1; text-align: right; font-weight: bold; color: ${color};">${r.teamA}</span>
+                <span style="padding: 0 10px; color: #fbbf24; font-weight: 900; font-size: 16px;">${r.scoreA} : ${r.scoreB}</span>
+                <span style="flex: 1; text-align: left; font-weight: bold; color: ${color};">${r.teamB}</span>
+            </div>
+        `;
+    });
+    document.getElementById('dayResultsView').style.display = 'flex';
+}
+
+function closeDayResults() {
+    document.getElementById('dayResultsView').style.display = 'none';
+    currentRoundIndex++;
+    isTournamentRunning = false;
+    
+    // Если турнир завершен (сыграны все дни)
+    if (currentRoundIndex >= tournamentSchedule.length) {
+        const playerTeam = tournamentSquad[0].club;
+        tournamentData.sort((a, b) => b.points - a.points || b.wins - a.wins);
+        const playerPos = tournamentData.findIndex(t => t.team === playerTeam) + 1;
+        
+        if (playerPos === 1) {
+            alert(`🏆 ПОБЕДА В ТУРНИРЕ!\nВаша команда заняла 1 место. Награда: 2000 💵`);
+            userCoins += 2000;
+        } else if (playerPos <= 3) {
+            alert(`🥉 Вы на ${playerPos} месте! Награда: 500 💵`);
+            userCoins += 500;
+        } else {
+            alert(`😔 Ваша команда на ${playerPos} месте. Попробуйте усилить состав!`);
+        }
+        
+        updateUI();
+        tournamentSchedule = [];
+        document.getElementById('tournamentView').style.display = 'none';
+        document.getElementById('shopView').style.display = 'flex';
+        document.getElementById('globalHomeBtn').style.display = 'none';
+        
+    } else {
+        // Если турнир продолжается, готовим следующий день
+        prepareTournament();
+    }
+}
+
+function prepareTournament() {
+    const statusEl = document.getElementById('tournamentStatus');
+    const startBtn = document.getElementById('startTournamentBtn');
+    
+    statusEl.innerHTML = `Турнир начат!<br>Ваша команда: <b style="color:#3b82f6;">${tournamentSquad[0].club}</b>`;
+    
+    tournamentData.sort((a, b) => b.points - a.points || b.wins - a.wins);
+    renderTournamentTable(tournamentSquad[0].club);
+    
+    startBtn.style.display = 'block';
+    startBtn.innerText = `▶ ИГРАТЬ ДЕНЬ ${currentRoundIndex + 1}`;
+    switchTournamentTab('standings');
+}
+
+    // --- ТУРНИР: ТАБЛИЦА И ВКЛАДКИ ---
+let currentTournamentStatsTab = 'points'; // По умолчанию вкладка "Очки"
+
+function renderTournamentTable(playerTeam) {
+    const tableContainer = document.getElementById('tournamentTableContainer');
+    
+    let html = `<table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #cbd5e1;">
+        <thead>
+            <tr style="border-bottom: 2px solid #334155; color: #94a3b8; font-size: 11px; text-transform: uppercase;">
+                <th style="padding: 8px 4px; text-align: left;">#</th>
+                <th style="padding: 8px 4px; text-align: left;">Команда</th>
+                <th style="padding: 8px 4px; text-align: center;">И</th>
+                <th style="padding: 8px 4px; text-align: center;">В</th>
+                <th style="padding: 8px 4px; text-align: center;">П</th>
+                <th style="padding: 8px 4px; text-align: right;">О</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+    tournamentData.forEach((row, index) => {
+        const isPlayer = row.team === playerTeam;
+        const bg = isPlayer ? 'rgba(59, 130, 246, 0.2)' : 'transparent';
+        const color = isPlayer ? '#3b82f6' : 'white';
+        const fontWeight = isPlayer ? 'bold' : 'normal';
+        
+        let medal = '';
+        if (index === 0) medal = '🥇 ';
+        else if (index === 1) medal = '🥈 ';
+        else if (index === 2) medal = '🥉 ';
+
+        html += `<tr style="background: ${bg}; border-bottom: 1px solid #1e293b;">
+            <td style="padding: 10px 4px; font-weight: bold; color: ${color};">${index + 1}</td>
+            <td style="padding: 10px 4px; font-weight: ${fontWeight}; color: ${color};">${medal}${row.team}</td>
+            <td style="padding: 10px 4px; text-align: center;">${row.games}</td>
+            <td style="padding: 10px 4px; text-align: center; color: #10b981;">${row.wins}</td>
+            <td style="padding: 10px 4px; text-align: center; color: #ef4444;">${row.losses}</td>
+            <td style="padding: 10px 4px; text-align: right; font-weight: bold; color: #fbbf24; font-size: 15px;">${row.points}</td>
+        </tr>`;
+    });
+
+    html += `</tbody></table>`;
+    tableContainer.innerHTML = html;
+}
+
+function switchTournamentTab(tab) {
+    const standView = document.getElementById('tournamentStandingsView');
+    const statsView = document.getElementById('tournamentStatsView');
+    const standBtn = document.getElementById('tabTournamentStandings');
+    const statsBtn = document.getElementById('tabTournamentStats');
+
+    if (tab === 'standings') {
+        standView.style.display = 'block'; 
+        statsView.style.display = 'none';
+        standBtn.style.background = '#3b82f6'; 
+        statsBtn.style.background = 'rgba(51, 65, 85, 0.8)';
+    } else {
+        standView.style.display = 'none'; 
+        statsView.style.display = 'block';
+        standBtn.style.background = 'rgba(51, 65, 85, 0.8)'; 
+        statsBtn.style.background = '#3b82f6';
+        renderTournamentStats(); // Вызываем отрисовку статистики при переходе
+    }
+}
+
+    // --- ТУРНИР: СТАТИСТИКА ИГРОКОВ ---
+function changeStatsTab(tab) {
+    currentTournamentStatsTab = tab;
+    
+    // Массив со всеми ID кнопок
+    const tabs = ['points', 'goals', 'assists', 'goalies'];
+    
+    tabs.forEach(t => {
+        // Делаем первую букву заглавной для поиска ID (points -> Points)
+        const btnId = 'statTab' + t.charAt(0).toUpperCase() + t.slice(1);
+        const btn = document.getElementById(btnId);
+        
+        if (btn) {
+            if (t === tab) {
+                btn.style.background = '#fbbf24';
+                btn.style.color = '#000';
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = '#cbd5e1';
+            }
+        }
+    });
+    
+    renderTournamentStats();
+}
+
+function renderTournamentStats() {
+    const list = document.getElementById('tournamentStatsList');
+    list.innerHTML = '';
+    
+    // Превращаем объект в массив
+    let playersArray = Object.values(tournamentPlayerStats);
+
+    // === ВКЛАДКА ВРАТАРЕЙ ===
+    if (currentTournamentStatsTab === 'goalies') {
+        let goaliesArray = playersArray.filter(p => p.pos === "Вратарь" && p.saves > 0);
+        goaliesArray.sort((a, b) => b.saves - a.saves);
+
+        if (goaliesArray.length === 0) {
+            list.innerHTML = '<div style="text-align: center; padding: 20px; color: #64748b;">Нет данных по вратарям.</div>';
+            return;
+        }
+
+        let html = `
+            <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; font-size: 11px; color: #64748b; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px;">
+                <div>#</div>
+                <div>Вратарь</div>
+                <div style="text-align: right;">ОТБ</div>
+            </div>`;
+            
+        goaliesArray.forEach((p, index) => {
+            html += `
+                <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                    <div style="color: #64748b; font-weight: bold;">${index + 1}</div>
+                    <div>
+                        <div style="font-weight: bold; color: white; font-size: 13px;">${p.name}</div>
+                        <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
+                    </div>
+                    <div style="text-align: right; font-size: 18px; font-weight: 900; color: #3b82f6;">${p.saves}</div>
+                </div>`;
+        });
+        list.innerHTML = html;
+
+    // === ВКЛАДКИ ПОЛЕВЫХ ИГРОКОВ (Очки, Голы, Пасы) ===
+    } else {
+        let filteredArray = playersArray.filter(p => p.pos !== "Вратарь" && p[currentTournamentStatsTab] > 0);
+        filteredArray.sort((a, b) => b[currentTournamentStatsTab] - a[currentTournamentStatsTab]);
+
+        if (filteredArray.length === 0) {
+            list.innerHTML = '<div style="text-align: center; padding: 20px; color: #64748b;">Нет данных.</div>';
+            return;
+        }
+
+        let labelShort = 'О';
+        if (currentTournamentStatsTab === 'goals') labelShort = 'Г';
+        if (currentTournamentStatsTab === 'assists') labelShort = 'П';
+
+        let html = `
+            <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; font-size: 11px; color: #64748b; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px;">
+                <div>#</div>
+                <div>Игрок</div>
+                <div style="text-align: right;">${labelShort}</div>
+            </div>`;
+            
+        filteredArray.forEach((p, index) => {
+            html += `
+                <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                    <div style="color: #64748b; font-weight: bold;">${index + 1}</div>
+                    <div>
+                        <div style="font-weight: bold; color: white; font-size: 13px;">${p.name}</div>
+                        <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
+                    </div>
+                    <div style="text-align: right; font-size: 18px; font-weight: 900; color: #fbbf24;">${p[currentTournamentStatsTab]}</div>
+                </div>`;
+        });
+        list.innerHTML = html;
+    }
 }
 
                 // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
