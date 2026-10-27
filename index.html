@@ -2713,9 +2713,9 @@ function startTournament() {
 
     // Защита от пустого массива матчей
     if (!currentRoundMatches) {
-        isTournamentRunning = false;
-        finishTournament();
-        return;
+    isTournamentRunning = false;
+    prepareTournament(); // Показываем таблицу вместо завершения
+    return;
     }
 
     let playerMatch = currentRoundMatches.find(m => m.teamA === playerTeam || m.teamB === playerTeam);
@@ -2804,7 +2804,7 @@ function closeDayResults() {
     isTournamentRunning = false;
     
     // Всегда вызываем prepareTournament. 
-    // Она сама поймет, что туры кончились, покажет таблицу и поменяет кнопку.
+    // Она сама покажет таблицу и поменяет кнопку, если турнир закончился.
     prepareTournament(); 
 }
 
