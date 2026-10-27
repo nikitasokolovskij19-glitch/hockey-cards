@@ -421,8 +421,9 @@
                     </div>
                 </div>
                 <div class="info-table-right">
-                    <div class="info-number" id="r-number" style="font-size: 26px; margin-bottom: 5px;">#00</div>
-                    <div class="player-flag" id="r-flag">🇷🇺</div>
+    <!-- Вставь эти две строчки, если их нет -->
+    <div class="info-number" id="d-number">#00</div>
+    <div class="player-flag" id="d-flag">🏳️</div>
                 </div>
             </div>
             <div class="flip-hint">Нажми, чтобы перевернуть</div>
@@ -1378,15 +1379,17 @@ else if (roll > 70) targetRarityNum = 2;    // 19% Редкая
     packsView.style.display = 'none';
 
     document.getElementById('r-name').innerText = player.name;
-    document.getElementById('r-season').innerText = player.season;
-    document.getElementById('r-position').innerText = player.pos;
-    document.getElementById('r-number').innerText = player.number || "";
-    
-    let posColor = "#ef4444"; 
-    if (player.pos === "Защитник") posColor = "#3b82f6"; 
-    if (player.pos === "Вратарь") posColor = "#10b981"; 
-    document.getElementById('r-position').style.color = posColor;
+document.getElementById('r-season').innerText = player.season;
+document.getElementById('r-position').innerText = player.pos;
 
+let posColor = "#ef4444"; 
+if (player.pos === "Защитник") posColor = "#3b82f6"; 
+if (player.pos === "Вратарь") posColor = "#10b981"; 
+document.getElementById('r-position').style.color = posColor;
+
+document.getElementById('r-number').innerText = player.number || "";
+document.getElementById('r-flag').innerText = player.flag || '🏳️';
+    
     // Заполняем статы в зависимости от позиции
 if (player.pos === "Вратарь") {
     document.getElementById('r-sc').innerText = player.rea || 0;      // Реакция
@@ -1653,7 +1656,8 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     document.getElementById('d-name').innerText = player.name;
     document.getElementById('d-season').innerText = player.season;
     document.getElementById('d-pos').innerText = player.pos;
-    
+    document.getElementById('d-flag').innerText = player.flag || '🏳️';
+                
     let posColor = player.pos === "Защитник" ? "#3b82f6" : (player.pos === "Вратарь" ? "#10b981" : "#ef4444");
     document.getElementById('d-pos').style.color = posColor;
 
