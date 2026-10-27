@@ -2703,12 +2703,10 @@ function startTournament() {
  function runTournament() {
     if (isTournamentRunning) return;
 
-    // Если расписание пустое или все туры сыграны
-    if (!tournamentSchedule || tournamentSchedule.length === 0 || currentRoundIndex >= tournamentSchedule.length) {
-        isTournamentRunning = false;
-        finishTournament();
-        return;
-    }
+    // Защита от вылета: если туры кончились, просто ничего не делаем
+    if (!tournamentSchedule || currentRoundIndex >= tournamentSchedule.length) {
+        return; 
+    }2
 
     const playerTeam = tournamentSquad[0].club;
     let currentRoundMatches = tournamentSchedule[currentRoundIndex];
@@ -2805,12 +2803,9 @@ function closeDayResults() {
     currentRoundIndex++;
     isTournamentRunning = false;
     
-    // Если туры закончились - завершаем турнир, иначе готовим следующий
-    if (currentRoundIndex >= tournamentSchedule.length) {
-        finishTournament();
-    } else {
-        prepareTournament(); 
-    }
+    // Всегда вызываем prepareTournament. 
+    // Она сама поймет, что туры кончились, покажет таблицу и поменяет кнопку.
+    prepareTournament(); 
 }
 
     function finishTournament() {
