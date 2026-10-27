@@ -539,11 +539,23 @@
 <!-- МОДАЛКА ВЫБОРА ИГРОКА В ТУРНИР -->
 <div id="tournamentSelectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 10000; flex-direction: column; align-items: center; justify-content: center;">
     <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #3b82f6; border-radius: 24px; padding: 15px; width: 95%; max-width: 400px; height: 90vh; display: flex; flex-direction: column; box-sizing: border-box;">
-    <h3 id="tournamentSelectTitle" style="margin-top: 0; color: white; text-align: center; margin-bottom: 15px;">Выбор игрока</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; width: 100%; padding: 0 5px;">
+    <h3 id="tournamentSelectTitle" style="margin: 0; color: white; font-size: 16px; flex: 1; text-align: center;">Выбор игрока</h3>
+    <button id="tournamentFilterBtn" onclick="openTournamentFilter()" style="background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 14px;">🔃</button>
+    </div>
         <!-- Список игроков -->
         <div id="tournamentSelectList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px;"></div>
         
         <button onclick="document.getElementById('tournamentSelectModal').style.display='none';" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px;">Отмена</button>
+    </div>
+</div>
+
+    <!-- МОДАЛКА ФИЛЬТРА ПО КОМАНДАМ -->
+<div id="tournamentFilterModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 10001; flex-direction: column; align-items: center; justify-content: center;">
+    <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #10b981; border-radius: 24px; padding: 20px; width: 90%; max-width: 340px; max-height: 70vh; display: flex; flex-direction: column; box-sizing: border-box;">
+        <h3 style="margin-top: 0; color: white; text-align: center; margin-bottom: 15px;">Фильтр по команде</h3>
+        <div id="tournamentFilterList" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px;"></div>
+        <button onclick="document.getElementById('tournamentFilterModal').style.display='none';" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px;">Закрыть</button>
     </div>
 </div>
 
@@ -2053,6 +2065,7 @@ function claimCalendarReward(dayIndex, rewardStr) {
 
     // --- ЛОГИКА ТУРНИРА (СБОРКА) ---
 let tournamentSquad = [null, null, null, null, null, null];
+let tournamentClubFilter = null;
 let tournamentBench = [];
 let currentSelectSlotIndex = -1;
 
@@ -2152,12 +2165,24 @@ function renderTournamentSquadSlots() {
     
  function openTournamentSelectModal(slotIndex, requiredPos, lockedClub) {
     currentSelectSlotIndex = slotIndex;
-    document.getElementById('tournamentSelectTitle').innerText = `Выбор: ${requiredPos}`;
+    
+    // Если клуб зафиксирован первым игроком, скрываем кнопку фильтра
+    const filterBtn = document.getElementById('tournamentFilterBtn');
+    if (lockedClub) {
+        filterBtn.style.display = 'none';
+        document.getElementById('tournamentSelectTitle').innerText = `Выбор: ${requiredPos} (${lockedClub})`;
+    } else {
+        filterBtn.style.display = 'block';
+        document.getElementById('tournamentSelectTitle').innerText = tournamentClubFilter ? `Выбор: ${requiredPos} (${tournamentClubFilter})` : `Выбор: ${requiredPos}`;
+    }
 
     let availablePlayers = collection.filter(p => p.pos === requiredPos);
     
+    // Применяем фильтр по клубу (если он есть)
     if (lockedClub) {
         availablePlayers = availablePlayers.filter(p => p.club === lockedClub);
+    } else if (tournamentClubFilter) {
+        availablePlayers = availablePlayers.filter(p => p.club === tournamentClubFilter);
     }
     
     availablePlayers = availablePlayers.filter(p => !tournamentSquad.some(s => s && s.name === p.name && s.season === p.season));
@@ -2173,17 +2198,17 @@ function renderTournamentSquadSlots() {
     const list = document.getElementById('tournamentSelectList');
     list.innerHTML = '';
     
-    // Настраиваем сетку
+    // НАСТРОЙКА СЕТКИ В 3 КОЛОНКИ
     list.style.display = 'grid';
-    list.style.gridTemplateColumns = 'repeat(2, 1fr)';
-    list.style.gap = '10px'; 
+    list.style.gridTemplateColumns = 'repeat(3, 1fr)'; // 3 колонки
+    list.style.gap = '6px'; 
     list.style.overflowY = 'auto';
-    list.style.paddingRight = '5px';
+    list.style.paddingRight = '2px';
     list.style.paddingBottom = '20px';
-    list.style.gridAutoRows = '150px'; // Жесткая высота строки, чтобы карточки не наезжали
+    list.style.gridAutoRows = '130px'; // Фиксированная высота
 
     if (availableArray.length === 0) {
-        list.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #ef4444; margin-top: 20px;">Нет доступных игроков на эту позицию${lockedClub ? ' из клуба ' + lockedClub : ''}!</div>`;
+        list.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #ef4444; margin-top: 20px; font-size: 13px;">Нет доступных игроков на эту позицию!</div>`;
     } else {
         availableArray.forEach(p => {
             const overall = getPlayerOVR(p);
@@ -2196,7 +2221,7 @@ function renderTournamentSquadSlots() {
             cardWrapper.style.overflow = 'hidden';
             cardWrapper.style.cursor = 'pointer';
             cardWrapper.style.width = '100%';
-            cardWrapper.style.height = '100%'; // Растягиваем на всю высоту строки
+            cardWrapper.style.height = '100%';
             cardWrapper.style.boxSizing = 'border-box';
             
             cardWrapper.innerHTML = generatePlayerMiniCardHTML(p, true);
@@ -2225,6 +2250,46 @@ function renderTournamentSquadSlots() {
 
     document.getElementById('tournamentSelectModal').style.display = 'flex';
  }
+    function openTournamentFilter() {
+    const list = document.getElementById('tournamentFilterList');
+    list.innerHTML = '';
+
+    const slotIndex = currentSelectSlotIndex;
+    const requiredPos = slotIndex < 3 ? "Нападающий" : (slotIndex < 5 ? "Защитник" : "Вратарь");
+    
+    // Берем игроков нужной позиции из коллекции (без тех, кто уже в звене)
+    let basePlayers = collection.filter(p => p.pos === requiredPos);
+    basePlayers = basePlayers.filter(p => !tournamentSquad.some(s => s && s.name === p.name && s.season === p.season));
+
+    // Получаем уникальные клубы
+    const clubs = [...new Set(basePlayers.map(p => p.club))].sort();
+
+    // Кнопка "Все команды"
+    const allBtn = document.createElement('button');
+    allBtn.style.cssText = 'padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: left;';
+    allBtn.innerText = 'Все команды';
+    allBtn.onclick = () => {
+        tournamentClubFilter = null;
+        document.getElementById('tournamentFilterModal').style.display = 'none';
+        openTournamentSelectModal(slotIndex, requiredPos, null); 
+    };
+    list.appendChild(allBtn);
+
+    // Кнопки команд
+    clubs.forEach(club => {
+        const btn = document.createElement('button');
+        btn.style.cssText = 'padding: 12px; background: rgba(30,41,59,0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-weight: bold; cursor: pointer; text-align: left;';
+        btn.innerText = club;
+        btn.onclick = () => {
+            tournamentClubFilter = club;
+            document.getElementById('tournamentFilterModal').style.display = 'none';
+            openTournamentSelectModal(slotIndex, requiredPos, null);
+        };
+        list.appendChild(btn);
+    });
+
+    document.getElementById('tournamentFilterModal').style.display = 'flex';
+    }
     
     // 5. Заглушка для старта (следующий шаг)
 function startTournament() {
