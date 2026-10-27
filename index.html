@@ -2589,7 +2589,7 @@ function startTournament() {
         let soA = Math.floor(Math.random()*3), soB = Math.floor(Math.random()*3);
         while (soA === soB) { soA = Math.floor(Math.random()*3); soB = Math.floor(Math.random()*3); }
         if (soA > soB) scoreA++; else scoreB++;
-        shoutoutEvents.push({ text: `Победа по буллитам <b>${soA}:${soB}</b>` });
+        shootoutEvents.push({ text: `Победа по буллитам <b>${soA}:${soB}</b>` });
     }
 
     return { events, shootoutEvents, scoreA, scoreB, stats };
