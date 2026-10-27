@@ -2524,17 +2524,30 @@ function generateMatchData(teamA, teamB) {
         if (type === 'assist') { tournamentPlayerStats[key].assists++; if (player.pos !== "Вратарь") tournamentPlayerStats[key].points++; }
     };
 
-// Реалистичное количество бросков (в среднем 25-35 на команду)
-stats.shotsA = Math.floor(25 + (strA - strB) * 0.3 + Math.random() * 10);
-stats.shotsB = Math.floor(25 + (strB - strA) * 0.3 + Math.random() * 10);
-if (stats.shotsA < 10) stats.shotsA = 10;
-if (stats.shotsB < 10) stats.shotsB = 10;
+// Общие броски (от 15 до 60) зависят от силы
+stats.shotsA = Math.min(60, Math.max(15, Math.floor(25 + (strA - 75) * 0.8 + Math.random() * 20)));
+stats.shotsB = Math.min(60, Math.max(15, Math.floor(25 + (strB - 75) * 0.8 + Math.random() * 20)));
 
+// Броски в створ (примерно 40-60% от общих)
+stats.shotsOnTargetA = Math.floor(stats.shotsA * (0.4 + Math.random() * 0.2));
+stats.shotsOnTargetB = Math.floor(stats.shotsB * (0.4 + Math.random() * 0.2));
+
+// Блокированные броски (остаток от общих минус те, что долетели до створа)
+stats.blockedA = stats.shotsA - stats.shotsOnTargetA;
+stats.blockedB = stats.shotsB - stats.shotsOnTargetB;
+
+// Силовые и Штраф (вместо старого pimA)
+stats.hitsA = Math.floor(Math.random() * 15) + 20;
+stats.hitsB = Math.floor(Math.random() * 15) + 20;
+stats.penaltyA = Math.floor(Math.random() * 8) + 2;
+stats.penaltyB = Math.floor(Math.random() * 8) + 2;
+    
 let rawShots = [];
-for (let i = 0; i < stats.shotsA; i++) rawShots.push({ isTeamA: true, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 20) + 1 });
-for (let i = 0; i < stats.shotsB; i++) rawShots.push({ isTeamA: false, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 20) + 1 });
+// Вратари отражают только БРОСКИ В СТВОР
+for (let i = 0; i < stats.shotsOnTargetA; i++) rawShots.push({ isTeamA: true, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 20) + 1 });
+for (let i = 0; i < stats.shotsOnTargetB; i++) rawShots.push({ isTeamA: false, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 20) + 1 });
 rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute - b.minute);
-
+    
     for (let shot of rawShots) {
     let isA = shot.isTeamA;
     let squad = isA ? squadA : squadB;
@@ -2744,15 +2757,13 @@ function endMatch() {
     document.getElementById('match-continue-btn').style.display = 'block';
     document.getElementById('btn-view-stats').style.display = 'block';
     
-    // НИЖЕ ВСТАВЬ СТАРЫЙ БЛОК ОТРИСОВКИ СТАТИСТИКИ
     document.getElementById('btn-view-stats').onclick = () => {
     const statsDiv = document.getElementById('matchStatsContent');
     let goalsHtml = '';
     
-    // Собираем голы из событий
     matchData.events.forEach(ev => {
         if (ev.text.includes('🥅')) {
-            let cleanText = ev.text.replace(/<[^>]+>/g, ''); // убираем HTML теги
+            let cleanText = ev.text.replace(/<[^>]+>/g, ''); 
             goalsHtml += `<div style="display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid #2a2a3a;">
                 <span style="color: #64748b; width: 30px;">${ev.minute}'</span>
                 <span style="flex: 1; color: #fff;">${cleanText}</span>
@@ -2760,37 +2771,29 @@ function endMatch() {
         }
     });
 
-    // Отрисовка таблицы
+    // Функция для создания строки статистики
+    const row = (name, valA, valB) => `
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding: 6px 0;">
+            <div style="width: 30%; text-align: left; font-weight: bold; color: white;">${valA}</div>
+            <div style="width: 40%; text-align: center; color: #94a3b8; font-size: 11px; text-transform: uppercase;">${name}</div>
+            <div style="width: 30%; text-align: right; font-weight: bold; color: white;">${valB}</div>
+        </div>
+    `;
+
     statsDiv.innerHTML = `
-        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 10px;">
-            <div style="width: 35%; text-align: left; font-weight: bold; color: white;">${teamA}</div>
-            <div style="width: 30%; text-align: center; color: #94a3b8; font-size: 12px;">Матч</div>
-            <div style="width: 35%; text-align: right; font-weight: bold; color: white;">${teamB}</div>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-            <div style="width: 35%; text-align: left; color: ${matchData.scoreA > matchData.scoreB ? '#3b82f6' : 'white'}; font-weight: bold;">${matchData.scoreA}</div>
-            <div style="width: 30%; text-align: center; color: #94a3b8;">Голы</div>
-            <div style="width: 35%; text-align: right; color: ${matchData.scoreB > matchData.scoreA ? '#3b82f6' : 'white'}; font-weight: bold;">${matchData.scoreB}</div>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-            <div style="width: 35%; text-align: left; color: white;">${matchData.stats.shotsA}</div>
-            <div style="width: 30%; text-align: center; color: #94a3b8;">Броски</div>
-            <div style="width: 35%; text-align: right; color: white;">${matchData.stats.shotsB}</div>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-            <div style="width: 35%; text-align: left; color: white;">${matchData.stats.hitsA}</div>
-            <div style="width: 30%; text-align: center; color: #94a3b8;">Силовые</div>
-            <div style="width: 35%; text-align: right; color: white;">${matchData.stats.hitsB}</div>
+        <div style="text-align: center; font-weight: bold; color: #fbbf24; margin-bottom: 10px;">СТАТИСТИКА МАТЧА</div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px;">
+            <div style="color: #3b82f6; font-weight: bold;">${teamA}</div>
+            <div style="color: #3b82f6; font-weight: bold;">${teamB}</div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-            <div style="width: 35%; text-align: left; color: white;">${matchData.stats.faceoffA}%</div>
-            <div style="width: 30%; text-align: center; color: #94a3b8;">Вбрасывания</div>
-            <div style="width: 35%; text-align: right; color: white;">${matchData.stats.faceoffB}%</div>
-        </div>
+        ${row('Голы', matchData.scoreA, matchData.scoreB)}
+        ${row('Броски', matchData.stats.shotsA, matchData.stats.shotsB)}
+        ${row('Броски в створ', matchData.stats.shotsOnTargetA, matchData.stats.shotsOnTargetB)}
+        ${row('Вбрасывания', matchData.stats.faceoffA + '%', matchData.stats.faceoffB + '%')}
+        ${row('Блокированные', matchData.stats.blockedA, matchData.stats.blockedB)}
+        ${row('Силовые приёмы', matchData.stats.hitsA, matchData.stats.hitsB)}
+        ${row('Штраф', matchData.stats.penaltyA, matchData.stats.penaltyB)}
         
         <div style="font-size: 12px; color: #fbbf24; text-align: center; margin-top: 15px; border-top: 1px solid #334155; padding-top: 10px;">Голы:</div>
         <div style="max-height: 100px; overflow-y: auto; text-align: left; font-size: 11px;">
@@ -2799,6 +2802,7 @@ function endMatch() {
     `;
     document.getElementById('matchStatsView').style.display = 'flex';
 };
+    
     // Он начинается со слов: document.getElementById('btn-view-stats').onclick = () => {
     // ... (там где ты заполняешь statsDiv.innerHTML и вызываешь matchStatsView) ...
     // и заканчивается: };
@@ -2834,8 +2838,9 @@ setTimeout(tick, 1000);
     let playerMatch = currentRoundMatches.find(m => m.teamA === playerTeam || m.teamB === playerTeam);
     
     isTournamentRunning = true;
-    document.getElementById('startTournamentBtn').style.display = 'none';
-
+    const playBtn = document.getElementById('tournamentPlayBtn'); 
+if(playBtn) playBtn.style.display = 'none';
+     
     if (!playerMatch) {
         // Если у команды выходной в этом раунде
         processRoundResults(currentRoundMatches, playerTeam, null, 0, 0);
@@ -2954,25 +2959,35 @@ localStorage.removeItem('khl_active_tournament'); // Очищаем сохран
 
 function prepareTournament() {
     const statusEl = document.getElementById('tournamentStatus');
-    const startBtn = document.getElementById('startTournamentBtn');
-    
+    // Ищем нижнюю кнопку. Если её нет, ищем кнопку на экране сборки (для страховки)
+    const startBtn = document.getElementById('tournamentPlayBtn') || document.getElementById('startTournamentBtn');
+
     sortTournamentTable();
     renderTournamentTable(tournamentSquad[0].club);
     switchTournamentTab('standings');
 
-    // Если сыграны все дни
+    // Если все дни сыграны
     if (currentRoundIndex >= tournamentSchedule.length) {
         statusEl.innerHTML = `Турнир завершен!<br>Нажмите кнопку ниже, чтобы узнать результаты.`;
-        startBtn.style.display = 'block';
-        startBtn.innerText = `🏁 ЗАВЕРШИТЬ ТУРНИР`;
-        startBtn.onclick = finishTournament; // Переназначаем клик
+        if (startBtn) {
+            startBtn.style.display = 'block';
+            startBtn.innerText = '🏆 ЗАВЕРШИТЬ ТУРНИР';
+            startBtn.style.backgroundColor = '#fbbf24'; // Желтый
+            startBtn.style.color = '#000';
+            startBtn.onclick = finishTournament;
+        }
     } else {
         statusEl.innerHTML = `Турнир начат!<br>Ваша команда: <b style="color:#3b82f6;">${tournamentSquad[0].club}</b>`;
-        startBtn.style.display = 'block';
-        startBtn.innerText = `▶ ИГРАТЬ ДЕНЬ ${currentRoundIndex + 1}`;
-        startBtn.onclick = runTournament; // Возвращаем клик для игры
+        if (startBtn) {
+            startBtn.style.display = 'block';
+            startBtn.innerText = `▶ ИГРАТЬ ДЕНЬ ${currentRoundIndex + 1}`;
+            startBtn.style.backgroundColor = '#10b981'; // Зеленый
+            startBtn.style.color = '#fff';
+            startBtn.onclick = runTournament;
+        }
     }
-        // --- СОХРАНЕНИЕ ТУРНИРА В ПАМЯТЬ ---
+
+    // --- СОХРАНЕНИЕ ТУРНИРА В ПАМЯТЬ ---
     if (tournamentSchedule && tournamentSchedule.length > 0) {
         localStorage.setItem('khl_active_tournament', JSON.stringify({
             schedule: tournamentSchedule,
@@ -2983,7 +2998,7 @@ function prepareTournament() {
             bench: tournamentBench
         }));
     }
-} // <-- Вот эта скобка закрывает функцию prepareTournament
+}
 
     // --- ТУРНИР: ТАБЛИЦА И ВКЛАДКИ ---
 let currentTournamentStatsTab = 'points'; // По умолчанию вкладка "Очки"
