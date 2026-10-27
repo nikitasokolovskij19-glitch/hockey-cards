@@ -1721,8 +1721,8 @@ const backSide = document.getElementById('detailBack');
 // Обертка, которая прижимает всё к верху
 let html = `<div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100%; box-sizing: border-box; padding-top: 10px;">`;
 
-// ИФ сверху (уменьшили базовый шрифт до 22, добавили padding и box-sizing)
-html += `<h3 id="backPlayerName" style="margin-top: 0; margin-bottom: 8px; font-size: 22px; color: white; text-align: center; text-transform: uppercase; text-shadow: 0 2px 5px rgba(0,0,0,0.5); width: 100%; padding: 0 10px; box-sizing: border-box; white-space: nowrap;">${player.name}</h3>`;
+// ИФ сверху
+html += `<h3 id="backPlayerName" style="margin-top: 0; margin-bottom: 8px; font-size: 24px; color: white; text-align: center; text-transform: uppercase; text-shadow: 0 2px 5px rgba(0,0,0,0.5); width: 100%; max-width: 100%; padding: 0 10px; box-sizing: border-box; white-space: nowrap; overflow: hidden;">${player.name}</h3>`;
                 
 // Дата рождения и Хват
 html += `<div style="margin-bottom: 20px; width: 100%; display: flex; justify-content: center;">
@@ -1775,16 +1775,21 @@ html += `</div>`;
 backSide.innerHTML = html;
 
 // --- АВТО-УМЕНЬШЕНИЕ ШРИФТА ИМЕНИ ---
-const nameEl = document.getElementById('backPlayerName');
-if (nameEl) {
-    let currentSize = 22;
-    nameEl.style.fontSize = currentSize + 'px';
-    // Пока текст шире контейнера, уменьшаем (до минимума 12px)
-    while (nameEl.scrollWidth > nameEl.clientWidth && currentSize > 12) {
-        currentSize -= 1;
+// Ждем 50 миллисекунд, чтобы браузер отрисовал карточку и посчитал реальную ширину
+setTimeout(() => {
+    const nameEl = document.getElementById('backPlayerName');
+    if (nameEl) {
+        let currentSize = 24; // Начальный размер
         nameEl.style.fontSize = currentSize + 'px';
+        
+        // Пока текст шире, чем контейнер, уменьшаем размер (до минимума 14px)
+        while (nameEl.scrollWidth > nameEl.clientWidth && currentSize > 14) {
+            currentSize -= 1;
+            nameEl.style.fontSize = currentSize + 'px';
+        }
     }
-}
+}, 50); // Задержка 50 мс
+                
                 // --- АВТО-УМЕНЬШЕНИЕ ДАТЫ И ХВАТА ---
 const dobHandEl = document.getElementById('backDobHand');
 if (dobHandEl) {
@@ -1796,7 +1801,6 @@ if (dobHandEl) {
     }
 }
 
-// ... (дальше идет код с detailCard.style.setProperty и т.д., он остается без изменений) ...
     const detailCard = document.querySelector('#detailView .card');
     if (detailCard) { detailCard.style.setProperty('--card-border-color', rarity.color); detailCard.style.borderColor = rarity.color; }
     if (backSide) backSide.style.setProperty('--card-border-color', rarity.color);
