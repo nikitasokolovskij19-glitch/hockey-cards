@@ -598,10 +598,10 @@
     </div>
 
     <!-- Кнопки управления -->
-    <div style="position: fixed; bottom: 20px; display: flex; gap: 10px; width: 100%; max-width: 340px; padding: 0 10px; box-sizing: border-box; z-index: 10000;">
-        <button id="tournamentPlayBtn" onclick="runTournament()" style="...">
-        <button onclick="document.getElementById('tournamentView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="flex: 1; background: rgba(51, 65, 85, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
-    </div>
+<div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; width: 100%; max-width: 340px; z-index: 10;">
+    <button id="tournamentPlayBtn" onclick="runTournament()" style="flex: 1; padding: 14px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px;">▶ ИГРАТЬ МАТЧ</button>
+    <button onclick="document.getElementById('tournamentView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="flex: 1; padding: 14px; background: rgba(51, 65, 85, 0.8); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px;">Закрыть</button>
+</div>
 </div>
 
 <!-- ЭКРАН СИМУЛЯЦИИ МАТЧА -->
@@ -2948,7 +2948,7 @@ function prepareTournament() {
     const statusEl = document.getElementById('tournamentStatus');
     const startBtn = document.getElementById('startTournamentBtn');
     
-    tournamentData.sort((a, b) => b.points - a.points || b.wins - a.wins);
+    sortTournamentTable();
     renderTournamentTable(tournamentSquad[0].club);
     switchTournamentTab('standings');
 
