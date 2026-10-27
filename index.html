@@ -2473,130 +2473,134 @@ function startTournament() {
     const probA = strA / (strA + strB);
 
     let events = [];
-    let scoreA = 0, scoreB = 0;
-    let activeGoalieA = goaliesA.length > 0 ? goaliesA[0] : null;
-    let activeGoalieB = goaliesB.length > 0 ? goaliesB[0] : null;
+let scoreA = 0, scoreB = 0;
 
-    let stats = {
-        shotsA: 0, shotsB: 0, pimA: Math.floor(Math.random() * 10), pimB: Math.floor(Math.random() * 10),
-        hitsA: Math.floor(Math.random() * 15) + 10, hitsB: Math.floor(Math.random() * 15) + 10,
-        faceoffsA: 50, faceoffsB: 50
-    };
-    if (strA > strB) { stats.faceoffsA = 55; stats.faceoffsB = 45; }
-    else if (strB > strA) { stats.faceoffsA = 45; stats.faceoffsB = 55; }
+// Реалистичное количество бросков (в среднем 25-35 на команду)
+stats.shotsA = Math.floor(25 + (strA - strB) * 0.3 + Math.random() * 10);
+stats.shotsB = Math.floor(25 + (strB - strA) * 0.3 + Math.random() * 10);
+if (stats.shotsA < 10) stats.shotsA = 10;
+if (stats.shotsB < 10) stats.shotsB = 10;
 
-    const initGoalieStats = (g) => {
-        if (!g) return;
-        const key = `${g.name}_${g.club}`;
-        if (!tournamentPlayerStats[key]) {
-            tournamentPlayerStats[key] = { name: g.name, team: g.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
-        }
-    };
-    initGoalieStats(activeGoalieA);
-    initGoalieStats(activeGoalieB);
+let rawShots = [];
+for (let i = 0; i < stats.shotsA; i++) rawShots.push({ isTeamA: true, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 20) + 1 });
+for (let i = 0; i < stats.shotsB; i++) rawShots.push({ isTeamA: false, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 20) + 1 });
+rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute - b.minute);
 
-    const recordStat = (player, team, type) => {
-        const key = `${player.name}_${team}`;
-        if (!tournamentPlayerStats[key]) tournamentPlayerStats[key] = { name: player.name, team: team, pos: player.pos, goals: 0, assists: 0, points: 0 };
-        if (type === 'goal') { tournamentPlayerStats[key].goals++; if(player.pos !== "Вратарь") tournamentPlayerStats[key].points++; }
-        if (type === 'assist') { tournamentPlayerStats[key].assists++; if(player.pos !== "Вратарь") tournamentPlayerStats[key].points++; }
-    };
-        for (let period = 1; period <= 3; period++) {
-    // Проверка на замену вратаря (если проигрывает 3+ шайбы)
-    if (period === 2) {
-        if ((scoreB - scoreA >= 3) && goaliesA.length > 1 && activeGoalieA !== goaliesA[1]) {
-            activeGoalieA = goaliesA[1];
-            initGoalieStats(activeGoalieA);
-            events.push({ period, minute: 0, scoreA, scoreB, text: `🔄 <b>Замена вратаря в ${teamA}:</b> на лёд выходит ${activeGoalieA.name}.` });
-        }
-        if ((scoreA - scoreB >= 3) && goaliesB.length > 1 && activeGoalieB !== goaliesB[1]) {
-            activeGoalieB = goaliesB[1];
-            initGoalieStats(activeGoalieB);
-            events.push({ period, minute: 0, scoreA, scoreB, text: `🔄 <b>Замена вратаря в ${teamB}:</b> на лёд выходит ${activeGoalieB.name}.` });
-        }
+for (let shot of rawShots) {
+    let isA = shot.isTeamA;
+    let squad = isA ? squadA : squadB;
+    let goalie = isA ? activeGoalieB : activeGoalieA;
+    let teamName = isA ? teamA : teamB;
+    
+    // Замена вратаря (если пропустил 3+)
+    if (isA && scoreB >= 3 && goaliesB.length > 1 && activeGoalieB === goaliesB[0]) {
+        activeGoalieB = goaliesB[1];
+        events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
+    }
+    if (!isA && scoreA >= 3 && goaliesA.length > 1 && activeGoalieA === goaliesA[0]) {
+        activeGoalieA = goaliesA[1];
+        events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
     }
 
-    for (let minute = 1; minute <= 20; minute++) {
-        for (let t = 0; t < 2; t++) { 
-            let isTeamA = (t === 0);
-            
-            // Шанс, что команда бросит по воротам
-            if (Math.random() < 0.15) {
-                let shooterTeam = isTeamA ? squadA : squadB;
-                let defendingGoalie = isTeamA ? activeGoalieB : activeGoalieA;
-                let probGoal = isTeamA ? probA : (1 - probA);
-                
-                stats[isTeamA ? 'shotsA' : 'shotsB']++;
-                
-                if (defendingGoalie) {
-                    let gKey = `${defendingGoalie.name}_${defendingGoalie.club}`;
-                    tournamentPlayerStats[gKey].shotsAgainst++;
-                }
+    let field = squad.filter(p => p.pos !== "Вратарь");
+    let fwds = field.filter(p => p.pos === "Нападающий");
+    let defs = field.filter(p => p.pos === "Защитник");
+    let pool = (Math.random() < 0.75 && fwds.length > 0) ? fwds : (defs.length > 0 ? defs : field);
+    let shooter = pool[Math.floor(Math.random() * pool.length)];
+    let baseProb = isA ? (strA / (strA + strB)) : (strB / (strA + strB));
 
-                // Забила ли команда?
-                if (Math.random() < (probGoal * 0.15)) { 
-                    if (isTeamA) scoreA++; else scoreB++;
-                    
-                    if (defendingGoalie) {
-                        let gKey = `${defendingGoalie.name}_${defendingGoalie.club}`;
-                        tournamentPlayerStats[gKey].goalsAgainst++;
-                    }
-
-                    // Выбираем автора гола (с шансом на запасного)
-                    let activeField = shooterTeam.filter(p => p.pos !== "Вратарь");
-                    let activeBenchField = (isTeamA ? benchA : benchB).filter(p => p.pos !== "Вратарь");
-                    let pool = (Math.random() < 0.2 && activeBenchField.length > 0) ? activeBenchField : activeField;
-                    let scorer = pool[Math.floor(Math.random() * pool.length)];
-                    
-                    // Ассистенты (0, 1 или 2)
-                    let assists = [];
-                    let assistPool = pool.filter(p => p !== scorer);
-                    if (assistPool.length > 0 && Math.random() > 0.2) {
-                        assists.push(assistPool.splice(Math.floor(Math.random() * assistPool.length), 1)[0]);
-                        if (assistPool.length > 0 && Math.random() > 0.6) {
-                            assists.push(assistPool.splice(Math.floor(Math.random() * assistPool.length), 1)[0]);
-                        }
-                    }
-
-                    recordStat(scorer, isTeamA ? teamA : teamB, 'goal');
-                    assists.forEach(a => recordStat(a, isTeamA ? teamA : teamB, 'assist'));
-
-                    let text = `🏒 <b style="color:${isTeamA ? '#3b82f6' : '#ef4444'};">${scorer.name}</b>`;
-                    if (assists.length === 1) text += ` (${assists[0].name})`;
-                    if (assists.length === 2) text += ` (${assists[0].name}, ${assists[1].name})`;
-
-                    events.push({ period, minute, scoreA, scoreB, text: text });
-                } else {
-                    // Вратарь сделал сейв
-                    if (defendingGoalie) {
-                        let gKey = `${defendingGoalie.name}_${defendingGoalie.club}`;
-                        tournamentPlayerStats[gKey].saves++;
-                    }
-                }
-            }
+    if (Math.random() < 0.12 * (baseProb * 2)) {
+        if (isA) scoreA++; else scoreB++;
+        let assists = [];
+        let aPool = pool.filter(p => p !== shooter);
+        if (aPool.length > 0 && Math.random() < 0.7) {
+            assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
+            if (aPool.length > 0 && Math.random() < 0.5) assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
         }
+        recordStat(shooter, teamName, 'goal');
+        assists.forEach(a => recordStat(a, teamName, 'assist'));
+        let text = `🥅 <b style="color:#3b82f6;">${shooter.name}</b> забивает!`;
+        if (assists.length === 1) text += ` (${assists[0].name})`;
+        if (assists.length === 2) text += ` (${assists[0].name}, ${assists[1].name})`;
+        events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text });
+    } else {
+        if (goalie) recordStat(goalie, isA ? teamB : teamA, 'save');
     }
-        }
-            // Овертайм и Буллиты
-    if (scoreA === scoreB) {
-        events.push({ period: 'ОТ', minute: 0, scoreA, scoreB, text: `<br><b style="color:#fbbf24;">--- ОВЕРТАЙМ ---</b>` });
-        if (Math.random() < 0.5) {
-            let isTeamA = Math.random() < probA;
-            if (isTeamA) scoreA++; else scoreB++;
-            events.push({ period: 'ОТ', minute: 5, scoreA, scoreB, text: `🏒 Победный гол в овертайме!` });
-        }
-    }
+}
 
-    let shootoutEvents = [];
-    if (scoreA === scoreB) {
-        shootoutEvents.push({ text: `<br><b style="color:#fbbf24;">--- СЕРИЯ БУЛЛИТОВ ---</b>` });
-        let soA = Math.floor(Math.random()*3), soB = Math.floor(Math.random()*3);
-        while (soA === soB) { soA = Math.floor(Math.random()*3); soB = Math.floor(Math.random()*3); }
-        if (soA > soB) scoreA++; else scoreB++;
-        shootoutEvents.push({ text: `Победа по буллитам <b>${soA}:${soB}</b>` });
-    }
+// Сортируем все события по времени (чтобы голы шли по порядку)
+events.sort((a, b) => a.minute - b.minute);
 
-    return { events, shootoutEvents, scoreA, scoreB, stats };
+    // --- ОВЕРТАЙМ И БУЛЛИТЫ ---
+let shootoutEvents = [];
+
+if (scoreA === scoreB) {
+    // 1. Овертайм
+    events.push({ period: 'OT', minute: 0, scoreA, scoreB, text: `<br><b style="color:#fbbf24;">--- ОВЕРТАЙМ ---</b>` });
+    
+    let otScorer = null;
+    let otTeam = null;
+    
+    if (Math.random() < 0.5) { // 50% шанс, что в ОТ кто-то забьет
+        let isA = Math.random() < probA;
+        if (isA) { scoreA++; otTeam = teamA; } else { scoreB++; otTeam = teamB; }
+        
+        let squad = isA ? squadA : squadB;
+        let fieldPlayers = squad.filter(p => p.pos !== "Вратарь");
+        otScorer = fieldPlayers[Math.floor(Math.random() * fieldPlayers.length)];
+        
+        recordStat(otScorer, otTeam, 'goal');
+        
+        events.push({ 
+            period: 'OT', minute: 3, scoreA, scoreB, 
+            text: `🥅 <b style="color:#3b82f6;">${otScorer.name}</b> забивает и приносит победу своей команде в овертайме!` 
+        });
+    } else {
+        events.push({ period: 'OT', minute: 5, scoreA, scoreB, text: `Овертайм завершен вничью.` });
+    }
+}
+
+  // 2. Буллиты (если после ОТ всё еще ничья)
+if (scoreA === scoreB) {
+    shootoutEvents.push({ text: `<br><b style="color:#fbbf24;">--- СЕРИЯ БУЛЛИТОВ ---</b>` });
+    let soA = 0, soB = 0;
+    let shotsA = 0, shotsB = 0;
+    
+    while (true) {
+        // Бросает команда А
+        let fwdA = squadA.filter(p => p.pos === "Нападающий");
+        let shooterA = fwdA.length > 0 ? fwdA[Math.floor(Math.random() * fwdA.length)] : squadA[0];
+        if (Math.random() < 0.35) { 
+            soA++; recordStat(shooterA, teamA, 'goal'); 
+            shootoutEvents.push({ text: `✅ <b>${shooterA.name}</b> (${teamA}) — забивает! <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); 
+        } else { 
+            shootoutEvents.push({ text: `❌ <b>${shooterA.name}</b> (${teamA}) — не забивает. <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); 
+        }
+        shotsA++;
+        
+        // Досрочная победа А
+        if (shotsA >= 3 && shotsB >= 3 && soA !== soB) break;
+        if (shotsA >= 3 && soA > soB + (3 - shotsB)) break;
+
+        // Бросает команда Б
+        let fwdB = squadB.filter(p => p.pos === "Нападающий");
+        let shooterB = fwdB.length > 0 ? fwdB[Math.floor(Math.random() * fwdB.length)] : squadB[0];
+        if (Math.random() < 0.35) { 
+            soB++; recordStat(shooterB, teamB, 'goal'); 
+            shootoutEvents.push({ text: `✅ <b>${shooterB.name}</b> (${teamB}) — забивает! <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); 
+        } else { 
+            shootoutEvents.push({ text: `❌ <b>${shooterB.name}</b> (${teamB}) — не забивает. <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); 
+        }
+        shotsB++;
+        
+        // Досрочная победа Б
+        if (shotsA >= 3 && shotsB >= 3 && soA !== soB) break;
+    }
+    scoreA += soA;
+    scoreB += soB;
+}
+
+return { events, shootoutEvents, scoreA, scoreB, stats };
     }
 
     function simulateVisualMatch(teamA, teamB, onComplete) {
@@ -2611,93 +2615,141 @@ function startTournament() {
     document.getElementById('btn-view-stats').style.display = 'none';
     document.getElementById('matchSimView').style.display = 'flex';
 
-    const matchData = generateMatchData(teamA, teamB);
-    let allEvents = [...matchData.events, ...matchData.shootoutEvents];
+        const matchData = generateMatchData(teamA, teamB);
+
+// СБРОС ИНТЕРФЕЙСА ПЕРЕД МАТЧЕМ
+document.getElementById('match-score').innerText = '0 : 0';
+document.getElementById('match-time').innerText = "1' (1 период)";
+document.getElementById('match-log').innerHTML = '';
+
+let allEvents = [...matchData.events];
+let curMin = 1;
+let curPer = 1;
+let isOT = false;
+
+function tick() {
+    const logDiv = document.getElementById('match-log');
+    const timeEl = document.getElementById('match-time');
     
-    let currentEvent = 0;
+    // Показываем события текущей минуты
+    let currentPeriodId = isOT ? 'OT' : curPer;
+    let evs = allEvents.filter(e => e.minute === curMin && e.period === currentPeriodId);
+    evs.forEach(ev => {
+        if (ev.scoreA !== undefined) document.getElementById('match-score').innerText = `${ev.scoreA} : ${ev.scoreB}`;
+        logDiv.innerHTML += `<div style="margin-bottom: 8px;">${ev.text}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    });
+
+    timeEl.innerText = `${curMin}' (${isOT ? 'Овертайм' : curPer + ' период'})`;
+
+    let maxMin = isOT ? 5 : 20;
     
-    function playEvent() {
-        if (currentEvent < allEvents.length) {
-            let ev = allEvents[currentEvent];
-            
-            if (ev.scoreA !== undefined) {
-                document.getElementById('match-score').innerText = `${ev.scoreA} : ${ev.scoreB}`;
-                document.getElementById('match-time').innerText = ev.period === 'ОТ' ? `Овертайм • ${ev.minute}:00` : `${ev.period} период • ${ev.minute}:00`;
-            }
-            
-            let logDiv = document.getElementById('match-log');
-            if (currentEvent === 0) logDiv.innerHTML = '';
-            logDiv.innerHTML += `<div style="margin-bottom: 8px;">${ev.text}</div>`;
-            logDiv.scrollTop = logDiv.scrollHeight;
-            
-            currentEvent++;
-            
-            let delay = ev.text.includes('✅') || ev.text.includes('❌') ? 800 : 1500;
-            setTimeout(playEvent, delay);
+    if (curMin >= maxMin) {
+        if (!isOT) {
+            if (curPer < 3) { curPer++; curMin = 1; }
+            else if (matchData.scoreA === matchData.scoreB) { isOT = true; curMin = 1; }
+            else return endMatch();
         } else {
-            document.getElementById('match-time').innerText = "Матч окончен";
-            document.getElementById('match-log').innerHTML += `<div style="text-align: center; font-size: 18px; font-weight: bold; color: #fbbf24; margin-top: 20px;">ФИНАЛЬНЫЙ СВИСТОК</div>`;
-            
-            document.getElementById('match-continue-btn').style.display = 'block';
-            document.getElementById('btn-view-stats').style.display = 'block';
-                        document.getElementById('btn-view-stats').onclick = () => {
-                const statsDiv = document.getElementById('matchStatsContent');
-                
-                let goalsHtml = '';
-                matchData.events.forEach(ev => {
-                    if (ev.text.includes('🏒')) {
-                        let cleanText = ev.text.replace(/<[^>]*>?/gm, ''); 
-                        goalsHtml += `<div style="display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                        <span style="color: #64748b; width: 30px;">${ev.minute}'</span>
-                                        <span style="flex: 1; color: white;">${cleanText}</span>
-                                      </div>`;
-                    }
-                });
-
-                statsDiv.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 10px; color: #94a3b8; font-size: 11px; font-weight: bold;">
-                        <div style="width: 35%; text-align: left;">${teamA}</div>
-                        <div style="width: 30%; text-align: center;">Матч</div>
-                        <div style="width: 35%; text-align: right;">${teamB}</div>
-                    </div>
-                    
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px;">
-                        <div style="width: 35%; text-align: left; font-weight: bold; color: white;">${matchData.stats.shotsA}</div>
-                        <div style="width: 30%; text-align: center; color: #94a3b8;">Броски</div>
-                        <div style="width: 35%; text-align: right; font-weight: bold; color: white;">${matchData.stats.shotsB}</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px;">
-                        <div style="width: 35%; text-align: left; font-weight: bold; color: white;">${matchData.stats.hitsA}</div>
-                        <div style="width: 30%; text-align: center; color: #94a3b8;">Силовые</div>
-                        <div style="width: 35%; text-align: right; font-weight: bold; color: white;">${matchData.stats.hitsB}</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px;">
-                        <div style="width: 35%; text-align: left; font-weight: bold; color: white;">${matchData.stats.faceoffsA}%</div>
-                        <div style="width: 30%; text-align: center; color: #94a3b8;">Вбрасывания</div>
-                        <div style="width: 35%; text-align: right; font-weight: bold; color: white;">${matchData.stats.faceoffsB}%</div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 13px;">
-                        <div style="width: 35%; text-align: left; font-weight: bold; color: white;">${matchData.stats.pimA}</div>
-                        <div style="width: 30%; text-align: center; color: #94a3b8;">Штраф (мин)</div>
-                        <div style="width: 35%; text-align: right; font-weight: bold; color: white;">${matchData.stats.pimB}</div>
-                    </div>
-
-                    <div style="font-size: 12px; color: #fbbf24; text-align: center; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">Голы</div>
-                    <div style="max-height: 150px; overflow-y: auto;">
-                        ${goalsHtml || '<div style="text-align: center; color: #64748b; font-size: 12px;">Голов не было</div>'}
-                    </div>
-                `;
-                document.getElementById('matchStatsView').style.display = 'flex';
-            };
-
-            document.getElementById('match-continue-btn').onclick = () => {
-                document.getElementById('matchSimView').style.display = 'none';
-                onComplete(matchData.scoreA, matchData.scoreB);
-            };
+            if (matchData.scoreA === matchData.scoreB) return startShootout();
+            else return endMatch();
         }
+    } else {
+        curMin++;
     }
-    setTimeout(playEvent, 1000);
+    setTimeout(tick, isOT ? 400 : 333); 
+}
+
+function startShootout() {
+    const logDiv = document.getElementById('match-log');
+    const timeEl = document.getElementById('match-time');
+    timeEl.innerText = 'Серия буллитов';
+    
+    let soIdx = 0;
+    function nextBullet() {
+        if (soIdx >= matchData.shootoutEvents.length) {
+            return endMatch();
+        }
+        let ev = matchData.shootoutEvents[soIdx];
+        logDiv.innerHTML += `<div style="margin-bottom: 8px;">${ev.text}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+        soIdx++;
+        setTimeout(nextBullet, 1000); // 1 секунда на буллит
     }
+    setTimeout(nextBullet, 1000);
+}
+
+function endMatch() {
+    document.getElementById('match-time').innerText = "Матч окончен";
+    document.getElementById('match-log').innerHTML += `<div style="text-align: center; font-size: 18px; font-weight: bold; color: #fbbf24; margin-top: 10px;">Матч завершен!</div>`;
+    document.getElementById('match-continue-btn').style.display = 'block';
+    document.getElementById('btn-view-stats').style.display = 'block';
+    
+    // НИЖЕ ВСТАВЬ СТАРЫЙ БЛОК ОТРИСОВКИ СТАТИСТИКИ
+    document.getElementById('btn-view-stats').onclick = () => {
+    const statsDiv = document.getElementById('matchStatsContent');
+    let goalsHtml = '';
+    
+    // Собираем голы из событий
+    matchData.events.forEach(ev => {
+        if (ev.text.includes('🥅')) {
+            let cleanText = ev.text.replace(/<[^>]+>/g, ''); // убираем HTML теги
+            goalsHtml += `<div style="display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid #2a2a3a;">
+                <span style="color: #64748b; width: 30px;">${ev.minute}'</span>
+                <span style="flex: 1; color: #fff;">${cleanText}</span>
+            </div>`;
+        }
+    });
+
+    // Отрисовка таблицы
+    statsDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 10px;">
+            <div style="width: 35%; text-align: left; font-weight: bold; color: white;">${teamA}</div>
+            <div style="width: 30%; text-align: center; color: #94a3b8; font-size: 12px;">Матч</div>
+            <div style="width: 35%; text-align: right; font-weight: bold; color: white;">${teamB}</div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <div style="width: 35%; text-align: left; color: ${matchData.scoreA > matchData.scoreB ? '#3b82f6' : 'white'}; font-weight: bold;">${matchData.scoreA}</div>
+            <div style="width: 30%; text-align: center; color: #94a3b8;">Голы</div>
+            <div style="width: 35%; text-align: right; color: ${matchData.scoreB > matchData.scoreA ? '#3b82f6' : 'white'}; font-weight: bold;">${matchData.scoreB}</div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <div style="width: 35%; text-align: left; color: white;">${matchData.stats.shotsA}</div>
+            <div style="width: 30%; text-align: center; color: #94a3b8;">Броски</div>
+            <div style="width: 35%; text-align: right; color: white;">${matchData.stats.shotsB}</div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <div style="width: 35%; text-align: left; color: white;">${matchData.stats.hitsA}</div>
+            <div style="width: 30%; text-align: center; color: #94a3b8;">Силовые</div>
+            <div style="width: 35%; text-align: right; color: white;">${matchData.stats.hitsB}</div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <div style="width: 35%; text-align: left; color: white;">${matchData.stats.faceoffA}%</div>
+            <div style="width: 30%; text-align: center; color: #94a3b8;">Вбрасывания</div>
+            <div style="width: 35%; text-align: right; color: white;">${matchData.stats.faceoffB}%</div>
+        </div>
+        
+        <div style="font-size: 12px; color: #fbbf24; text-align: center; margin-top: 15px; border-top: 1px solid #334155; padding-top: 10px;">Голы:</div>
+        <div style="max-height: 100px; overflow-y: auto; text-align: left; font-size: 11px;">
+            ${goalsHtml || '<div style="text-align: center; color: #64748b; padding: 10px 0;">Голов не было</div>'}
+        </div>
+    `;
+    document.getElementById('matchStatsView').style.display = 'flex';
+};
+    // Он начинается со слов: document.getElementById('btn-view-stats').onclick = () => {
+    // ... (там где ты заполняешь statsDiv.innerHTML и вызываешь matchStatsView) ...
+    // и заканчивается: };
+
+    document.getElementById('match-continue-btn').onclick = () => {
+        document.getElementById('matchSimView').style.display = 'none';
+        onComplete(matchData.scoreA, matchData.scoreB);
+    };
+}
+
+setTimeout(tick, 1000);
 
     // --- ТУРНИР: ЗАПУСК ДНЯ И ОБРАБОТКА РЕЗУЛЬТАТОВ ---
  function runTournament() {
@@ -2706,7 +2758,7 @@ function startTournament() {
     // Защита от вылета: если туры кончились, просто ничего не делаем
     if (!tournamentSchedule || currentRoundIndex >= tournamentSchedule.length) {
         return; 
-    }2
+    }
 
     const playerTeam = tournamentSquad[0].club;
     let currentRoundMatches = tournamentSchedule[currentRoundIndex];
