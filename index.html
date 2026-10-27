@@ -1256,16 +1256,21 @@ function claimMainQuestReward() {
 function generatePlayerMiniCardHTML(player, showCount) {
     const overall = getPlayerOVR(player);
     const rarityColor = getRarityInfo(overall).color;
+    
+    // Защита от пустых значений
+    const imgUrl = player.img ? player.img : '';
+    const logoUrl = player.logo ? player.logo : '';
+
     return `
         <div style="position: relative; width: 100%; height: 100%;">
-            <img src="${player.img}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; z-index: 1;" onerror="this.style.display='none';">
+            <img src="${imgUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; z-index: 1;" onerror="this.style.display='none';">
             <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 65%; background: linear-gradient(to top, #0f172a 40%, transparent); z-index: 2;"></div>
-            <div style="position: absolute; top: 0; left: 0; background: rgba(15,23,42,0.85); color: ${rarityColor}; font-weight: 800; font-size: 14px; padding: 2px 5px; border-bottom-right-radius: 8px; z-index: 3; border-right: 1px solid ${rarityColor}; border-bottom: 1px solid ${rarityColor};">
-    ${overall}
-</div>
-            <div style="position: absolute; top: 2px; right: 2px; width: 22px; height: 22px; background: #ffffff; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); overflow: hidden;">
-    <img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px; background: #fff; border-radius: 50%;" onerror="this.style.display='none';">
-</div>
+            <div style="position: absolute; top: 0; left: 0; background: rgba(15,23,42,0.85); color: ${rarityColor}; font-weight: 800; font-size: 14px; padding: 3px 6px; border-bottom-right-radius: 8px; z-index: 3; border-right: 1px solid ${rarityColor}; border-bottom: 1px solid ${rarityColor};">
+                ${overall}
+            </div>
+            <div style="position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; background: #ffffff; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); overflow: hidden;">
+                <img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px; background: #fff; border-radius: 50%;" onerror="this.style.display='none';">
+            </div>
             <div style="position: absolute; bottom: 5px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 3; padding: 0 4px; box-sizing: border-box;">
                 <div style="font-size: 9px; font-weight: 800; text-transform: uppercase; width: 100%; text-align: center; text-shadow: 1px 1px 2px black; line-height: 1.1; white-space: normal; word-break: break-word; margin-bottom: 2px;">
                     ${player.name}
@@ -1278,7 +1283,7 @@ function generatePlayerMiniCardHTML(player, showCount) {
             </div>
         </div>
     `;
-}
+    }
 
 function renderSquad() {
     for (let i = 0; i < 6; i++) {
@@ -1710,20 +1715,19 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             }
         }
 
-            function openDetailView(player) {
+    function openDetailView(player) {
     currentViewPlayer = player;
     document.getElementById('d-name').innerText = player.name;
     document.getElementById('d-season').innerText = player.season;
     document.getElementById('d-pos').innerText = player.pos;
-    document.getElementById('d-flag').innerText = player.flag || '🏳️';
-                
+    
     let posColor = player.pos === "Защитник" ? "#3b82f6" : (player.pos === "Вратарь" ? "#10b981" : "#ef4444");
     document.getElementById('d-pos').style.color = posColor;
 
     const overall = getPlayerOVR(player);
     document.getElementById('d-overall').innerText = overall;
 
-    // Отрисовка статов на лицевой стороне
+    // (Блок со статами и названиями характеристик оставляем как было)
     const statBlocks = document.querySelectorAll('#detailFront .stats .stat');
     if (player.pos === "Вратарь") {
         statBlocks[0].innerHTML = `РЕА <span>${player.rea || 0}</span>`;
@@ -1741,12 +1745,18 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
         statBlocks[5].innerHTML = `КАТ <span>${player.skate || 0}</span>`;
     }
     
+    // Защита от пустых значений
+    const imgUrl = player.img ? player.img : '';
+    const logoUrl = player.logo ? player.logo : '';
+
     document.getElementById('d-number').innerText = player.number || "";
     document.getElementById('d-flag').innerText = player.flag || '🏳️'; 
     
-    document.getElementById('d-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
-    document.getElementById('d-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
-
+    // Вставляем картинки с проверкой
+    document.getElementById('d-img').innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
+    document.getElementById('d-clubLogo').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
+    
+    // ... (дальше идет код с кнопкой продажи, который у тебя уже есть) ...
     const rarity = getRarityInfo(overall);
     const dRarityEl = document.getElementById('d-rarity');
     dRarityEl.innerText = rarity.name;
