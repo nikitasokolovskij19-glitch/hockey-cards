@@ -2388,6 +2388,44 @@ let tournamentData = [];
 let tournamentPlayerStats = {};
 let isTournamentRunning = false;
 
+// Запуск турнира (вызывается из сборщика звена)
+function startTournament() {
+    const playerTeam = tournamentSquad[0].club;
+    
+    // Ищем команды, у которых можно собрать звено, исключая нашу
+    const botTeams = [...new Set(PLAYERS.map(p => p.club))].filter(club => club !== playerTeam && canFormValidSquad(club));
+    
+    if (botTeams.length < 1) {
+        alert("В базе недостаточно команд для турнира!");
+        return;
+    }
+
+    const allTeams = [...botTeams, playerTeam];
+    
+    // Создаем расписание и таблицу
+    tournamentSchedule = generateSchedule(allTeams);
+    tournamentData = allTeams.map(team => ({
+        team: team,
+        logo: PLAYERS.find(p => p.club === team)?.logo,
+        games: 0,
+        wins: 0,
+        losses: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+        points: 0
+    }));
+    tournamentPlayerStats = {};
+    currentRoundIndex = 0;
+    isTournamentRunning = false;
+
+    // Переключаем экраны
+    document.getElementById('tournamentSquadBuilder').style.display = 'none';
+    document.getElementById('tournamentView').style.display = 'flex';
+    document.getElementById('globalHomeBtn').style.display = 'flex';
+    
+    prepareTournament();
+}
+    
 // Генерация расписания (каждый с каждым)
 function generateMatchData(teamA, teamB) {
     let squadA, squadB, benchA = [], benchB = [], goalsA = [], goalsB = [];
