@@ -2512,44 +2512,69 @@ for (let i = 0; i < stats.shotsB; i++) rawShots.push({ isTeamA: false, period: M
 rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute - b.minute);
 
     for (let shot of rawShots) {
-        let isA = shot.isTeamA;
-        let squad = isA ? squadA : squadB;
-        let goalie = isA ? activeGoalieB : activeGoalieA;
-        let teamName = isA ? teamA : teamB;
+    let isA = shot.isTeamA;
+    let squad = isA ? squadA : squadB;
+    let goalie = isA ? activeGoalieB : activeGoalieA;
+    let teamName = isA ? teamA : teamB;
 
-        if (isA && scoreB >= 3 && goalsB.length > 1 && activeGoalieB === goalsB[0]) {
-            activeGoalieB = goalsB[1];
-            events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
-        }
-        if (!isA && scoreA >= 3 && goalsA.length > 1 && activeGoalieA === goalsA[0]) {
-            activeGoalieA = goalsA[1];
-            events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
+    // --- ЗАМЕНА ВРАТАРЯ ---
+    if (isA && scoreB >= 3 && goalsB.length > 1 && activeGoalieB === goalsB[0]) {
+        activeGoalieB = goalsB[1];
+        goalie = activeGoalieB;
+        let gkey = `${goalie.name}_${goalie.club}`;
+        if (!tournamentPlayerStats[gkey]) tournamentPlayerStats[gkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
+        events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
+    }
+    if (!isA && scoreA >= 3 && goalsA.length > 1 && activeGoalieA === goalsA[0]) {
+        activeGoalieA = goalsA[1];
+        goalie = activeGoalieA;
+        let gkey = `${goalie.name}_${goalie.club}`;
+        if (!tournamentPlayerStats[gkey]) tournamentPlayerStats[gkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
+        events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
+    }
+
+    // --- СЧИТАЕМ БРОСОК В СТВОР ---
+    if (goalie) {
+        let gkey = `${goalie.name}_${goalie.club}`;
+        if (!tournamentPlayerStats[gkey]) tournamentPlayerStats[gkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
+        tournamentPlayerStats[gkey].shotsAgainst++;
+    }
+
+    let field = squad.filter(p => p.pos !== "Вратарь");
+    let fwds = field.filter(p => p.pos === "Нападающий");
+    let defs = field.filter(p => p.pos === "Защитник");
+    let pool = (Math.random() < 0.75 && fwds.length > 0) ? fwds : (defs.length > 0 ? defs : field);
+    let shooter = pool[Math.floor(Math.random() * pool.length)];
+    let baseProb = isA ? (strA / (strA + strB)) : (strB / (strA + strB));
+
+    if (Math.random() < 0.12 * (baseProb * 2)) {
+        // --- ГОЛ ---
+        if (isA) scoreA++; else scoreB++;
+        
+        if (goalie) {
+            let gkey = `${goalie.name}_${goalie.club}`;
+            tournamentPlayerStats[gkey].goalsAgainst++;
         }
 
-        let field = squad.filter(p => p.pos !== "Вратарь");
-        let fwds = field.filter(p => p.pos === "Нападающий");
-        let defs = field.filter(p => p.pos === "Защитник");
-        let pool = (Math.random() < 0.75 && fwds.length > 0) ? fwds : (defs.length > 0 ? defs : field);
-        let shooter = pool[Math.floor(Math.random() * pool.length)];
-        let baseProb = isA ? (strA / (strA + strB)) : (strB / (strA + strB));
-
-        if (Math.random() < 0.12 * (baseProb * 2)) {
-            if (isA) scoreA++; else scoreB++;
-            let assists = [];
-            let aPool = pool.filter(p => p !== shooter);
-            if (aPool.length > 0 && Math.random() < 0.7) {
-                assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
-                if (aPool.length > 0 && Math.random() < 0.5) assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
-            }
-            recordStat(shooter, teamName, 'goal');
-            assists.forEach(a => recordStat(a, teamName, 'assist'));
-            let text = `🥅 <b style="color:#3b82f6;">${shooter.name}</b> забивает!`;
-            if (assists.length === 1) text += ` (${assists[0].name})`;
-            if (assists.length === 2) text += ` (${assists[0].name}, ${assists[1].name})`;
-            events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text });
-        } else {
-            if (goalie) recordStat(goalie, isA ? teamB : teamA, 'save');
+        let assists = [];
+        let aPool = pool.filter(p => p !== shooter);
+        if (aPool.length > 0 && Math.random() < 0.7) {
+            assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
+            if (aPool.length > 0 && Math.random() < 0.5) assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
         }
+        recordStat(shooter, teamName, 'goal');
+        assists.forEach(a => recordStat(a, teamName, 'assist'));
+        let text = `🥅 <b style="color:#3b82f6;">${shooter.name}</b> забивает!`;
+        if (assists.length === 1) text += ` (${assists[0].name})`;
+        if (assists.length === 2) text += ` (${assists[0].name}, ${assists[1].name})`;
+        events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text });
+    } else {
+        // --- СЕЙВ ---
+        if (goalie) {
+            let gkey = `${goalie.name}_${goalie.club}`;
+            tournamentPlayerStats[gkey].saves++;
+        }
+    }
     }
 
     let shootoutEvents = [];
