@@ -538,7 +538,7 @@
     </div>
 
     <!-- Кнопка старта (появится только если всё верно) -->
-    <button id="startTournamentBtn" onclick="startTournament()" style="display: none; width: 100%; max-width: 340px; padding: 15px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-bottom: 10px;">▶ НАЧАТЬ ТУРНИР</button>
+    <button id="startTournamentBtn" onclick="startTournament()" style="width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; margin-top: 15px;">▶ НАЧАТЬ ТУРНИР</button>
     
     <button onclick="document.getElementById('tournamentSquadBuilder').style.display='none'; document.getElementById('tournamentRulesView').style.display='flex';" style="width: 100%; max-width: 340px; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer; margin-bottom: 30px;">Назад</button>
 </div>
@@ -2193,6 +2193,14 @@ document.getElementById('tournamentBtn').onclick = () => {
 
 // 2. Открытие сборщика
 function openTournamentSquadBuilder() {
+
+    const startBtn = document.getElementById('startTournamentBtn');
+if (startBtn) {
+    startBtn.innerText = '▶ НАЧАТЬ ТУРНИР';
+    startBtn.style.backgroundColor = '#10b981'; // Зеленый
+    startBtn.onclick = startTournament;
+}
+    
     document.getElementById('tournamentRulesView').style.display = 'none';
     document.getElementById('tournamentSquadBuilder').style.display = 'flex';
     tournamentSquad = [null, null, null, null, null, null];
@@ -2985,11 +2993,18 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
         // 1. Сортировка по очкам (по убыванию)
         if (b.points !== a.points) return b.points - a.points;
         
-        // 2. Если очки равны, смотрим на пропущенные (кто меньше пропустил - тот выше)
-        if (a.goalsAgainst !== b.goalsAgainst) return a.goalsAgainst - b.goalsAgainst;
-        
-        // 3. Если и шайбы равны, смотрим на личные встречи
-        // (Пока просто оставляем текущий порядок или сортируем по алфавиту)
+        // 2. Если очки равны, смотрим на количество побед (В)
+        if (b.wins !== a.wins) return b.wins - a.wins;
+
+        // 3. Если и победы равны, считаем РАЗНИЦУ ШАЙБ (ГЗ - ГП)
+        let diffA = a.goalsFor - a.goalsAgainst;
+        let diffB = b.goalsFor - b.goalsAgainst;
+        if (diffB !== diffA) return diffB - diffA;
+
+        // 4. Если разница равна, смотрим на заброшенные шайбы (ГЗ) (больше = выше)
+        if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+
+        // 5. Если всё абсолютно равно, сортируем по алфавиту
         return a.team.localeCompare(b.team);
     });
     }
