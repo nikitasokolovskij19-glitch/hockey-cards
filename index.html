@@ -2388,6 +2388,33 @@ let tournamentData = [];
 let tournamentPlayerStats = {};
 let isTournamentRunning = false;
 
+    // Генерация расписания (каждый с каждым)
+function generateSchedule(teams) {
+    let schedule = [];
+    let teamsCopy = [...teams];
+    if (teamsCopy.length % 2 !== 0) teamsCopy.push("BYE");
+
+    let n = teamsCopy.length;
+    let rounds = n - 1;
+
+    for (let r = 0; r < rounds; r++) {
+        let roundMatches = [];
+        for (let i = 0; i < n / 2; i++) {
+            let teamA = teamsCopy[i];
+            let teamB = teamsCopy[n - 1 - i];
+            if (teamA !== "BYE" && teamB !== "BYE") {
+                roundMatches.push({ teamA, teamB });
+            }
+        }
+        schedule.push(roundMatches);
+
+        // Ротация команд для следующего тура
+        let lastTeam = teamsCopy.pop();
+        teamsCopy.splice(1, 0, lastTeam);
+    }
+    return schedule;
+}
+
 // Запуск турнира (вызывается из сборщика звена)
 function startTournament() {
     const playerTeam = tournamentSquad[0].club;
@@ -2853,6 +2880,8 @@ function closeDayResults() {
     document.getElementById('globalHomeBtn').style.display = 'none';
     }
 
+    
+
 function prepareTournament() {
     const statusEl = document.getElementById('tournamentStatus');
     const startBtn = document.getElementById('startTournamentBtn');
@@ -2883,23 +2912,11 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
         // 1. Сортировка по очкам (по убыванию)
         if (b.points !== a.points) return b.points - a.points;
         
-        // 2. Если очки равны, смотрим на пропущенные шайбы (кто меньше пропустил - тот выше)
-        if (a.goalsAgainst !== b.goalsAgains2t) return a.goalsAgainst - b.goalsAgainst;
+        // 2. Если очки равны, смотрим на пропущенные (кто меньше пропустил - тот выше)
+        if (a.goalsAgainst !== b.goalsAgainst) return a.goalsAgainst - b.goalsAgainst;
         
-        // 3. Если и шайбы равны, смотрим на личную встречу
-        // (Ищем матч между ними в уже сыгранных днях)
-        let h2hWinner = null;
-        for (let i = 0; i < currentRoundIndex; i++) {
-            let round = tournamentSchedule[i];
-            let match = round.find(m => (m.teamA === a.team && m.teamB === b.team) || (m.teamA === b.team && m.teamB === a.team));
-            if (match) {
-                // Нам нужно знать счет, но мы его не сохраняем в матче. 
-                // Поэтому временно упростим: если матч был, просто оставим текущий порядок или смотрим по разнице голов.
-                // Для простоты пока оставим алфавитный порядок, если нет сохраненного счета личных встреч.
-            }
-        }
-        
-        // 4. Если ничего не решили, по алфавиту
+        // 3. Если и шайбы равны, смотрим на личные встречи
+        // (Пока просто оставляем текущий порядок или сортируем по алфавиту)
         return a.team.localeCompare(b.team);
     });
     }
