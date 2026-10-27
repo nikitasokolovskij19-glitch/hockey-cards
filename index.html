@@ -2700,12 +2700,26 @@ function startTournament() {
     }
 
     // --- ТУРНИР: ЗАПУСК ДНЯ И ОБРАБОТКА РЕЗУЛЬТАТОВ ---
-function runTournament() {
+ function runTournament() {
     if (isTournamentRunning) return;
-    
+
+    // Проверка: если все туры сыграны или расписание пустое
+    if (!tournamentSchedule || currentRoundIndex >= tournamentSchedule.length) {
+        isTournamentRunning = false;
+        finishTournament();
+        return;
+    }
+
     const playerTeam = tournamentSquad[0].club;
     let currentRoundMatches = tournamentSchedule[currentRoundIndex];
-    
+
+    // Защита от пустого массива матчей в туре
+    if (!currentRoundMatches) {
+        isTournamentRunning = false;
+        finishTournament();
+        return;
+    }
+
     let playerMatch = currentRoundMatches.find(m => m.teamA === playerTeam || m.teamB === playerTeam);
     
     isTournamentRunning = true;
@@ -2790,10 +2804,19 @@ function closeDayResults() {
     document.getElementById('dayResultsView').style.display = 'none';
     currentRoundIndex++;
     isTournamentRunning = false;
-    prepareTournament(); // Просто готовим экран к следующему шагу
+    
+    // Если туры закончились - завершаем турнир, иначе готовим следующий
+    if (currentRoundIndex >= tournamentSchedule.length) {
+        finishTournament();
+    } else {
+        prepareTournament(); 
+    }
 }
 
     function finishTournament() {
+    // ОБЯЗАТЕЛЬНО сортируем перед определением места, иначе награда будет неверной!
+    tournamentData.sort((a, b) => b.points - a.points || b.wins - a.wins);
+    
     const playerTeam = tournamentSquad[0].club;
     const playerPos = tournamentData.findIndex(t => t.team === playerTeam) + 1;
     
