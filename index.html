@@ -2703,8 +2703,8 @@ function startTournament() {
  function runTournament() {
     if (isTournamentRunning) return;
 
-    // Проверка: если все туры сыграны или расписание пустое
-    if (!tournamentSchedule || currentRoundIndex >= tournamentSchedule.length) {
+    // Если расписание пустое или все туры сыграны
+    if (!tournamentSchedule || tournamentSchedule.length === 0 || currentRoundIndex >= tournamentSchedule.length) {
         isTournamentRunning = false;
         finishTournament();
         return;
@@ -2713,7 +2713,7 @@ function startTournament() {
     const playerTeam = tournamentSquad[0].club;
     let currentRoundMatches = tournamentSchedule[currentRoundIndex];
 
-    // Защита от пустого массива матчей в туре
+    // Защита от пустого массива матчей
     if (!currentRoundMatches) {
         isTournamentRunning = false;
         finishTournament();
@@ -2734,7 +2734,7 @@ function startTournament() {
             processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp);
         });
     }
-}
+ }
 
 function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp) {
     let roundResults = [];
