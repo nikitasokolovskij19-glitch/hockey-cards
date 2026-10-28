@@ -579,8 +579,8 @@
         <button id="tabTournamentCalendar" onclick="switchTournamentTab('calendar')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; font-weight: bold; font-size: 12px; cursor: pointer; background: rgba(51, 65, 85, 0.8); color: #cbd5e1;">Календарь</button>
     </div>
 
-    <div id="tournamentMainContainer" style="width: 100%; max-width: 340px; flex: 1; overflow-y: auto; padding: 0 10px; box-sizing: border-box; margin-bottom: 80px;">
-        
+    <div id="tournamentMainContainer" style="width: 100%; flex: 1; overflow-y: auto; padding-bottom: 90px;">
+    
         <!-- Вкладка 1: Таблица -->
         <div id="tournamentStandingsView" style="display: block;">
             <div id="tournamentTableContainer"></div>
@@ -2194,7 +2194,7 @@ document.getElementById('tournamentBtn').onclick = () => {
     } else {
         // Если турнира нет, открываем сборку
         openTournamentSquadBuilder();
-    }2
+    }
     }
 
 // 2. Открытие сборщика
