@@ -3636,14 +3636,22 @@ function renderTournamentStats() {
     const playersArray = Object.values(tournamentPlayerStats);
 
     // Функция для форматирования имени: #47 А. Радулов 🇷🇺
-    const formatName = (p) => {
-        if (!p.name) return '';
-        const parts = p.name.split(' ');
-        const lastName = parts[1] || parts[0];
-        const firstName = parts[0] || '';
-        const initial = firstName.length > 0 ? firstName[0] + '.' : '';
-        return `${p.number || ''} ${initial} ${lastName} ${p.flag || ''}`.trim();
-    };
+const formatName = (p) => {
+    if (!p.name) return '';
+    
+    // Ищем полные данные игрока в базе, чтобы взять номер и флаг
+    const fullPlayer = PLAYERS.find(player => player.name === p.name && player.club === p.team);
+    
+    const num = fullPlayer ? fullPlayer.number : (p.number || '');
+    const flg = fullPlayer ? fullPlayer.flag : (p.flag || '');
+    
+    const parts = p.name.split(' ');
+    const lastName = parts[1] || parts[0];
+    const firstName = parts[0] || '';
+    const initial = firstName.length > 0 ? firstName[0] + '.' : '';
+    
+    return `${num} ${initial} ${lastName} ${flg}`.trim();
+};
 
     // === ВКЛАДКА ВРАТАРЕЙ ===
     if (currentTournamentStatsTab === 'goalies') {
