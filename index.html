@@ -103,7 +103,7 @@
         .balance-display { font-size: 20px; font-weight: 800; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); background: rgba(15, 23, 42, 0.6); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(251, 191, 36, 0.3); }
 
         .squad-container { 
-    margin-top: 65px; /* Отступ от шапки */
+    margin-top: 15px; /* Отступ от шапки */
     display: flex; 
     flex-direction: column; 
     gap: 8px; 
@@ -200,11 +200,6 @@
     }
     
     /* Кнопки в нижнем меню */
-    .btn-main { 
-        background: #27272a !important; 
-        color: #e4e4e7 !important; 
-        border: 1px solid #3f3f46 !important; 
-    }
     .btn-main:active { 
         background: #3f3f46 !important; 
     }
@@ -313,10 +308,9 @@
         </div>
 
         <!-- НОВАЯ КНОПКА ТУРНИРА НАВЕРХУ -->
-<button id="tournamentBtn" onclick="handleTournamentBtnClick()" style="width: 92%; max-width: 400px; margin: 10px auto; padding: 12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); cursor: pointer;">
+<button id="tournamentBtn" onclick="handleTournamentBtnClick()" style="...">
     🏆 ТУРНИР
 </button>
-
         <div class="squad-container">
             <div class="squad-row">
                 <div class="squad-slot" id="slot-0" onclick="openSquadSelection('Нападающий', 0)"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
