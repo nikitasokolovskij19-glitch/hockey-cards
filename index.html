@@ -532,9 +532,8 @@
             <b style="color: #fbbf24;">Готовы собрать состав?</b>
         </div>
         
-        <button class="..." onclick="handleTournamentBtnClick()" ...>
-    <div>🏆</div>
-    <div>ТУРНИР</div>
+        <button onclick="document.getElementById('tournamentRulesView').style.display='none'; openTournamentSquadBuilder();" style="width: 80%; padding: 14px; background: #fbbf24; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+    🏆 СОБРАТЬ СОСТАВ
         </button>
         
         <button onclick="document.getElementById('tournamentRulesView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
