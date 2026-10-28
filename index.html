@@ -544,7 +544,7 @@
                 <div class="card" id="3dCard" style="width: 100%; height: 100%; position: relative;">
         <!-- Слои для эффекта Радулова -->
         <div class="holo-overlay" id="holoEffect" style="display: none;"></div>
-        <div class="shine" id="shineEffect" style="display: none;"></div>
+<div class="shine" id="shineEffect" style="display: none;"></div>
 
         <!-- Твой старый код карточки -->
         <div class="card-image-container">
@@ -1930,23 +1930,19 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             }
         }
 
-    function openDetailView(player) {
-
-    // --- ЛОГИКА 3D НАКЛОНА ---
+    // Выносим сюда, на уровень выше
 let handleOrientation = (event) => {
-    const card = document.querySelector('.tilt-card');
+    const card = document.getElementById('3dCard');
     if (!card) return;
     
-    let beta = event.beta || 0;   // Наклон вперед/назад
-    let gamma = event.gamma || 0; // Наклон влево/вправо
+    let beta = event.beta || 0;
+    let gamma = event.gamma || 0;
     
-    // Ограничиваем углы (чтобы карточка не переворачивалась вверх ногами)
-    let tiltX = Math.max(-20, Math.min(20, (beta - 45) * 0.5)); 
+    let tiltX = Math.max(-20, Math.min(20, (beta - 45) * 0.5));
     let tiltY = Math.max(-20, Math.min(20, gamma * 0.5));
     
-    card.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+    card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
     
-    // Сдвигаем блик в зависимости от наклона
     const shine = card.querySelector('.shine');
     if (shine) {
         let shineX = 50 + (tiltY * 2);
@@ -1954,14 +1950,9 @@ let handleOrientation = (event) => {
         shine.style.backgroundPosition = `${shineX}% ${shineY}%`;
     }
 };
+2
+    function openDetailView(player) {
 
-// Включаем гироскоп, если это Радулов (или другая редкая карточка)
-if (player.rarity_num >= 4) {
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', handleOrientation);
-    }
-}
-    
     currentViewPlayer = player;
     document.getElementById('d-name').innerText = player.name;
     document.getElementById('d-season').innerText = player.season;
@@ -2013,28 +2004,6 @@ if (player.rarity_num >= 4) {
     if (shineEffect) shineEffect.style.display = 'none';
 }
         
-    // --- ЛОГИКА 3D НАКЛОНА ---
-let handleOrientation = (event) => {
-    const card = document.getElementById('3dCard');
-    if (!card) return;
-    
-    let beta = event.beta || 0;   
-    let gamma = event.gamma || 0; 
-    
-    let tiltX = Math.max(-20, Math.min(20, (beta - 45) * 0.5)); 
-    let tiltY = Math.max(-20, Math.min(20, gamma * 0.5));
-    
-    // Применяем 3D-перспективу прямо к карточке
-    card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
-    
-    const shine = card.querySelector('.shine');
-    if (shine) {
-        let shineX = 50 + (tiltY * 2);
-        let shineY = 50 - (tiltX * 2);
-        shine.style.backgroundPosition = `${shineX}% ${shineY}%`;
-    }
-};
-
 // Включаем гироскоп, если это Радулов
 if (player.rarity_num >= 4) {
     if (window.DeviceOrientationEvent) {
