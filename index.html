@@ -1756,6 +1756,14 @@ document.getElementById('r-overall').innerText = overall;
     document.getElementById('r-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
     const rarity = getRarityInfo(overall);
+    // Красим плашку на экране выпадения
+const rBadge = document.querySelector('#revealCard .overall-badge');
+const rBadgeLabel = document.querySelector('#revealCard .overall-badge .label');
+if (rBadge && rBadgeLabel) {
+    rBadge.style.borderColor = rarity.color;
+    rBadge.style.boxShadow = `0 0 15px ${rarity.color}50`;
+    rBadgeLabel.style.color = rarity.color;
+}
     
     const rRarityEl = document.getElementById('r-rarity');
     rRarityEl.innerText = rarity.name;
@@ -2091,6 +2099,14 @@ if (window.DeviceOrientationEvent) {
         
     // ... (дальше идет код с кнопкой продажи, который у тебя уже есть) ...
     const rarity = getRarityInfo(overall);
+        // Красим плашку в детальном просмотре
+const dBadge = document.querySelector('#detailFront .overall-badge');
+const dBadgeLabel = document.querySelector('#detailFront .overall-badge .label');
+if (dBadge && dBadgeLabel) {
+    dBadge.style.borderColor = rarity.color;
+    dBadge.style.boxShadow = `0 0 15px ${rarity.color}50`;
+    dBadgeLabel.style.color = rarity.color;
+}
         // Красим плашку Силы в цвет редкости
 const badge = document.querySelector('.overall-badge');
 const badgeLabel = document.querySelector('.overall-badge .label');
