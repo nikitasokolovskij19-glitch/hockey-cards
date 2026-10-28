@@ -784,9 +784,16 @@
     <div style="text-align: center; color: #64748b; margin-top: 50%; transform: translateY(-50%);">Матч начнется через мгновение...</div>
     </div>
 
-    <div style="display: flex; gap: 10px; width: 100%; max-width: 340px;">
-        <button id="btn-view-stats" style="display: none; flex: 1; padding: 16px; background: rgba(51, 65, 85, 0.9); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer;">📊 Статистика</button>
-        <button id="match-continue-btn" style="display: none; flex: 1; padding: 16px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer;">Продолжить</button>
+    <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px 20px calc(15px + env(safe-area-inset-bottom)) 20px; box-sizing: border-box; display: flex; gap: 10px; justify-content: center; background: linear-gradient(to top, #0f172a 80%, transparent); z-index: 10;">
+    
+    <button id="btn-view-stats" style="display: none; flex: 1; max-width: 180px; padding: 14px; background: rgba(51, 65, 85, 0.9); color: white; border: 1px solid #475569; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">
+        📊 Статистика
+    </button>
+    
+    <button id="match-continue-btn" style="display: none; flex: 1; max-width: 180px; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">
+        Продолжить
+    </button>
+    
     </div>
 </div>
 
