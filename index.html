@@ -544,7 +544,7 @@
                 <div class="card" id="3dCard" style="width: 100%; height: 100%; position: relative;">
         <!-- Слои для эффекта Радулова -->
         <div class="holo-overlay" id="holoEffect" style="display: none;"></div>
-<div class="sparkles" id="sparkleEffect" style="display: none;"></div>
+<div class="foil-sheen" id="foilEffect" style="display: none;"></div>
                     
         <!-- Твой старый код карточки -->
         <div class="card-image-container">
@@ -2035,48 +2035,23 @@ currentTiltX = 0;
 currentTiltY = 0;
 isCentered = false;
 
-if (player.rarity_num >= 4) {
-    if (holoEffect) holoEffect.style.display = 'block';
-    if (sparkleEffect) sparkleEffect.style.display = 'block';
-    
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', handleOrientation);
-        
-        // ДОБАВЛЯЕМ СБРОС ПО КЛИКУ НА КАРТОЧКУ
-        const card3D = document.getElementById('3dCard');
-        if (card3D) {
-            // Удаляем старый обработчик, чтобы не дублировался
-            card3D.onclick = null; 
-            card3D.onclick = (e) => {
-                // Если это был не переворот карточки (проверка на клик по передней части)
-                if(e.target.closest('.flip-card-front')) {
-                    isCentered = false; // Это заставит код заново считать положение телефона
-                }
-            };
-        }
-    }
-} else {
-    if (holoEffect) holoEffect.style.display = 'none';
-    if (sparkleEffect) sparkleEffect.style.display = 'none';
-    const card3D = document.getElementById('3dCard');
-    if (card3D) {
-        card3D.style.transform = 'none'; 
-        card3D.onclick = null;
-    }
-    window.removeEventListener('deviceorientation', handleOrientation);
-}
+// Включаем эффекты для редких карточек
+const foilEffect = document.getElementById('foilEffect');
+const card3D = document.getElementById('3dCard');
 
 if (player.rarity_num >= 4) {
-    if (holoEffect) holoEffect.style.display = 'block';
-    if (sparkleEffect) sparkleEffect.style.display = 'block';
+    if (card3D) card3D.classList.add('card-glow'); // Включаем пульсацию
+    if (foilEffect) foilEffect.style.display = 'block'; // Включаем блик
     
     if (window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', handleOrientation);
     }
 } else {
-    if (holoEffect) holoEffect.style.display = 'none';
-    if (sparkleEffect) sparkleEffect.style.display = 'none';
-    if (card3D) card3D.style.transform = 'none'; // Убираем наклон для обычных карточек
+    if (card3D) {
+        card3D.classList.remove('card-glow');
+        card3D.style.transform = 'none';
+    }
+    if (foilEffect) foilEffect.style.display = 'none';
     window.removeEventListener('deviceorientation', handleOrientation);
 }
         
