@@ -257,16 +257,17 @@
     100% { background-position: 0% 50%; }
 }
 
-/* Белый пробегающий блик */
-.shine {
+/* Мелкие блёстки (глянец) */
+.sparkles {
     position: absolute;
     top: -50%; left: -50%; width: 200%; height: 200%;
-    background: linear-gradient(to right, transparent 40%, rgba(255,255,255,0.8) 50%, transparent 60%);
-    transform: rotate(30deg);
+    /* Создаем паттерн из мелких точек */
+    background-image: radial-gradient(rgba(255,255,255,0.7) 1px, transparent 1px);
+    background-size: 15px 15px;
     pointer-events: none;
     z-index: 11;
-    opacity: 0;
-    transition: opacity 0.3s;
+    mix-blend-mode: overlay;
+    transition: background-position 0.1s ease-out;
 }
 .card .shine { opacity: 1; }
         
@@ -544,8 +545,8 @@
                 <div class="card" id="3dCard" style="width: 100%; height: 100%; position: relative;">
         <!-- Слои для эффекта Радулова -->
         <div class="holo-overlay" id="holoEffect" style="display: none;"></div>
-<div class="shine" id="shineEffect" style="display: none;"></div>
-
+<div class="sparkles" id="sparkleEffect" style="display: none;"></div>
+                    
         <!-- Твой старый код карточки -->
         <div class="card-image-container">
             <div class="season-badge" id="d-season">2013/14</div>
@@ -1930,27 +1931,40 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             }
         }
 
-    // Выносим сюда, на уровень выше
-let handleOrientation = (event) => {
+// Переменные для калибровки
+let initialBeta = null;
+let initialGamma = null;
+
+// Функция, которая крутит карточку (классический вид)
+function handleOrientation(event) {
     const card = document.getElementById('3dCard');
     if (!card) return;
     
-    let beta = event.beta || 0;
-    let gamma = event.gamma || 0;
+    let beta = event.beta || 0;   
+    let gamma = event.gamma || 0; 
     
-    let tiltX = Math.max(-20, Math.min(20, (beta - 45) * 0.5));
-    let tiltY = Math.max(-20, Math.min(20, gamma * 0.5));
+    // Запоминаем положение телефона при открытии
+    if (initialBeta === null || initialGamma === null) {
+        initialBeta = beta;
+        initialGamma = gamma;
+    }
+    
+    let deltaBeta = beta - initialBeta;
+    let deltaGamma = gamma - initialGamma;
+    
+    let tiltX = Math.max(-25, Math.min(25, deltaBeta * 0.6)); 
+    let tiltY = Math.max(-25, Math.min(25, deltaGamma * 0.6));
     
     card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
     
-    const shine = card.querySelector('.shine');
-    if (shine) {
-        let shineX = 50 + (tiltY * 2);
-        let shineY = 50 - (tiltX * 2);
-        shine.style.backgroundPosition = `${shineX}% ${shineY}%`;
+    const sparkles = card.querySelector('.sparkles');
+    if (sparkles) {
+        let posX = 50 + (tiltY * 3);
+        let posY = 50 - (tiltX * 3);
+        sparkles.style.backgroundPosition = `${posX}% ${posY}%`;
     }
 };
-2
+    
     function openDetailView(player) {
 
     currentViewPlayer = player;
@@ -1993,22 +2007,27 @@ let handleOrientation = (event) => {
     document.getElementById('d-img').innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('d-clubLogo').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
-    // Включаем эффекты для редких карточек
+// Включаем эффекты для редких карточек
 const holoEffect = document.getElementById('holoEffect');
-const shineEffect = document.getElementById('shineEffect');
+const sparkleEffect = document.getElementById('sparkleEffect'); // Блёстки вместо блика
+const card3D = document.getElementById('3dCard');
+
+// Сбрасываем калибровку, чтобы карточка взяла новое положение телефона за точку отсчета
+initialBeta = null; 
+initialGamma = null; 
+
 if (player.rarity_num >= 4) {
     if (holoEffect) holoEffect.style.display = 'block';
-    if (shineEffect) shineEffect.style.display = 'block';
-} else {
-    if (holoEffect) holoEffect.style.display = 'none';
-    if (shineEffect) shineEffect.style.display = 'none';
-}
-        
-// Включаем гироскоп, если это Радулов
-if (player.rarity_num >= 4) {
+    if (sparkleEffect) sparkleEffect.style.display = 'block';
+    
     if (window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', handleOrientation);
     }
+} else {
+    if (holoEffect) holoEffect.style.display = 'none';
+    if (sparkleEffect) sparkleEffect.style.display = 'none';
+    if (card3D) card3D.style.transform = 'none'; // Убираем наклон для обычных карточек
+    window.removeEventListener('deviceorientation', handleOrientation);
 }
         
     // ... (дальше идет код с кнопкой продажи, который у тебя уже есть) ...
