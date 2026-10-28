@@ -2813,7 +2813,7 @@ function endMatch() {
 
     document.getElementById('match-continue-btn').onclick = () => {
         document.getElementById('matchSimView').style.display = 'none';
-        onComplete(matchData.scoreA, matchData.scoreB);
+        onComplete(matchData.scoreA, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
     };
 }
 
@@ -2850,52 +2850,67 @@ if(playBtn) playBtn.style.display = 'none';
         processRoundResults(currentRoundMatches, playerTeam, null, 0, 0);
     } else {
         let opponent = playerMatch.teamA === playerTeam ? playerMatch.teamB : playerMatch.teamA;
-        simulateVisualMatch(playerTeam, opponent, (scorePlayer, scoreOpp) => {
-            processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp);
-        });
+        simulateVisualMatch(playerTeam, opponent, (scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) => {
+    processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp);
+});
     }
  }
 
-function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp) {
+function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) {    
     let roundResults = [];
     
     roundMatches.forEach(m => {
         // Если это матч с участием игрока, берем готовые результаты
         if (m.teamA === playerTeam && m.teamB === opponent) {
             roundResults.push({ teamA: playerTeam, scoreA: scorePlayer, teamB: opponent, scoreB: scoreOpp });
-            updateStandings(playerTeam, scorePlayer, opponent, scoreOpp);
+            updateStandings(playerTeam, scorePlayer, opponent, scoreOpp, regScorePlayer, regScoreOpp);
         } else if (m.teamA === opponent && m.teamB === playerTeam) {
              roundResults.push({ teamA: opponent, scoreA: scoreOpp, teamB: playerTeam, scoreB: scorePlayer });
-             updateStandings(opponent, scoreOpp, playerTeam, scorePlayer);
+             updateStandings(opponent, scoreOpp, playerTeam, scorePlayer, regScoreOpp, regScorePlayer);
         } else {
             // Если это матч между ботами, симулируем его в фоне
             const matchData = generateMatchData(m.teamA, m.teamB, false);
             roundResults.push({ teamA: m.teamA, scoreA: matchData.scoreA, teamB: m.teamB, scoreB: matchData.scoreB });
-            updateStandings(m.teamA, matchData.scoreA, m.teamB, matchData.scoreB);
+            updateStandings(m.teamA, matchData.scoreA, m.teamB, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
         }
     });
 
     showDayResults(roundResults, playerTeam);
 }
 
-function updateStandings(teamA, scoreA, teamB, scoreB) {
+function updateStandings(teamA, scoreA, teamB, scoreB, regA, regB) {
     let rA = tournamentData.find(t => t.team === teamA);
     let rB = tournamentData.find(t => t.team === teamB);
-    
-    rA.games++; rB.games++;
-    
-    // Считаем забитые и пропущенные
+
+    rA.games++; 
+    rB.games++;
+
     rA.goalsFor += scoreA;
     rA.goalsAgainst += scoreB;
     rB.goalsFor += scoreB;
     rB.goalsAgainst += scoreA;
-    
-    if (scoreA > scoreB) { 
-        rA.wins++; rA.points += 2; rB.losses++; 
-    } else if (scoreB > scoreA) { 
-        rB.wins++; rB.points += 2; rA.losses++; 
-    } else { 
-        rA.points += 1; rB.points += 1; 
+
+    // Проверяем, был ли матч в овертайме (если счет после 3-го периода равный)
+    let isOT = (regA !== undefined && regB !== undefined && regA === regB);
+
+    if (scoreA > scoreB) {
+        rA.wins++;
+        if (isOT) {
+            rA.points += 2; // Победа в ОТ/Б
+            rB.points += 1; // Поражение в ОТ/Б
+        } else {
+            rA.points += 3; // Победа в основное время
+            rB.points += 0;
+        }
+    } else if (scoreB > scoreA) {
+        rB.wins++;
+        if (isOT) {
+            rB.points += 2; // Победа в ОТ/Б
+            rA.points += 1; // Поражение в ОТ/Б
+        } else {
+            rB.points += 3; // Победа в основное время
+            rA.points += 0;
+        }
     }
 }
 
