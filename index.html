@@ -177,6 +177,27 @@
     </style>
 </head>
 <body>
+
+    <style>
+    /* Принудительно фиксируем нижнее меню */
+    div[style*="display: flex"][style*="justify-content: space-around"] {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        background: #0f172a !important;
+        z-index: 9999 !important;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+        box-sizing: border-box !important;
+        border-top: 1px solid #1e293b !important;
+    }
+    
+    /* Добавляем отступ снизу для экранов, чтобы меню не перекрывало контент */
+    #shopView, #collectionView, #questsView, #profileView {
+        padding-bottom: 90px !important;
+    }
+    </style>
+    
     <div id="globalHomeBtn" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10000; background: rgba(30, 41, 59, 0.8); border-radius: 50%; width: 45px; height: 45px; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onclick="goHome()">❌</div>
     <div id="globalBackBtn" style="display: none; position: fixed; top: 15px; left: 15px; z-index: 10000; background: rgba(30, 41, 59, 0.8); border-radius: 50%; width: 45px; height: 45px; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onclick="goBack()">↩️</div>
 
@@ -2565,31 +2586,7 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
     let goalie = isA ? activeGoalieB : activeGoalieA;
     let teamName = isA ? teamA : teamB;
 
-    // Считаем пропущенные шайбы за ТЕКУЩИЙ матч
-if (isA) goalieB_conceded++; else goalieA_conceded++;
-
-// Замена вратаря Б
-if (isA && goalieB_conceded >= 3 && goalieB_idx < goalsB.length - 1) {
-    goalieB_idx++;
-    goalieB_conceded = 0; // Сбрасываем счет для нового вратаря
-    activeGoalieB = goalsB[goalieB_idx];
-    goalie = activeGoalieB;
-    let newGkey = `${goalie.name}_${goalie.club}`;
-    if (!tournamentPlayerStats[newGkey]) tournamentPlayerStats[newGkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
-    events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
-} 
-// Замена вратаря А
-else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
-    goalieA_idx++;
-    goalieA_conceded = 0;
-    activeGoalieA = goalsA[goalieA_idx];
-    goalie = activeGoalieA;
-    let newGkey = `${goalie.name}_${goalie.club}`;
-    if (!tournamentPlayerStats[newGkey]) tournamentPlayerStats[newGkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
-    events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
-}
-
-    // --- СЧИТАЕМ БРОСОК В СТВОР ---
+    // СЧИТАЕМ БРОСОК В СТВОР
     if (goalie) {
         let gkey = `${goalie.name}_${goalie.club}`;
         if (!tournamentPlayerStats[gkey]) tournamentPlayerStats[gkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
@@ -2605,7 +2602,7 @@ else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
 
     if (Math.random() < 0.12 * (baseProb * 2)) {
         // --- ГОЛ ---
-        if (isA) scoreA++; else scoreB++;
+        if (isA) { scoreA++; goalieB_conceded++; } else { scoreB++; goalieA_conceded++; }
         
         if (goalie) {
             let gkey = `${goalie.name}_${goalie.club}`;
@@ -2624,6 +2621,25 @@ else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
         if (assists.length === 1) text += ` (${assists[0].name})`;
         if (assists.length === 2) text += ` (${assists[0].name}, ${assists[1].name})`;
         events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text });
+
+        // --- ЗАМЕНА ВРАТАРЯ (ТОЛЬКО ПОСЛЕ ГОЛА) ---
+        if (isA && goalieB_conceded >= 3 && goalieB_idx < goalsB.length - 1) {
+            goalieB_idx++;
+            goalieB_conceded = 0;
+            activeGoalieB = goalsB[goalieB_idx];
+            let newGkey = `${activeGoalieB.name}_${activeGoalieB.club}`;
+            if (!tournamentPlayerStats[newGkey]) tournamentPlayerStats[newGkey] = { name: activeGoalieB.name, team: activeGoalieB.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
+            events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
+        } 
+        else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
+            goalieA_idx++;
+            goalieA_conceded = 0;
+            activeGoalieA = goalsA[goalieA_idx];
+            let newGkey = `${activeGoalieA.name}_${activeGoalieA.club}`;
+            if (!tournamentPlayerStats[newGkey]) tournamentPlayerStats[newGkey] = { name: activeGoalieA.name, team: activeGoalieA.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
+            events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
+        }
+
     } else {
         // --- СЕЙВ ---
         if (goalie) {
@@ -2631,8 +2647,8 @@ else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
             tournamentPlayerStats[gkey].saves++;
         }
     }
-    }
-
+}
+    
         // --- ОВЕРТАЙМ И БУЛЛИТЫ ---
     let shootoutEvents = [];
     
