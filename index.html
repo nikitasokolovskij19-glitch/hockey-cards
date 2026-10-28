@@ -2654,8 +2654,8 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
     let regScoreA = scoreA;
     let regScoreB = scoreB;
 
-    if (scoreA === scoreB) {
-        events.push({ period: 'OT', minute: 1, scoreA, scoreB, text: `<br><b style="color:#fbbf24;">--- ОВЕРТАЙМ ---</b>` });
+        if (scoreA === scoreB) {
+        events.push({ period: 'OT', minute: 0, scoreA, scoreB, text: `<br><b style="color:#fbbf24;">--- ОВЕРТАЙМ ---</b>` });
         
         if (Math.random() < 0.5) { 
             let isA = Math.random() < probA;
@@ -2666,7 +2666,6 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
             let shooter = field[Math.floor(Math.random() * field.length)];
             recordStat(shooter, isA ? teamA : teamB, 'goal');
             
-            // Сейв/Гол для вратаря в ОТ
             let goalie = isA ? activeGoalieB : activeGoalieA;
             if (goalie) {
                 let gkey = `${goalie.name}_${goalie.club}`;
@@ -2676,11 +2675,14 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
                 }
             }
             events.push({ 
-    period: 'OT', minute: 3, minuteStr: "63'00\"",
-    scoreA, scoreB, type: 'goal', isTeamA: isA,
-    scorer: shooter, assists: [], strength: 'РАВ'
-  });
-}
+                period: 'OT', minute: 3, minuteStr: "63'00\"",
+                scoreA, scoreB, type: 'goal', isTeamA: isA,
+                scorer: shooter, assists: [], strength: 'РАВ'
+            });
+        } else {
+            events.push({ period: 'OT', minute: 5, scoreA, scoreB, text: `Овертайм завершен вничью.` });
+        }
+    }
 
     if (scoreA === scoreB) {
         shootoutEvents.push({ text: `<br><b style="color:#fbbf24;">--- СЕРИЯ БУЛЛИТОВ ---</b>` });
@@ -2782,7 +2784,8 @@ function tick() {
 });
 
     timeEl.innerText = `${curMin}' (${isOT ? 'Овертайм' : curPer + ' период'})`;
-
+}
+        
     let maxMin = isOT ? 5 : 20;
     
     if (curMin >= maxMin) {
