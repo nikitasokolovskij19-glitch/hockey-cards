@@ -2508,6 +2508,9 @@ let goalieB_idx = 0;
 let activeGoalieA = goalsA.length > 0 ? goalsA[0] : null;
 let activeGoalieB = goalsB.length > 0 ? goalsB[0] : null;
 
+    let goalieA_conceded = 0;
+let goalieB_conceded = 0;
+
     let stats = { shotsA: 0, shotsB: 0, pimA: Math.floor(Math.random() * 10), pimB: Math.floor(Math.random() * 10), hitsA: Math.floor(Math.random() * 15) + 10, hitsB: Math.floor(Math.random() * 15) + 10, faceoffA: 50, faceoffB: 50 };
     if (strA > strB) { stats.faceoffA = 55; stats.faceoffB = 45; } else if (strB > strA) { stats.faceoffA = 45; stats.faceoffB = 55; }
 
@@ -2556,17 +2559,23 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
     let goalie = isA ? activeGoalieB : activeGoalieA;
     let teamName = isA ? teamA : teamB;
 
-    // Проверка на замену вратаря (если ПРОПУСТИЛ 3+ шайб)
-if (isA && activeGoalieB && tournamentPlayerStats[`${activeGoalieB.name}_${activeGoalieB.club}`]?.goalsAgainst >= 3 && goalieB_idx < goalsB.length - 1) {
+    // Считаем пропущенные шайбы за ТЕКУЩИЙ матч
+if (isA) goalieB_conceded++; else goalieA_conceded++;
+
+// Замена вратаря Б
+if (isA && goalieB_conceded >= 3 && goalieB_idx < goalsB.length - 1) {
     goalieB_idx++;
+    goalieB_conceded = 0; // Сбрасываем счет для нового вратаря
     activeGoalieB = goalsB[goalieB_idx];
     goalie = activeGoalieB;
     let newGkey = `${goalie.name}_${goalie.club}`;
     if (!tournamentPlayerStats[newGkey]) tournamentPlayerStats[newGkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
     events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
 } 
-else if (!isA && activeGoalieA && tournamentPlayerStats[`${activeGoalieA.name}_${activeGoalieA.club}`]?.goalsAgainst >= 3 && goalieA_idx < goalsA.length - 1) {
+// Замена вратаря А
+else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
     goalieA_idx++;
+    goalieA_conceded = 0;
     activeGoalieA = goalsA[goalieA_idx];
     goalie = activeGoalieA;
     let newGkey = `${goalie.name}_${goalie.club}`;
@@ -2890,26 +2899,23 @@ function updateStandings(teamA, scoreA, teamB, scoreB, regA, regB) {
     rB.goalsFor += scoreB;
     rB.goalsAgainst += scoreA;
 
-    // Проверяем, был ли матч в овертайме (если счет после 3-го периода равный)
     let isOT = (regA !== undefined && regB !== undefined && regA === regB);
 
     if (scoreA > scoreB) {
-        rA.wins++;
+        rA.wins++; 
+        rB.losses++; // Добавили поражение
         if (isOT) {
-            rA.points += 2; // Победа в ОТ/Б
-            rB.points += 1; // Поражение в ОТ/Б
+            rA.points += 2; rB.points += 1;
         } else {
-            rA.points += 3; // Победа в основное время
-            rB.points += 0;
+            rA.points += 3; rB.points += 0;
         }
     } else if (scoreB > scoreA) {
-        rB.wins++;
+        rB.wins++; 
+        rA.losses++; // Добавили поражение
         if (isOT) {
-            rB.points += 2; // Победа в ОТ/Б
-            rA.points += 1; // Поражение в ОТ/Б
+            rB.points += 2; rA.points += 1;
         } else {
-            rB.points += 3; // Победа в основное время
-            rA.points += 0;
+            rB.points += 3; rA.points += 0;
         }
     }
 }
@@ -3076,7 +3082,7 @@ function renderTournamentTable(playerTeam) {
             
             <td style="padding: 8px 2px;">
                 <div style="display: flex; align-items: center; gap: 6px;">
-                    <div style="width: 28px; height: 28px; aspect-ratio: 1/1; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #334155;">
+                    <img src="${row.logo}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; background: transparent; border: none; box-shadow: none;">
                        <img src="${row.logo}" style="width: 100%; height: 100%; object-fit: cover; transform: scale(1.15);">
                     </div>
                     <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal}${row.team}</span>
