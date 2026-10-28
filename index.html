@@ -541,9 +541,7 @@
     <div class="flip-card" id="flipCard">
         <div class="flip-card-inner">
             <div class="flip-card-front" id="detailFront">
-                <div class="tilt-container">
-    <div class="tilt-card card" id="3dCard" style="width: 100%; height: 100%; position: relative;">
-        
+                <div class="card" id="3dCard" style="width: 100%; height: 100%; position: relative;">
         <!-- Слои для эффекта Радулова -->
         <div class="holo-overlay" id="holoEffect" style="display: none;"></div>
         <div class="shine" id="shineEffect" style="display: none;"></div>
@@ -589,9 +587,6 @@
             </div>
             <div class="flip-hint">Нажми, чтобы перевернуть</div>
         </div>
-
-    </div> <!-- Закрывается tilt-card -->
-</div> <!-- Закрывается tilt-container -->
             </div>
             <div class="flip-card-back" id="detailBack"></div>
         </div>
@@ -2006,22 +2001,34 @@ if (player.rarity_num >= 4) {
     document.getElementById('d-img').innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('d-clubLogo').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
-    // --- ВКЛЮЧАЕМ 3D И ГОЛОГРАФИЮ ТОЛЬКО ДЛЯ РЕДКИХ ---
-const holoEffect = document.getElementById('holoEffect');
-const shineEffect = document.getElementById('shineEffect');
-const card3D = document.getElementById('3dCard');
+    // --- ЛОГИКА 3D НАКЛОНА ---
+let handleOrientation = (event) => {
+    const card = document.getElementById('3dCard');
+    if (!card) return;
+    
+    let beta = event.beta || 0;   
+    let gamma = event.gamma || 0; 
+    
+    let tiltX = Math.max(-20, Math.min(20, (beta - 45) * 0.5)); 
+    let tiltY = Math.max(-20, Math.min(20, gamma * 0.5));
+    
+    // Применяем 3D-перспективу прямо к карточке
+    card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+    
+    const shine = card.querySelector('.shine');
+    if (shine) {
+        let shineX = 50 + (tiltY * 2);
+        let shineY = 50 - (tiltX * 2);
+        shine.style.backgroundPosition = `${shineX}% ${shineY}%`;
+    }
+};
 
+// Включаем гироскоп, если это Радулов
 if (player.rarity_num >= 4) {
-    if (holoEffect) holoEffect.style.display = 'block';
-    if (shineEffect) shineEffect.style.display = 'block';
-} else {
-    // Если карточка обычная, прячем эффекты
-    if (holoEffect) holoEffect.style.display = 'none';
-    if (shineEffect) shineEffect.style.display = 'none';
-    // И сбрасываем наклон, если он был
-    if (card3D) card3D.style.transform = 'none';
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', handleOrientation);
+    }
 }
-// ---------------------------------------------------
         
     // ... (дальше идет код с кнопкой продажи, который у тебя уже есть) ...
     const rarity = getRarityInfo(overall);
