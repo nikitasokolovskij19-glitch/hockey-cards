@@ -1930,19 +1930,30 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             }
         }
 
-// Переменные для калибровки и сглаживания
-let initialBeta = null;
-let initialGamma = null;
-let currentTiltX = 0;
-let currentTiltY = 0;
-let isCentered = false;
+// Сбрасываем калибровку при открытии
+initialBeta = null;
+initialGamma = null;
+currentTiltX = 0;
+currentTiltY = 0;
+isCentered = false;
 
-function handleOrientation(event) {
-    const card = document.getElementById('3dCard');
-    if (!card) return;
-    
-    let beta = event.beta || 0;   
-    let gamma = event.gamma || 0; 
+const card3D = document.getElementById('3dCard');
+const foilEffect = document.getElementById('foilEffect');
+
+// Включаем свечение и блик ТОЛЬКО для редких
+if (player.rarity_num >= 4) {
+    if (card3D) card3D.classList.add('card-glow');
+    if (foilEffect) foilEffect.style.display = 'block';
+} else {
+    if (card3D) card3D.classList.remove('card-glow');
+    if (foilEffect) foilEffect.style.display = 'none';
+}
+
+// ВКЛЮЧАЕМ ГИРОСКОП ДЛЯ ВСЕХ КАРТОЧЕК
+if (window.DeviceOrientationEvent) {
+    window.removeEventListener('deviceorientation', handleOrientation);
+    window.addEventListener('deviceorientation', handleOrientation);
+}
     
     // Ждем стабильного сигнала от гироскопа при открытии
     if (!isCentered) {
@@ -2178,11 +2189,20 @@ if (dobHandEl) {
     document.getElementById('globalBackBtn').style.display = 'none';
             }
             
-        document.getElementById('flipCard').addEventListener('click', function() { this.classList.toggle('flipped'); });
-        document.getElementById('closeDetailBtn').addEventListener('click', function() {
-            detailView.style.display = 'none';
-            document.getElementById('flipCard').classList.remove('flipped');
-            if (document.getElementById('collectionView').style.display === 'flex') {
+document.getElementById('flipCard').addEventListener('click', function() { 
+    this.classList.toggle('flipped'); 
+    isCentered = false; // <--- ВОТ ЭТА СТРОЧКА ЗАСТАВИТ КАРТОЧКУ ВЫРОВНЯТЬСЯ ПРИ ПЕРЕВОРОТЕ
+});
+              document.getElementById('closeDetailBtn').addEventListener('click', function() {
+    detailView.style.display = 'none';
+    
+    // ВОТ ЭТА СТРОЧКА ВЫКЛЮЧАЕТ ГИРОСКОП ПРИ ЗАКРЫТИИ
+    window.removeEventListener('deviceorientation', handleOrientation); 
+    
+    document.getElementById('flipCard').classList.remove('flipped');
+    
+    if (document.getElementById('collectionView').style.display === 'flex') {
+        // ... дальше твой старый код ...
                 document.getElementById('globalHomeBtn').style.display = 'flex';
                 if (document.getElementById('innerCollectionView').style.display === 'block') document.getElementById('globalBackBtn').style.display = 'flex';
             }
