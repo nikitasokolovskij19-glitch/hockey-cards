@@ -1937,23 +1937,7 @@ currentTiltX = 0;
 currentTiltY = 0;
 isCentered = false;
 
-const card3D = document.getElementById('3dCard');
-const foilEffect = document.getElementById('foilEffect');
 
-// Включаем свечение и блик ТОЛЬКО для редких
-if (player.rarity_num >= 4) {
-    if (card3D) card3D.classList.add('card-glow');
-    if (foilEffect) foilEffect.style.display = 'block';
-} else {
-    if (card3D) card3D.classList.remove('card-glow');
-    if (foilEffect) foilEffect.style.display = 'none';
-}
-
-// ВКЛЮЧАЕМ ГИРОСКОП ДЛЯ ВСЕХ КАРТОЧЕК
-if (window.DeviceOrientationEvent) {
-    window.removeEventListener('deviceorientation', handleOrientation);
-    window.addEventListener('deviceorientation', handleOrientation);
-}
     
     // Ждем стабильного сигнала от гироскопа при открытии
     if (!isCentered) {
@@ -1994,6 +1978,31 @@ if (window.DeviceOrientationEvent) {
     
     function openDetailView(player) {
 
+        // Сбрасываем калибровку при открытии
+initialBeta = null;
+initialGamma = null;
+currentTiltX = 0;
+currentTiltY = 0;
+isCentered = false;
+
+const card3D = document.getElementById('3dCard');
+const foilEffect = document.getElementById('foilEffect');
+
+// Включаем свечение и блик ТОЛЬКО для редких
+if (player.rarity_num >= 4) {
+    if (card3D) card3D.classList.add('card-glow');
+    if (foilEffect) foilEffect.style.display = 'block';
+} else {
+    if (card3D) card3D.classList.remove('card-glow');
+    if (foilEffect) foilEffect.style.display = 'none';
+}
+
+// ВКЛЮЧАЕМ ГИРОСКОП ДЛЯ ВСЕХ КАРТОЧЕК
+if (window.DeviceOrientationEvent) {
+    window.removeEventListener('deviceorientation', handleOrientation);
+    window.addEventListener('deviceorientation', handleOrientation);
+}
+
     currentViewPlayer = player;
     document.getElementById('d-name').innerText = player.name;
     document.getElementById('d-season').innerText = player.season;
@@ -2033,33 +2042,6 @@ if (window.DeviceOrientationEvent) {
     // Вставляем картинки с проверкой
     document.getElementById('d-img').innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('d-clubLogo').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
-
-// Сбрасываем калибровку при открытии новой карточки
-initialBeta = null;
-initialGamma = null;
-currentTiltX = 0;
-currentTiltY = 0;
-isCentered = false;
-
-// Включаем эффекты для редких карточек
-const foilEffect = document.getElementById('foilEffect');
-const card3D = document.getElementById('3dCard');
-
-if (player.rarity_num >= 4) {
-    if (card3D) card3D.classList.add('card-glow'); // Включаем пульсацию
-    if (foilEffect) foilEffect.style.display = 'block'; // Включаем блик
-    
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', handleOrientation);
-    }
-} else {
-    if (card3D) {
-        card3D.classList.remove('card-glow');
-        card3D.style.transform = 'none';
-    }
-    if (foilEffect) foilEffect.style.display = 'none';
-    window.removeEventListener('deviceorientation', handleOrientation);
-}
         
     // ... (дальше идет код с кнопкой продажи, который у тебя уже есть) ...
     const rarity = getRarityInfo(overall);
@@ -2189,13 +2171,12 @@ if (dobHandEl) {
     document.getElementById('globalBackBtn').style.display = 'none';
             }
             
-document.getElementById('flipCard').addEventListener('click', function() { 
+document.getElementById('flipCard').onclick = function() { 
     this.classList.toggle('flipped'); 
     isCentered = false; // <--- ВОТ ЭТА СТРОЧКА ЗАСТАВИТ КАРТОЧКУ ВЫРОВНЯТЬСЯ ПРИ ПЕРЕВОРОТЕ
 });
-              document.getElementById('closeDetailBtn').addEventListener('click', function() {
+document.getElementById('closeDetailBtn').onclick = function() { 
     detailView.style.display = 'none';
-    
     // ВОТ ЭТА СТРОЧКА ВЫКЛЮЧАЕТ ГИРОСКОП ПРИ ЗАКРЫТИИ
     window.removeEventListener('deviceorientation', handleOrientation); 
     
