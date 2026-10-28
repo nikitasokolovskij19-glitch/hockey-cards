@@ -2581,11 +2581,20 @@ for (let i = 0; i < stats.shotsOnTargetA; i++) rawShots.push({ isTeamA: true, pe
 for (let i = 0; i < stats.shotsOnTargetB; i++) rawShots.push({ isTeamA: false, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 20) + 1 });
 rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute - b.minute);
     
-    for (let shot of rawShots) {
+    // Функция расчета усталости (30% макс, при 3+ запасных падение 9%)
+const getFatigueMultiplier = (minute, benchCount) => {
+    let maxDrop = 0.30; 
+    let timeRatio = Math.min(minute, 60) / 60; 
+    let reduction = Math.min(benchCount * 0.3, 0.7); 
+    return 1 - (maxDrop * timeRatio * (1 - reduction));
+};
+
+for (let shot of rawShots) {
     let isA = shot.isTeamA;
     let squad = isA ? squadA : squadB;
     let goalie = isA ? activeGoalieB : activeGoalieA;
     let teamName = isA ? teamA : teamB;
+    let currentMinute = (shot.period - 1) * 20 + shot.minute;
 
     // СЧИТАЕМ БРОСОК В СТВОР
     if (goalie) {
@@ -2599,47 +2608,54 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
     let defs = field.filter(p => p.pos === "Защитник");
     let pool = (Math.random() < 0.75 && fwds.length > 0) ? fwds : (defs.length > 0 ? defs : field);
     let shooter = pool[Math.floor(Math.random() * pool.length)];
-    let baseProb = isA ? (strA / (strA + strB)) : (strB / (strA + strB));
+    
+    // УЧЕТ УСТАЛОСТИ
+    let benchCountA = benchA.length;
+    let benchCountB = benchB.length;
+    let currentStrA = strA * getFatigueMultiplier(currentMinute, benchCountA);
+    let currentStrB = strB * getFatigueMultiplier(currentMinute, benchCountB);
+    
+    let currentProbA = currentStrA / (currentStrA + currentStrB);
+    let baseProb = isA ? currentProbA : (1 - currentProbA);
 
     if (Math.random() < 0.12 * (baseProb * 2)) {
-    // --- ГОЛ ---
-    if (isA) { scoreA++; goalieB_conceded++; } else { scoreB++; goalieA_conceded++; }
-    
-    if (goalie) {
-        let gkey = `${goalie.name}_${goalie.club}`;
-        tournamentPlayerStats[gkey].goalsAgainst++;
-    }
+        // ГОЛ
+        if (isA) { scoreA++; goalieB_conceded++; } else { scoreB++; goalieA_conceded++; }
+        
+        if (goalie) {
+            let gkey = `${goalie.name}_${goalie.club}`;
+            tournamentPlayerStats[gkey].goalsAgainst++;
+        }
 
-    let assists = [];
-    let aPool = pool.filter(p => p !== shooter);
-    if (aPool.length > 0 && Math.random() < 0.7) {
-        assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
-        if (aPool.length > 0 && Math.random() < 0.5) assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
-    }
-    recordStat(shooter, teamName, 'goal');
-    assists.forEach(a => recordStat(a, teamName, 'assist'));
-    
-    // Генерируем время (например, 6'57") и большинство (20% шанс)
-    let minuteStr = `${shot.minute}'${Math.floor(Math.random() * 60).toString().padStart(2, '0')}"`;
-    let strength = Math.random() < 0.2 ? 'БОЛ' : 'РАВ'; 
-    
-    events.push({ 
-        period: shot.period, minute: shot.minute, minuteStr: minuteStr,
-        scoreA, scoreB, type: 'goal', isTeamA: isA,
-        scorer: shooter, assists: assists, strength: strength
-    });
+        let assists = [];
+        let aPool = pool.filter(p => p !== shooter);
+        if (aPool.length > 0 && Math.random() < 0.7) {
+            assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
+            if (aPool.length > 0 && Math.random() < 0.5) assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
+        }
+        recordStat(shooter, teamName, 'goal');
+        assists.forEach(a => recordStat(a, teamName, 'assist'));
+        
+        let minuteStr = `${shot.minute}'${Math.floor(Math.random() * 60).toString().padStart(2, '0')}"`;
+        let strength = Math.random() < 0.2 ? 'БОЛ' : 'РАВ'; 
+        
+        events.push({ 
+            period: shot.period, minute: shot.minute, minuteStr: minuteStr,
+            scoreA, scoreB, type: 'goal', isTeamA: isA,
+            scorer: shooter, assists: assists, strength: strength
+        });
 
-    // --- ЗАМЕНА ВРАТАРЯ ---
-    if (isA && goalieB_conceded >= 3 && goalieB_idx < goalsB.length - 1) {
-        goalieB_idx++; goalieB_conceded = 0; activeGoalieB = goalsB[goalieB_idx];
-        events.push({ period: shot.period, minute: shot.minute, minuteStr: minuteStr, scoreA, scoreB, type: 'change', text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
-    } 
-    else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
-        goalieA_idx++; goalieA_conceded = 0; activeGoalieA = goalsA[goalieA_idx];
-        events.push({ period: shot.period, minute: shot.minute, minuteStr: minuteStr, scoreA, scoreB, type: 'change', text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
-    }
-} else {
-        // --- СЕЙВ ---
+        // ЗАМЕНА ВРАТАРЯ
+        if (isA && goalieB_conceded >= 3 && goalieB_idx < goalsB.length - 1) {
+            goalieB_idx++; goalieB_conceded = 0; activeGoalieB = goalsB[goalieB_idx];
+            events.push({ period: shot.period, minute: shot.minute, minuteStr: minuteStr, scoreA, scoreB, type: 'change', text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
+        } 
+        else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
+            goalieA_idx++; goalieA_conceded = 0; activeGoalieA = goalsA[goalieA_idx];
+            events.push({ period: shot.period, minute: shot.minute, minuteStr: minuteStr, scoreA, scoreB, type: 'change', text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
+        }
+    } else {
+        // СЕЙВ
         if (goalie) {
             let gkey = `${goalie.name}_${goalie.club}`;
             tournamentPlayerStats[gkey].saves++;
@@ -2647,7 +2663,7 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
     }
 }
     
-        // --- ОВЕРТАЙМ И БУЛЛИТЫ ---
+    // --- ОВЕРТАЙМ И БУЛЛИТЫ ---
     let shootoutEvents = [];
     
     // Запоминаем счет после 3-го периода
