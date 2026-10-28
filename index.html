@@ -1930,15 +1930,14 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             }
         }
 
-// Сбрасываем калибровку при открытии
-initialBeta = null;
-initialGamma = null;
-currentTiltX = 0;
-currentTiltY = 0;
-isCentered = false;
+// --- ФУНКЦИЯ НАКЛОНА ---
+function handleOrientation(event) {
+    const card = document.getElementById('3dCard');
+    if (!card) return;
 
+    let beta = event.beta || 0;
+    let gamma = event.gamma || 0;
 
-    
     // Ждем стабильного сигнала от гироскопа при открытии
     if (!isCentered) {
         if (beta !== 0 && gamma !== 0) {
@@ -1948,25 +1947,25 @@ isCentered = false;
         }
         return;
     }
-    
-    // Считаем отклонение от изначального положения
+
+    // Считаем отклонение
     let deltaBeta = beta - initialBeta;
     let deltaGamma = gamma - initialGamma;
-    
-    // МЕРТВАЯ ЗОНА: если наклон меньше 2 градусов, считаем, что телефон ровно
+
+    // Мертвая зона (чтобы не тряслось)
     if (Math.abs(deltaBeta) < 2) deltaBeta = 0;
     if (Math.abs(deltaGamma) < 2) deltaGamma = 0;
-    
-    // Высчитываем целевой наклон (чувствительность 0.4)
-    let targetTiltX = Math.max(-20, Math.min(20, deltaBeta * 0.4)); 
+
+    // Высчитываем наклон
+    let targetTiltX = Math.max(-20, Math.min(20, deltaBeta * 0.4));
     let targetTiltY = Math.max(-20, Math.min(20, deltaGamma * 0.4));
-    
-    // СГЛАЖИВАНИЕ (чтобы карточка не тряслась)
+
+    // Сглаживание
     currentTiltX += (targetTiltX - currentTiltX) * 0.15;
     currentTiltY += (targetTiltY - currentTiltY) * 0.15;
-    
+
     card.style.transform = `perspective(1000px) rotateX(${currentTiltX}deg) rotateY(${currentTiltY}deg)`;
-    
+
     // Двигаем блёстки
     const sparkles = card.querySelector('.sparkles');
     if (sparkles) {
@@ -1975,7 +1974,7 @@ isCentered = false;
         sparkles.style.backgroundPosition = `${posX}% ${posY}%`;
     }
 }
-    
+
     function openDetailView(player) {
 
         // Сбрасываем калибровку при открытии
