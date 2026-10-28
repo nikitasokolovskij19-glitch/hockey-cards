@@ -2173,7 +2173,7 @@ if (dobHandEl) {
 document.getElementById('flipCard').onclick = function() { 
     this.classList.toggle('flipped'); 
     isCentered = false; // <--- ВОТ ЭТА СТРОЧКА ЗАСТАВИТ КАРТОЧКУ ВЫРОВНЯТЬСЯ ПРИ ПЕРЕВОРОТЕ
-});
+};
 document.getElementById('closeDetailBtn').onclick = function() { 
     detailView.style.display = 'none';
     // ВОТ ЭТА СТРОЧКА ВЫКЛЮЧАЕТ ГИРОСКОП ПРИ ЗАКРЫТИИ
