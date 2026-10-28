@@ -269,6 +269,16 @@
 #d-img { transition: transform 0.1s ease-out; }
 .card-info { transition: transform 0.1s ease-out; }
 .card .shine { opacity: 1; }
+
+/* Эффект для верхней кнопки Турнира */
+#tournamentBtn {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+#tournamentBtn:active {
+    transform: scale(0.96); /* Кнопка чуть уменьшается при нажатии */
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.6);
+}
         
 </style>
 </head>
@@ -302,6 +312,11 @@
     </div>
         </div>
 
+        <!-- НОВАЯ КНОПКА ТУРНИРА НАВЕРХУ -->
+<button id="tournamentBtn" onclick="handleTournamentBtnClick()" style="width: 92%; max-width: 400px; margin: 10px auto; padding: 12px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); cursor: pointer;">
+    🏆 ТУРНИР
+</button>
+
         <div class="squad-container">
             <div class="squad-row">
                 <div class="squad-slot" id="slot-0" onclick="openSquadSelection('Нападающий', 0)"><span class="slot-pos">НАП</span><div class="slot-plus">+</div></div>
@@ -317,23 +332,31 @@
             </div>
         </div>
 
-        <div class="bottom-menu">
-    <div class="btn-row" style="max-width: 340px;">
-        <!-- Кнопка Магазина -->
-        <button class="btn-main btn-shop" id="goToPacksBtn" style="flex: 1; padding: 12px 5px; font-size: 13px;">МАГАЗИН 🛒</button>
-        <!-- Кнопка Коллекции -->
-        <button class="btn-main btn-collection" id="viewCollectionBtn" style="flex: 1; padding: 12px 5px; font-size: 13px;">КОЛЛЕКЦИЯ 📁</button>
-        <button class="btn-main" id="tournamentBtn" onclick="handleTournamentBtnClick()" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
-    🏆
-    <div>ТУРНИР</div>
+        <!-- НИЖНЕЕ МЕНЮ (3 КНОПКИ) -->
+<div class="bottom-menu">
+    <div class="btn-row" style="max-width: 360px; display: flex; justify-content: space-between; gap: 10px; padding: 0 10px; box-sizing: border-box;">
+        
+        <!-- МАГАЗИН (Красный) -->
+        <button class="btn-main" id="goToPacksBtn" style="flex: 1; padding: 10px 5px; border-radius: 10px; border: 1px solid #ef4444; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-weight: bold; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
+            <span style="font-size: 18px;">🛒</span>
+            МАГАЗИН
         </button>
-        <!-- Кнопка Квестов с индикатором -->
-        <button class="btn-main btn-quests" id="questsBtn" style="flex: 1; padding: 12px 5px; font-size: 13px; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1);">
+        
+        <!-- КОЛЛЕКЦИЯ (Синий) -->
+        <button class="btn-main" id="viewCollectionBtn" style="flex: 1; padding: 10px 5px; border-radius: 10px; border: 1px solid #3b82f6; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; font-weight: bold; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
+            <span style="font-size: 18px;">📁</span>
+            КОЛЛЕКЦИЯ
+        </button>
+        
+        <!-- КВЕСТЫ (Зелёный) -->
+        <button class="btn-main" id="questsBtn" style="flex: 1; padding: 10px 5px; border-radius: 10px; border: 1px solid #10b981; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
+            <span style="font-size: 18px;">📜</span>
             КВЕСТЫ
-            <div class="quest-alert" id="questAlert" style="display: none; top: -8px; right: -8px; left: auto;">!</div>
         </button>
+        
     </div>
-        </div>
+</div>
+        
     </div>
     <!-- ЭКРАН ПАКОВ -->
 <div id="packsView" style="display: none; width: 100%; height: 100dvh; overflow-y: auto; flex-direction: column; align-items: center; padding-top: 20px; padding-bottom: 50px; box-sizing: border-box;">
