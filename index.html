@@ -2702,20 +2702,36 @@ function generateMatchData(teamA, teamB) {
     let squadA, squadB, benchA = [], benchB = [], goalsA = [], goalsB = [];
 
     if (teamA === tournamentSquad[0].club) {
-        squadA = tournamentSquad; benchA = tournamentBench; goalsA = PLAYERS.filter(p => p.club === teamA && p.pos === "Вратарь");
-    } else {
-        let rawA = PLAYERS.filter(p => p.club === teamA).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
-        squadA = [...rawA.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawA.filter(p=>p.pos==="Защитник").slice(0,2), ...rawA.filter(p=>p.pos==="Вратарь").slice(0,1)];
-        goalsA = rawA.filter(p => p.pos === "Вратарь");
-    }
+    squadA = tournamentSquad; 
+    benchA = tournamentBench; 
+    
+    // Для игрока: берем стартового вратаря из звена + тех, кто реально на скамейке
+    let startG_A = squadA.find(p => p && p.pos === "Вратарь");
+    let benchG_A = benchA.filter(p => p && p.pos === "Вратарь");
+    goalsA = startG_A ? [startG_A, ...benchG_A] : [...benchG_A];
+} else {
+    let rawA = PLAYERS.filter(p => p.club === teamA).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
+    squadA = [...rawA.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawA.filter(p=>p.pos==="Защитник").slice(0,2), ...rawA.filter(p=>p.pos==="Вратарь").slice(0,1)];
+    
+    // Для бота: берем ВСЕХ вратарей из базы
+    goalsA = rawA.filter(p => p.pos === "Вратарь");
+}
 
-    if (teamB === tournamentSquad[0].club) {
-        squadB = tournamentSquad; benchB = tournamentBench; goalsB = PLAYERS.filter(p => p.club === teamB && p.pos === "Вратарь");
-    } else {
-        let rawB = PLAYERS.filter(p => p.club === teamB).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
-        squadB = [...rawB.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawB.filter(p=>p.pos==="Защитник").slice(0,2), ...rawB.filter(p=>p.pos==="Вратарь").slice(0,1)];
-        goalsB = rawB.filter(p => p.pos === "Вратарь");
-    }
+if (teamB === tournamentSquad[0].club) {
+    squadB = tournamentSquad; 
+    benchB = tournamentBench; 
+    
+    // Для игрока: берем стартового вратаря из звена + тех, кто реально на скамейке
+    let startG_B = squadB.find(p => p && p.pos === "Вратарь");
+    let benchG_B = benchB.filter(p => p && p.pos === "Вратарь");
+    goalsB = startG_B ? [startG_B, ...benchG_B] : [...benchG_B];
+} else {
+    let rawB = PLAYERS.filter(p => p.club === teamB).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
+    squadB = [...rawB.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawB.filter(p=>p.pos==="Защитник").slice(0,2), ...rawB.filter(p=>p.pos==="Вратарь").slice(0,1)];
+    
+    // Для бота: берем ВСЕХ вратарей из базы
+    goalsB = rawB.filter(p => p.pos === "Вратарь");
+}
 
     const strA = squadA.reduce((sum, p) => sum + getPlayerOVR(p), 0) / 6;
     const strB = squadB.reduce((sum, p) => sum + getPlayerOVR(p), 0) / 6;
@@ -2768,9 +2784,8 @@ stats.penaltyA = Math.floor(Math.random() * 8) + 2;
 stats.penaltyB = Math.floor(Math.random() * 8) + 2;
     
 let rawShots = [];
-// Вратари отражают только БРОСКИ В СТВОР
-for (let i = 0; i < stats.shotsOnTargetA; i++) rawShots.push({ isTeamA: true, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 20) + 1 });
-for (let i = 0; i < stats.shotsOnTargetB; i++) rawShots.push({ isTeamA: false, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 20) + 1 });
+for (let i = 0; i < stats.shotsOnTargetA; i++) rawShots.push({ isTeamA: true, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 19) + 1 });
+for (let i = 0; i < stats.shotsOnTargetB; i++) rawShots.push({ isTeamA: false, period: Math.floor(Math.random() * 3) + 1, minute: Math.floor(Math.random() * 19) + 1 });
 rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute - b.minute);
     
     // Функция расчета усталости (30% макс, при 3+ запасных падение 9%)
@@ -2951,12 +2966,20 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     let isOT = false;
 
     function tick() {
-        const logDiv = document.getElementById('match-log');
-        const timeEl = document.getElementById('match-time');
-        let currentPeriodId = isOT ? 'OT' : curPer;
+    const logDiv = document.getElementById('match-log');
+    const timeEl = document.getElementById('match-time');
+    let currentPeriodId = isOT ? 'OT' : curPer;
+    
+    // --- ВСТАВЛЯЕМ ЗАГОЛОВОК ПЕРИОДА ---
+    if (curMin === 1) {
+        let periodName = isOT ? 'ОВЕРТАЙМ' : `${curPer} ПЕРИОД`;
+        logDiv.innerHTML += `<div style="text-align: center; color: #fbbf24; font-weight: bold; margin: 15px 0 10px 0; font-size: 12px; opacity: 0.8;">--- ${periodName} ---</div>`;
+    }
+    // -----------------------------------
+
+    let evs = allEvents.filter(e => e.minute === curMin && e.period === currentPeriodId);
+    // ... дальше идет твой код перебора evs.forEach ...
         
-        let evs = allEvents.filter(e => e.minute === curMin && e.period === currentPeriodId);
-        evs.forEach(ev => {
             if (ev.scoreA !== undefined && ev.scoreB !== undefined) {
                 document.getElementById('match-score').innerText = `${ev.scoreA} : ${ev.scoreB}`;
             }
