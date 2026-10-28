@@ -587,7 +587,7 @@
 </div>
 
     <!-- ЭКРАН ТУРНИРА (Таблица и Статистика) -->
-    <div id="tournamentView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: #0f172a; z-index: 100; flex-direction: column; overflow: hidden;">
+<div id="tournamentView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: #0f172a; z-index: 99999; flex-direction: column; overflow: hidden;">
     
     <h2 style="font-size: 22px; color: #fbbf24; margin-bottom: 5px;">ТУРНИР КЛУБОВ</h2>
     <div id="tournamentStatus" style="font-size: 14px; color: #cbd5e1; margin-bottom: 10px; text-align: center; padding: 0 20px;"></div>
@@ -599,8 +599,8 @@
         <button id="tabTournamentCalendar" onclick="switchTournamentTab('calendar')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; font-weight: bold; font-size: 12px; cursor: pointer; background: rgba(51, 65, 85, 0.8); color: #cbd5e1;">Календарь</button>
     </div>
 
-<div id="tournamentMainContainer" style="width: 100%; flex: 1; overflow-y: auto; padding-bottom: 100px; -webkit-overflow-scrolling: touch; min-height: 0;">    
-        
+<div id="tournamentMainContainer" style="width: 100%; flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 120px; -webkit-overflow-scrolling: touch;">
+    
     <!-- Вкладка 1: Таблица -->
         <div id="tournamentStandingsView" style="display: block;">
             <div id="tournamentTableContainer"></div>
@@ -621,13 +621,12 @@
     <!-- Вкладка 3: Календарь -->
 <div id="tournamentCalendarView" style="display: none; flex-direction: column; gap: 10px; width: 100%;">
         <div id="tournamentCalendarList" style="display: flex; flex-direction: column; gap: 15px; width: 100%;"></div>
-</div>2
+</div>
 
     <!-- Кнопки управления -->
-<div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; width: 100%; max-width: 340px; z-index: 10;">
+<div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; width: 100%; max-width: 340px; z-index: 100000; padding: 0 10px; box-sizing: border-box;">
     <button id="tournamentPlayBtn" onclick="runTournament()" style="flex: 1; padding: 14px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px;">▶ ИГРАТЬ МАТЧ</button>
     <button onclick="document.getElementById('tournamentView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="flex: 1; padding: 14px; background: rgba(51, 65, 85, 0.8); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px;">Закрыть</button>
-</div>
 </div>
 
 <!-- ЭКРАН СИМУЛЯЦИИ МАТЧА -->
