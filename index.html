@@ -2602,46 +2602,43 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
     let baseProb = isA ? (strA / (strA + strB)) : (strB / (strA + strB));
 
     if (Math.random() < 0.12 * (baseProb * 2)) {
-        // --- ГОЛ ---
-        if (isA) { scoreA++; goalieB_conceded++; } else { scoreB++; goalieA_conceded++; }
-        
-        if (goalie) {
-            let gkey = `${goalie.name}_${goalie.club}`;
-            tournamentPlayerStats[gkey].goalsAgainst++;
-        }
+    // --- ГОЛ ---
+    if (isA) { scoreA++; goalieB_conceded++; } else { scoreB++; goalieA_conceded++; }
+    
+    if (goalie) {
+        let gkey = `${goalie.name}_${goalie.club}`;
+        tournamentPlayerStats[gkey].goalsAgainst++;
+    }
 
-        let assists = [];
-        let aPool = pool.filter(p => p !== shooter);
-        if (aPool.length > 0 && Math.random() < 0.7) {
-            assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
-            if (aPool.length > 0 && Math.random() < 0.5) assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
-        }
-        recordStat(shooter, teamName, 'goal');
-        assists.forEach(a => recordStat(a, teamName, 'assist'));
-        let text = `🥅 <b style="color:#3b82f6;">${shooter.name}</b> забивает!`;
-        if (assists.length === 1) text += ` (${assists[0].name})`;
-        if (assists.length === 2) text += ` (${assists[0].name}, ${assists[1].name})`;
-        events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text });
+    let assists = [];
+    let aPool = pool.filter(p => p !== shooter);
+    if (aPool.length > 0 && Math.random() < 0.7) {
+        assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
+        if (aPool.length > 0 && Math.random() < 0.5) assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
+    }
+    recordStat(shooter, teamName, 'goal');
+    assists.forEach(a => recordStat(a, teamName, 'assist'));
+    
+    // Генерируем время (например, 6'57") и большинство (20% шанс)
+    let minuteStr = `${shot.minute}'${Math.floor(Math.random() * 60).toString().padStart(2, '0')}"`;
+    let strength = Math.random() < 0.2 ? 'БОЛ' : 'РАВ'; 
+    
+    events.push({ 
+        period: shot.period, minute: shot.minute, minuteStr: minuteStr,
+        scoreA, scoreB, type: 'goal', isTeamA: isA,
+        scorer: shooter, assists: assists, strength: strength
+    });
 
-        // --- ЗАМЕНА ВРАТАРЯ (ТОЛЬКО ПОСЛЕ ГОЛА) ---
-        if (isA && goalieB_conceded >= 3 && goalieB_idx < goalsB.length - 1) {
-            goalieB_idx++;
-            goalieB_conceded = 0;
-            activeGoalieB = goalsB[goalieB_idx];
-            let newGkey = `${activeGoalieB.name}_${activeGoalieB.club}`;
-            if (!tournamentPlayerStats[newGkey]) tournamentPlayerStats[newGkey] = { name: activeGoalieB.name, team: activeGoalieB.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
-            events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
-        } 
-        else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
-            goalieA_idx++;
-            goalieA_conceded = 0;
-            activeGoalieA = goalsA[goalieA_idx];
-            let newGkey = `${activeGoalieA.name}_${activeGoalieA.club}`;
-            if (!tournamentPlayerStats[newGkey]) tournamentPlayerStats[newGkey] = { name: activeGoalieA.name, team: activeGoalieA.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
-            events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
-        }
-
-    } else {
+    // --- ЗАМЕНА ВРАТАРЯ ---
+    if (isA && goalieB_conceded >= 3 && goalieB_idx < goalsB.length - 1) {
+        goalieB_idx++; goalieB_conceded = 0; activeGoalieB = goalsB[goalieB_idx];
+        events.push({ period: shot.period, minute: shot.minute, minuteStr: minuteStr, scoreA, scoreB, type: 'change', text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
+    } 
+    else if (!isA && goalieA_conceded >= 3 && goalieA_idx < goalsA.length - 1) {
+        goalieA_idx++; goalieA_conceded = 0; activeGoalieA = goalsA[goalieA_idx];
+        events.push({ period: shot.period, minute: shot.minute, minuteStr: minuteStr, scoreA, scoreB, type: 'change', text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
+    }
+} else {
         // --- СЕЙВ ---
         if (goalie) {
             let gkey = `${goalie.name}_${goalie.club}`;
@@ -2678,11 +2675,12 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
                     tournamentPlayerStats[gkey].goalsAgainst++;
                 }
             }
-            events.push({ period: 'OT', minute: 3, scoreA, scoreB, text: `🥅 <b style="color:#3b82f6;">${shooter.name}</b> приносит победу в овертайме!` });
-        } else {
-            events.push({ period: 'OT', minute: 5, scoreA, scoreB, text: `Овертайм завершен вничью.` });
-        }
-    }
+            events.push({ 
+    period: 'OT', minute: 3, minuteStr: "63'00\"",
+    scoreA, scoreB, type: 'goal', isTeamA: isA,
+    scorer: shooter, assists: [], strength: 'РАВ'
+  });
+}
 
     if (scoreA === scoreB) {
         shootoutEvents.push({ text: `<br><b style="color:#fbbf24;">--- СЕРИЯ БУЛЛИТОВ ---</b>` });
@@ -2740,11 +2738,48 @@ function tick() {
     // Показываем события текущей минуты
     let currentPeriodId = isOT ? 'OT' : curPer;
     let evs = allEvents.filter(e => e.minute === curMin && e.period === currentPeriodId);
+
     evs.forEach(ev => {
-        if (ev.scoreA !== undefined) document.getElementById('match-score').innerText = `${ev.scoreA} : ${ev.scoreB}`;
-        logDiv.innerHTML += `<div style="margin-bottom: 8px;">${ev.text}</div>`;
-        logDiv.scrollTop = logDiv.scrollHeight;
-    });
+    if (ev.scoreA !== undefined) document.getElementById('match-score').innerText = `${ev.scoreA} : ${ev.scoreB}`;
+    
+    if (ev.type === 'goal') {
+        // Жирным выделяем счет забившей команды
+        let scoreA_color = ev.isTeamA ? 'white' : '#475569';
+        let scoreB_color = !ev.isTeamA ? 'white' : '#475569';
+        
+        // Форматируем имена (41. А. Радулов)
+        const formatName = (p) => {
+            if(!p) return '';
+            const parts = p.name.split(' ');
+            const lastName = parts[1] || parts[0];
+            const firstName = parts[0] || '';
+            return `${p.number || ''} ${firstName[0]}. ${lastName}`;
+        };
+
+        let assistsText = ev.assists.map(a => formatName(a)).join(', ');
+
+        logDiv.innerHTML += `
+            <div style="display: flex; align-items: center; border-bottom: 1px solid #1e293b; padding: 10px 0; width: 100%;">
+                <div style="width: 50px; text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.2;">
+                    <div>${ev.minuteStr}</div>
+                    <div>${ev.strength}</div>
+                </div>
+                <div style="width: 70px; text-align: center; font-size: 20px; font-weight: bold; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 5px;">
+                    <span style="color: ${scoreA_color};">${ev.scoreA}</span><span style="color: #64748b;">:</span><span style="color: ${scoreB_color};">${ev.scoreB}</span>
+                </div>
+                <div style="flex: 1; padding-left: 15px; font-size: 13px; line-height: 1.3;">
+                    <div style="font-weight: bold; color: white;">${formatName(ev.scorer)}</div>
+                    ${assistsText ? `<div style="color: #94a3b8; font-size: 11px;">${assistsText}</div>` : ''}
+                </div>
+            </div>
+        `;
+    } else if (ev.type === 'change') {
+        logDiv.innerHTML += `<div style="margin: 10px 0; color: #fbbf24; font-size: 12px; text-align: center;">${ev.text}</div>`;
+    } else if (ev.text) {
+        logDiv.innerHTML += `<div style="margin: 10px 0; text-align: center;">${ev.text}</div>`;
+    }
+    logDiv.scrollTop = logDiv.scrollHeight;
+});
 
     timeEl.innerText = `${curMin}' (${isOT ? 'Овертайм' : curPer + ' период'})`;
 
