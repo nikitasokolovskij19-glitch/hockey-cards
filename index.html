@@ -185,13 +185,19 @@
     /* Карточки, панели и контейнеры */
     .pack-card, .mini-card-wrapper, .stats-container, .stat-block, .quest-item { 
         background: #18181b !important; 
-        border-color: #3f3f46 !important; 
     }
 
     /* Нижнее меню (Магазин, Коллекция...) */
     .bottom-menu { 
-        background: linear-gradient(to top, #09090b, #18181b) !important; 
-        border-top: 1px solid #27272a !important; 
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: linear-gradient(to top, #09090b, #18181b) !important; 
+    border-top: 1px solid #27272a !important; 
+    z-index: 9999 !important;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+    box-sizing: border-box !important;
     }
     
     /* Кнопки в нижнем меню */
@@ -635,7 +641,7 @@
     <!-- Заголовок с крестиком -->
     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 15px 20px 5px 20px; box-sizing: border-box;">
         <h2 style="font-size: 22px; color: #fbbf24; margin: 0; text-align: center; flex: 1;">ТУРНИР КЛУБОВ</h2>
-        <button onclick="document.getElementById('tournamentView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="background: rgba(255, 0, 0, 0.2); color: #ff4444; border: 1px solid #ff4444; border-radius: 50%; width: 36px; height: 36px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+<button onclick="exitTournament()" style="background: rgba(255, 0, 0, 0.2); color: #ff4444; border: 1px solid #ff4444; border-radius: 50%; width: 36px; height: 36px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
     </div>
 
     <div id="tournamentStatus" style="font-size: 14px; color: #cbd5e1; margin-bottom: 10px; text-align: center;"></div>
@@ -2249,6 +2255,28 @@ document.getElementById('tournamentBtn').onclick = () => {
     document.getElementById('globalHomeBtn').style.display = 'flex';
 };
 
+    function exitTournament() {
+    // 1. Сохраняем текущее состояние турнира в память
+    if (tournamentSchedule && tournamentSchedule.length > 0) {
+        localStorage.setItem('khl_active_tournament', JSON.stringify({
+            schedule: tournamentSchedule,
+            data: tournamentData,
+            playerStats: tournamentPlayerStats,
+            roundIndex: currentRoundIndex,
+            squad: tournamentSquad,
+            bench: tournamentBench
+        }));
+    }
+    
+    // 2. Просто скрываем турнир и показываем главный экран
+    document.getElementById('tournamentView').style.display = 'none';
+    document.getElementById('shopView').style.display = 'flex';
+    document.getElementById('globalHomeBtn').style.display = 'none';
+}
+
+function handleTournamentBtnClick() {
+    // ... дальше идет твой старый код ...
+
     function handleTournamentBtnClick() {
     // Если турнир уже запущен и не завершен
     if (tournamentSchedule && tournamentSchedule.length > 0 && currentRoundIndex < tournamentSchedule.length) {
@@ -3041,26 +3069,30 @@ function updateStandings(teamA, scoreA, teamB, scoreB, regA, regB) {
     }
 }
 
-    // --- ТУРНИР: РЕЗУЛЬТАТЫ ДНЯ И ПЕРЕХОД ---
-function showDayResults(results, playerTeam) {
+    function showDayResults(results, playerTeam) {
     const content = document.getElementById('dayResultsContent');
     content.innerHTML = '';
-    
+
     results.forEach(r => {
         const isPlayerMatch = (r.teamA === playerTeam || r.teamB === playerTeam);
-        const bg = isPlayerMatch ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.05)';
-        const color = isPlayerMatch ? '#3b82f6' : 'white';
-        
+        // Если матч с участием игрока - синий фон, иначе темно-серый
+        const bg = isPlayerMatch ? 'rgba(59, 130, 246, 0.15)' : 'rgba(39, 39, 42, 0.8)';
+        const border = isPlayerMatch ? '1px solid #3b82f6' : '1px solid #3f3f46';
+        const colorA = r.scoreA > r.scoreB ? '#f4f4f5' : '#a1a1aa';
+        const colorB = r.scoreB > r.scoreA ? '#f4f4f5' : '#a1a1aa';
+
         content.innerHTML += `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: ${bg}; padding: 8px; border-radius: 8px;">
-                <span style="flex: 1; text-align: right; font-weight: bold; color: ${color};">${r.teamA}</span>
-                <span style="padding: 0 10px; color: #fbbf24; font-weight: 900; font-size: 16px;">${r.scoreA} : ${r.scoreB}</span>
-                <span style="flex: 1; text-align: left; font-weight: bold; color: ${color};">${r.teamB}</span>
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: ${bg}; border: ${border}; border-radius: 8px; padding: 12px 15px; margin-bottom: 10px;">
+                <div style="text-align: right; font-weight: ${isPlayerMatch ? 'bold' : 'normal'}; color: #f4f4f5; font-size: 14px;">${r.teamA}</div>
+                <div style="text-align: center; font-size: 18px; font-weight: 900; padding: 0 15px; color: #fbbf24;">
+                    ${r.scoreA} : ${r.scoreB}
+                </div>
+                <div style="text-align: left; font-weight: ${isPlayerMatch ? 'bold' : 'normal'}; color: #f4f4f5; font-size: 14px;">${r.teamB}</div>
             </div>
         `;
     });
     document.getElementById('dayResultsView').style.display = 'flex';
-}
+    }
 
 function closeDayResults() {
     document.getElementById('dayResultsView').style.display = 'none';
