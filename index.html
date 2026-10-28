@@ -268,7 +268,7 @@
     opacity: 0;
     transition: opacity 0.3s;
 }
-.tilt-card .shine { opacity: 1; }
+.card .shine { opacity: 1; }
         
 </style>
 </head>
@@ -587,6 +587,7 @@
             </div>
             <div class="flip-hint">Нажми, чтобы перевернуть</div>
         </div>
+                </div>
             </div>
             <div class="flip-card-back" id="detailBack"></div>
         </div>
@@ -2001,6 +2002,17 @@ if (player.rarity_num >= 4) {
     document.getElementById('d-img').innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('d-clubLogo').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
+    // Включаем эффекты для редких карточек
+const holoEffect = document.getElementById('holoEffect');
+const shineEffect = document.getElementById('shineEffect');
+if (player.rarity_num >= 4) {
+    if (holoEffect) holoEffect.style.display = 'block';
+    if (shineEffect) shineEffect.style.display = 'block';
+} else {
+    if (holoEffect) holoEffect.style.display = 'none';
+    if (shineEffect) shineEffect.style.display = 'none';
+}
+        
     // --- ЛОГИКА 3D НАКЛОНА ---
 let handleOrientation = (event) => {
     const card = document.getElementById('3dCard');
