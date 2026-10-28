@@ -532,7 +532,7 @@
             <b style="color: #fbbf24;">Готовы собрать состав?</b>
         </div>
         
-        <button onclick="document.getElementById('tournamentRulesView').style.display='none'; openTournamentSquadBuilder();" style="width: 80%; padding: 14px; background: #fbbf24; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <button onclick="document.getElementById('tournamentRulesView').style.display='none'; openTournamentSquadBuilder();" style="width: 100%; box-sizing: border-box; padding: 14px; background: #fbbf24; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
     🏆 СОБРАТЬ СОСТАВ
         </button>
         
@@ -652,8 +652,8 @@
     </div>
 
     <!-- Лента событий -->
-    <div id="match-log" style="width: 100%; max-width: 340px; flex: 1; background: rgba(30, 41, 59, 0.5); border-radius: 12px; padding: 15px; overflow-y: auto; font-size: 14px; color: #cbd5e1; border: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; margin-bottom: 20px;">
-        <div style="text-align: center; color: #64748b; margin-top: 50%; transform: translateY(-50%);">Матч начнется через мгновение...</div>
+<div id="match-log" style="width: 92%; max-width: 450px; flex: 1; background: rgba(30, 41, 59, 0.6); border-radius: 12px; padding: 15px; overflow-y: auto; margin: 0 auto; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="text-align: center; color: #64748b; margin-top: 50%; transform: translateY(-50%);">Матч начнется через мгновение...</div>
     </div>
 
     <div style="display: flex; gap: 10px; width: 100%; max-width: 340px;">
@@ -2655,34 +2655,48 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
     let regScoreB = scoreB;
 
         if (scoreA === scoreB) {
-        events.push({ period: 'OT', minute: 0, scoreA, scoreB, text: `<br><b style="color:#fbbf24;">--- ОВЕРТАЙМ ---</b>` });
-        
-        if (Math.random() < 0.5) { 
-            let isA = Math.random() < probA;
-            if (isA) { scoreA++; } else { scoreB++; }
-            
-            let squad = isA ? squadA : squadB;
-            let field = squad.filter(p => p.pos !== "Вратарь");
-            let shooter = field[Math.floor(Math.random() * field.length)];
-            recordStat(shooter, isA ? teamA : teamB, 'goal');
-            
-            let goalie = isA ? activeGoalieB : activeGoalieA;
-            if (goalie) {
-                let gkey = `${goalie.name}_${goalie.club}`;
-                if (tournamentPlayerStats[gkey]) {
-                    tournamentPlayerStats[gkey].shotsAgainst++;
-                    tournamentPlayerStats[gkey].goalsAgainst++;
-                }
-            }
-            events.push({ 
-                period: 'OT', minute: 3, minuteStr: "63'00\"",
-                scoreA, scoreB, type: 'goal', isTeamA: isA,
-                scorer: shooter, assists: [], strength: 'РАВ'
-            });
-        } else {
-            events.push({ period: 'OT', minute: 5, scoreA, scoreB, text: `Овертайм завершен вничью.` });
+    shootoutEvents.push({ text: `<br><b style="color:#fbbf24;">--- СЕРИЯ БУЛЛИТОВ ---</b>` });
+    let soA = 0, soB = 0;
+    let round = 1;
+    let isOver = false;
+
+    while (!isOver) {
+        // Бьет команда А
+        let fwdA = squadA.filter(p => p.pos === "Нападающий");
+        let shA = fwdA.length > 0 ? fwdA[Math.floor(Math.random() * fwdA.length)] : squadA[0];
+        let goalA = Math.random() < 0.35;
+        if (goalA) soA++;
+        shootoutEvents.push({ text: `${goalA ? '✅' : '❌'} <b>${shA.name}</b> (${teamA}) — ${goalA ? 'забивает!' : 'не забивает.'} <span style="color:#fbbf24;">${soA} : ${soB}</span>` });
+
+        // Проверка на досрочную победу (если команда Б уже не догонит)
+        if (round <= 3 && soA > soB + (4 - round)) {
+            isOver = true;
+            break;
         }
+
+        // Бьет команда Б
+        let fwdB = squadB.filter(p => p.pos === "Нападающий");
+        let shB = fwdB.length > 0 ? fwdB[Math.floor(Math.random() * fwdB.length)] : squadB[0];
+        let goalB = Math.random() < 0.35;
+        if (goalB) soB++;
+        shootoutEvents.push({ text: `${goalB ? '✅' : '❌'} <b>${shB.name}</b> (${teamB}) — ${goalB ? 'забивает!' : 'не забивает.'} <span style="color:#fbbf24;">${soA} : ${soB}</span>` });
+
+        // Если сыграно 3+ раундов и есть победитель - заканчиваем
+        if (round >= 3 && soA !== soB) {
+            isOver = true;
+        }
+        round++;
     }
+
+    // В общий счет матча добавляется ТОЛЬКО 1 ГОЛ победителю буллитов
+    if (soA > soB) {
+        scoreA++;
+        shootoutEvents.push({ text: `<b style="color:#3b82f6;">${teamA}</b> выигрывает серию буллитов!` });
+    } else {
+        scoreB++;
+        shootoutEvents.push({ text: `<b style="color:#3b82f6;">${teamB}</b> выигрывает серию буллитов!` });
+    }
+        }
 
     if (scoreA === scoreB) {
         shootoutEvents.push({ text: `<br><b style="color:#fbbf24;">--- СЕРИЯ БУЛЛИТОВ ---</b>` });
@@ -2748,8 +2762,8 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
                     const firstName = parts[0] || '';
                     return `${p.number || ''} ${firstName[0]}. ${lastName}`;
                 };
-                let assistsText = ev.assists.map(a => formatName(a)).join(', ');
-
+let assistsText = ev.assists.map(a => formatName(a)).join('<br>');
+                
                 logDiv.innerHTML += `
                     <div style="display: flex; align-items: center; border-bottom: 1px solid #1e293b; padding: 10px 0; width: 100%;">
                         <div style="width: 50px; text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.2;">
@@ -3028,6 +3042,27 @@ localStorage.removeItem('khl_active_tournament'); // Очищаем сохран
     document.getElementById('tournamentView').style.display = 'none';
     document.getElementById('shopView').style.display = 'flex';
     document.getElementById('globalHomeBtn').style.display = 'none';
+    }
+
+    function sortTournamentTable() {
+    tournamentData.sort((a, b) => {
+        // 1. По очкам (больше = выше)
+        if (b.points !== a.points) return b.points - a.points;
+        
+        // 2. По количеству побед (больше = выше)
+        if (b.wins !== a.wins) return b.wins - a.wins;
+
+        // 3. По РАЗНИЦЕ ШАЙБ (ГЗ минус ГП)
+        let diffA = a.goalsFor - a.goalsAgainst;
+        let diffB = b.goalsFor - b.goalsAgainst;
+        if (diffB !== diffA) return diffB - diffA;
+
+        // 4. По заброшенным шайбам (ГЗ) (больше = выше)
+        if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+
+        // 5. По алфавиту
+        return a.team.localeCompare(b.team);
+    });
     }
 
 function prepareTournament() {
