@@ -2820,11 +2820,21 @@ let goalieB_conceded = 0;
     initGoalieStats(activeGoalieB);
 
     const recordStat = (player, team, type) => {
-        const key = `${player.name}_${team}`;
-        if (!tournamentPlayerStats[key]) tournamentPlayerStats[key] = { name: player.name, team: team, pos: player.pos, goals: 0, assists: 0, points: 0 };
-        if (type === 'goal') { tournamentPlayerStats[key].goals++; if (player.pos !== "Вратарь") tournamentPlayerStats[key].points++; }
-        if (type === 'assist') { tournamentPlayerStats[key].assists++; if (player.pos !== "Вратарь") tournamentPlayerStats[key].points++; }
-    };
+    const key = `${player.name}_${team}`;
+    if (!tournamentPlayerStats[key]) {
+        tournamentPlayerStats[key] = { 
+            name: player.name, 
+            number: player.number || '', 
+            flag: player.flag || '', 
+            team: team, 
+            pos: player.pos, 
+            goals: 0, assists: 0, points: 0, 
+            shotsAgainst: 0, saves: 0, goalsAgainst: 0 
+        };
+    }
+    if (type === 'goal') { tournamentPlayerStats[key].goals++; if (player.pos !== "Вратарь") tournamentPlayerStats[key].points++; }
+    if (type === 'assist') { tournamentPlayerStats[key].assists++; if (player.pos !== "Вратарь") tournamentPlayerStats[key].points++; }
+};
 
 // Общие броски (от 15 до 60) зависят от силы
 stats.shotsA = Math.min(60, Math.max(15, Math.floor(25 + (strA - 75) * 0.8 + Math.random() * 20)));
@@ -2871,11 +2881,21 @@ for (let shot of rawShots) {
         tournamentPlayerStats[gkey].shotsAgainst++;
     }
 
-    let field = squad.filter(p => p.pos !== "Вратарь");
-    let fwds = field.filter(p => p.pos === "Нападающий");
-    let defs = field.filter(p => p.pos === "Защитник");
-    let pool = (Math.random() < 0.75 && fwds.length > 0) ? fwds : (defs.length > 0 ? defs : field);
-    let shooter = pool[Math.floor(Math.random() * pool.length)];
+    // Берем полевых игроков из основы И из запаса
+let currentBench = isA ? benchA : benchB;
+let fieldStarters = squad.filter(p => p.pos !== "Вратарь");
+let fieldBench = currentBench.filter(p => p.pos !== "Вратарь");
+let allField = [...fieldStarters, ...fieldBench];
+
+// Выбираем, кто бросает (75% шанс, что нападающий)
+let fwds = allField.filter(p => p.pos === "Нападающий");
+let defs = allField.filter(p => p.pos === "Защитник");
+let pool = (Math.random() < 0.75 && fwds.length > 0) ? fwds : (defs.length > 0 ? defs : allField);
+
+// Если вдруг пул пустой (защита от ошибок), берем любого полевого
+if (pool.length === 0) pool = fieldStarters;
+
+let shooter = pool[Math.floor(Math.random() * pool.length)];
     
     // УЧЕТ УСТАЛОСТИ
     let benchCountA = benchA.length;
@@ -2896,7 +2916,7 @@ for (let shot of rawShots) {
         }
 
         let assists = [];
-        let aPool = pool.filter(p => p !== shooter);
+let aPool = allField.filter(p => p !== shooter);
         if (aPool.length > 0 && Math.random() < 0.7) {
             assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
             if (aPool.length > 0 && Math.random() < 0.5) assists.push(aPool.splice(Math.floor(Math.random() * aPool.length), 1)[0]);
@@ -3613,7 +3633,17 @@ function changeStatsTab(tab) {
 function renderTournamentStats() {
     const list = document.getElementById('tournamentStatsList');
     list.innerHTML = '';
-    let playersArray = Object.values(tournamentPlayerStats);
+    const playersArray = Object.values(tournamentPlayerStats);
+
+    // Функция для форматирования имени: #47 А. Радулов 🇷🇺
+    const formatName = (p) => {
+        if (!p.name) return '';
+        const parts = p.name.split(' ');
+        const lastName = parts[1] || parts[0];
+        const firstName = parts[0] || '';
+        const initial = firstName.length > 0 ? firstName[0] + '.' : '';
+        return `${p.number || ''} ${initial} ${lastName} ${p.flag || ''}`.trim();
+    };
 
     // === ВКЛАДКА ВРАТАРЕЙ ===
     if (currentTournamentStatsTab === 'goalies') {
@@ -3625,44 +3655,53 @@ function renderTournamentStats() {
             return svB - svA;
         });
 
+        // ОГРАНИЧЕНИЕ ДО ТОП-10
+        goaliesArray = goaliesArray.slice(0, 10);
+
         if (goaliesArray.length === 0) {
-            list.innerHTML = '<div style="text-align: center; padding: 20px; color: #64748b;">Нет данных по вратарям.</div>';
+            list.innerHTML = `<div style="text-align: center; padding: 20px; color: #64748b;">Нет данных по вратарям.</div>`;
             return;
         }
 
         let html = `
-            <div style="display: grid; grid-template-columns: 30px 1fr 60px; gap: 5px; font-size: 11px; color: #64748b; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px;">
+            <div style="display: grid; grid-template-columns: 30px 1fr 60px; gap: 5px; font-size: 11px; color: #64748b; padding-bottom: 5px; border-bottom: 1px solid #334155; margin-bottom: 10px;">
                 <div>#</div>
                 <div>Вратарь</div>
                 <div style="text-align: right;">КН (Сейвы)</div>
-            </div>`;
-            
+            </div>
+        `;
+
         goaliesArray.forEach((p, index) => {
             let svp = p.shotsAgainst > 0 ? (p.saves / p.shotsAgainst) : 0;
             let svpStr = svp.toFixed(3);
-            
+
             html += `
-                <div style="display: grid; grid-template-columns: 30px 1fr 60px; gap: 5px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                <div style="display: grid; grid-template-columns: 30px 1fr 60px; gap: 5px; padding: 6px 0; border-bottom: 1px solid #1e293b; align-items: center;">
                     <div style="color: #64748b; font-weight: bold;">${index + 1}</div>
                     <div>
-                        <div style="font-weight: bold; color: white; font-size: 13px;">${p.name}</div>
+                        <div style="font-weight: bold; color: white; font-size: 13px;">${formatName(p)}</div>
                         <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
                     </div>
                     <div style="text-align: right;">
                         <div style="font-size: 15px; font-weight: 900; color: #3b82f6;">${svpStr}</div>
                         <div style="font-size: 9px; color: #64748b;">${p.saves}/${p.shotsAgainst}</div>
                     </div>
-                </div>`;
+                </div>
+            `;
         });
         list.innerHTML = html;
-
+    } 
     // === ВКЛАДКИ ПОЛЕВЫХ ИГРОКОВ (Очки, Голы, Пасы) ===
-    } else {
+    else {
         let filteredArray = playersArray.filter(p => p.pos !== "Вратарь" && p[currentTournamentStatsTab] > 0);
+        
         filteredArray.sort((a, b) => b[currentTournamentStatsTab] - a[currentTournamentStatsTab]);
 
+        // ОГРАНИЧЕНИЕ ДО ТОП-10
+        filteredArray = filteredArray.slice(0, 10);
+
         if (filteredArray.length === 0) {
-            list.innerHTML = '<div style="text-align: center; padding: 20px; color: #64748b;">Нет данных.</div>';
+            list.innerHTML = `<div style="text-align: center; padding: 20px; color: #64748b;">Нет данных.</div>`;
             return;
         }
 
@@ -3671,26 +3710,30 @@ function renderTournamentStats() {
         if (currentTournamentStatsTab === 'assists') labelShort = 'П';
 
         let html = `
-            <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; font-size: 11px; color: #64748b; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px;">
+            <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; font-size: 11px; color: #64748b; padding-bottom: 5px; border-bottom: 1px solid #334155; margin-bottom: 10px;">
                 <div>#</div>
                 <div>Игрок</div>
                 <div style="text-align: right;">${labelShort}</div>
-            </div>`;
-            
+            </div>
+        `;
+
         filteredArray.forEach((p, index) => {
             html += `
-                <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                <div style="display: grid; grid-template-columns: 30px 1fr 40px; gap: 5px; padding: 6px 0; border-bottom: 1px solid #1e293b; align-items: center;">
                     <div style="color: #64748b; font-weight: bold;">${index + 1}</div>
                     <div>
-                        <div style="font-weight: bold; color: white; font-size: 13px;">${p.name}</div>
+                        <div style="font-weight: bold; color: white; font-size: 13px;">${formatName(p)}</div>
                         <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
                     </div>
-                    <div style="text-align: right; font-size: 18px; font-weight: 900; color: #fbbf24;">${p[currentTournamentStatsTab]}</div>
-                </div>`;
+                    <div style="text-align: right; font-size: 16px; font-weight: 900; color: #fbbf24;">
+                        ${p[currentTournamentStatsTab]}
+                    </div>
+                </div>
+            `;
         });
         list.innerHTML = html;
     }
-} // <--- Вот здесь функция правильно закрывается
+}
 
                 // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
         fetch('players.json?time=' + new Date().getTime())
