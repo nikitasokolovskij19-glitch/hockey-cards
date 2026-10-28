@@ -2503,8 +2503,10 @@ function generateMatchData(teamA, teamB) {
 
     let events = [];
     let scoreA = 0, scoreB = 0;
-    let activeGoalieA = goalsA.length > 0 ? goalsA[0] : null;
-    let activeGoalieB = goalsB.length > 0 ? goalsB[0] : null;
+    let goalieA_idx = 0;
+let goalieB_idx = 0;
+let activeGoalieA = goalsA.length > 0 ? goalsA[0] : null;
+let activeGoalieB = goalsB.length > 0 ? goalsB[0] : null;
 
     let stats = { shotsA: 0, shotsB: 0, pimA: Math.floor(Math.random() * 10), pimB: Math.floor(Math.random() * 10), hitsA: Math.floor(Math.random() * 15) + 10, hitsB: Math.floor(Math.random() * 15) + 10, faceoffA: 50, faceoffB: 50 };
     if (strA > strB) { stats.faceoffA = 55; stats.faceoffB = 45; } else if (strB > strA) { stats.faceoffA = 45; stats.faceoffB = 55; }
@@ -2554,21 +2556,23 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
     let goalie = isA ? activeGoalieB : activeGoalieA;
     let teamName = isA ? teamA : teamB;
 
-    // --- ЗАМЕНА ВРАТАРЯ ---
-    if (isA && scoreB >= 3 && goalsB.length > 1 && activeGoalieB === goalsB[0]) {
-        activeGoalieB = goalsB[1];
-        goalie = activeGoalieB;
-        let gkey = `${goalie.name}_${goalie.club}`;
-        if (!tournamentPlayerStats[gkey]) tournamentPlayerStats[gkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
-        events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
-    }
-    if (!isA && scoreA >= 3 && goalsA.length > 1 && activeGoalieA === goalsA[0]) {
-        activeGoalieA = goalsA[1];
-        goalie = activeGoalieA;
-        let gkey = `${goalie.name}_${goalie.club}`;
-        if (!tournamentPlayerStats[gkey]) tournamentPlayerStats[gkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
-        events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
-    }
+    // Проверка на замену вратаря (если ПРОПУСТИЛ 3+ шайб)
+if (isA && activeGoalieB && tournamentPlayerStats[`${activeGoalieB.name}_${activeGoalieB.club}`]?.goalsAgainst >= 3 && goalieB_idx < goalsB.length - 1) {
+    goalieB_idx++;
+    activeGoalieB = goalsB[goalieB_idx];
+    goalie = activeGoalieB;
+    let newGkey = `${goalie.name}_${goalie.club}`;
+    if (!tournamentPlayerStats[newGkey]) tournamentPlayerStats[newGkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
+    events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamB}</b>: на лёд выходит ${activeGoalieB.name}` });
+} 
+else if (!isA && activeGoalieA && tournamentPlayerStats[`${activeGoalieA.name}_${activeGoalieA.club}`]?.goalsAgainst >= 3 && goalieA_idx < goalsA.length - 1) {
+    goalieA_idx++;
+    activeGoalieA = goalsA[goalieA_idx];
+    goalie = activeGoalieA;
+    let newGkey = `${goalie.name}_${goalie.club}`;
+    if (!tournamentPlayerStats[newGkey]) tournamentPlayerStats[newGkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
+    events.push({ period: shot.period, minute: shot.minute, scoreA, scoreB, text: `🔄 <b>Замена в ${teamA}</b>: на лёд выходит ${activeGoalieA.name}` });
+}
 
     // --- СЧИТАЕМ БРОСОК В СТВОР ---
     if (goalie) {
