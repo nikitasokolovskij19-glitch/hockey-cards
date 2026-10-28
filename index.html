@@ -238,37 +238,36 @@
     overflow: hidden;
 }
 
-/* Радужный перелив (виден только на Эпических/Легендарных) */
-.holo-overlay {
-    position: absolute;
-    top: -50%; left: -50%; width: 200%; height: 200%;
-    background: linear-gradient(45deg, rgba(255,0,0,0.4), rgba(255,255,0,0.4), rgba(0,255,0,0.4), rgba(0,255,255,0.4), rgba(0,0,255,0.4), rgba(255,0,255,0.4), rgba(255,0,0,0.4));
-    background-size: 400% 400%;
-    animation: holoShift 4s linear infinite;
-    pointer-events: none;
-    z-index: 10;
-    mix-blend-mode: overlay;
-    opacity: 0.8;
+/* 1. Золотое пульсирующее свечение вокруг карточки */
+.card-glow {
+    animation: glowPulse 2s infinite alternate !important;
 }
 
-@keyframes holoShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.2), 0 0 20px rgba(251, 191, 36, 0.1); }
+    100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 0 40px rgba(251, 191, 36, 0.3); }
 }
 
-/* Мелкие блёстки (глянец) */
-.sparkles {
+/* 2. Медленный металлический блик */
+.foil-sheen {
     position: absolute;
     top: -50%; left: -50%; width: 200%; height: 200%;
-    /* Создаем паттерн из мелких точек */
-    background-image: radial-gradient(rgba(255,255,255,0.7) 1px, transparent 1px);
-    background-size: 15px 15px;
+    background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%);
+    transform: rotate(30deg);
     pointer-events: none;
-    z-index: 11;
-    mix-blend-mode: overlay;
-    transition: background-position 0.1s ease-out;
+    z-index: 15;
+    animation: foilSweep 4s infinite linear;
 }
+
+@keyframes foilSweep {
+    0% { transform: translateX(-150%) rotate(30deg); }
+    100% { transform: translateX(150%) rotate(30deg); }
+}
+
+/* 3. Настройки для Параллакса (3D) */
+.card { transform-style: preserve-3d; }
+#d-img { transition: transform 0.1s ease-out; }
+.card-info { transition: transform 0.1s ease-out; }
 .card .shine { opacity: 1; }
         
 </style>
@@ -1931,11 +1930,13 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             }
         }
 
-// Переменные для калибровки
+// Переменные для калибровки и сглаживания
 let initialBeta = null;
 let initialGamma = null;
+let currentTiltX = 0;
+let currentTiltY = 0;
+let isCentered = false;
 
-// Функция, которая крутит карточку (классический вид)
 function handleOrientation(event) {
     const card = document.getElementById('3dCard');
     if (!card) return;
@@ -1943,27 +1944,42 @@ function handleOrientation(event) {
     let beta = event.beta || 0;   
     let gamma = event.gamma || 0; 
     
-    // Запоминаем положение телефона при открытии
-    if (initialBeta === null || initialGamma === null) {
-        initialBeta = beta;
-        initialGamma = gamma;
+    // Ждем стабильного сигнала от гироскопа при открытии
+    if (!isCentered) {
+        if (beta !== 0 && gamma !== 0) {
+            initialBeta = beta;
+            initialGamma = gamma;
+            isCentered = true;
+        }
+        return;
     }
     
+    // Считаем отклонение от изначального положения
     let deltaBeta = beta - initialBeta;
     let deltaGamma = gamma - initialGamma;
     
-    let tiltX = Math.max(-25, Math.min(25, deltaBeta * 0.6)); 
-    let tiltY = Math.max(-25, Math.min(25, deltaGamma * 0.6));
+    // МЕРТВАЯ ЗОНА: если наклон меньше 2 градусов, считаем, что телефон ровно
+    if (Math.abs(deltaBeta) < 2) deltaBeta = 0;
+    if (Math.abs(deltaGamma) < 2) deltaGamma = 0;
     
-    card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+    // Высчитываем целевой наклон (чувствительность 0.4)
+    let targetTiltX = Math.max(-20, Math.min(20, deltaBeta * 0.4)); 
+    let targetTiltY = Math.max(-20, Math.min(20, deltaGamma * 0.4));
     
+    // СГЛАЖИВАНИЕ (чтобы карточка не тряслась)
+    currentTiltX += (targetTiltX - currentTiltX) * 0.15;
+    currentTiltY += (targetTiltY - currentTiltY) * 0.15;
+    
+    card.style.transform = `perspective(1000px) rotateX(${currentTiltX}deg) rotateY(${currentTiltY}deg)`;
+    
+    // Двигаем блёстки
     const sparkles = card.querySelector('.sparkles');
     if (sparkles) {
-        let posX = 50 + (tiltY * 3);
-        let posY = 50 - (tiltX * 3);
+        let posX = 50 + (currentTiltY * 3);
+        let posY = 50 - (currentTiltX * 3);
         sparkles.style.backgroundPosition = `${posX}% ${posY}%`;
     }
-};
+}
     
     function openDetailView(player) {
 
@@ -2012,9 +2028,43 @@ const holoEffect = document.getElementById('holoEffect');
 const sparkleEffect = document.getElementById('sparkleEffect'); // Блёстки вместо блика
 const card3D = document.getElementById('3dCard');
 
-// Сбрасываем калибровку, чтобы карточка взяла новое положение телефона за точку отсчета
+// Сбрасываем калибровку при открытии новой карточки
 initialBeta = null; 
 initialGamma = null; 
+currentTiltX = 0;
+currentTiltY = 0;
+isCentered = false;
+
+if (player.rarity_num >= 4) {
+    if (holoEffect) holoEffect.style.display = 'block';
+    if (sparkleEffect) sparkleEffect.style.display = 'block';
+    
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', handleOrientation);
+        
+        // ДОБАВЛЯЕМ СБРОС ПО КЛИКУ НА КАРТОЧКУ
+        const card3D = document.getElementById('3dCard');
+        if (card3D) {
+            // Удаляем старый обработчик, чтобы не дублировался
+            card3D.onclick = null; 
+            card3D.onclick = (e) => {
+                // Если это был не переворот карточки (проверка на клик по передней части)
+                if(e.target.closest('.flip-card-front')) {
+                    isCentered = false; // Это заставит код заново считать положение телефона
+                }
+            };
+        }
+    }
+} else {
+    if (holoEffect) holoEffect.style.display = 'none';
+    if (sparkleEffect) sparkleEffect.style.display = 'none';
+    const card3D = document.getElementById('3dCard');
+    if (card3D) {
+        card3D.style.transform = 'none'; 
+        card3D.onclick = null;
+    }
+    window.removeEventListener('deviceorientation', handleOrientation);
+},
 
 if (player.rarity_num >= 4) {
     if (holoEffect) holoEffect.style.display = 'block';
