@@ -587,9 +587,13 @@
 </div>
 
     <!-- ЭКРАН ТУРНИРА (Таблица и Статистика) -->
-<div id="tournamentView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: #0f172a; z-index: 99999; flex-direction: column; overflow: hidden;">
+<div id="tournamentView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #0f172a; z-index: 99999; flex-direction: column;">
     
-    <h2 style="font-size: 22px; color: #fbbf24; margin-bottom: 5px;">ТУРНИР КЛУБОВ</h2>
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px; padding: 0 10px; box-sizing: border-box;">
+    <h2 style="font-size: 22px; color: #fbbf24; margin: 0;">ТУРНИР КЛУБОВ</h2>
+    <button onclick="document.getElementById('tournamentView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="background: rgba(255, 0, 0, 0.2); color: #ff4444; border: 1px solid #ff4444; border-radius: 50%; width: 36px; height: 36px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+</div>
+    
     <div id="tournamentStatus" style="font-size: 14px; color: #cbd5e1; margin-bottom: 10px; text-align: center; padding: 0 20px;"></div>
     
     <!-- Вкладки -->
