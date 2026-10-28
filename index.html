@@ -576,6 +576,7 @@
     <div id="tournamentTabs" style="display: flex; gap: 10px; margin-bottom: 15px;">
         <button id="tabTournamentStandings" onclick="switchTournamentTab('standings')" style="padding: 10px 20px; border-radius: 10px; font-weight: bold; border: none; background: #3b82f6; color: white; cursor: pointer;">Таблица</button>
         <button id="tabTournamentStats" onclick="switchTournamentTab('stats')" style="padding: 10px 20px; border-radius: 10px; font-weight: bold; border: none; background: rgba(51, 65, 85, 0.8); color: white; cursor: pointer;">Статистика</button>
+        <button id="tabTournamentCalendar" onclick="switchTournamentTab('calendar')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; font-weight: bold; font-size: 12px; cursor: pointer; background: rgba(51, 65, 85, 0.8); color: #cbd5e1;">Календарь</button>
     </div>
 
     <div id="tournamentMainContainer" style="width: 100%; max-width: 340px; flex: 1; overflow-y: auto; padding: 0 10px; box-sizing: border-box; margin-bottom: 80px;">
@@ -596,6 +597,11 @@
             <div id="tournamentStatsList" style="font-size: 13px; color: #cbd5e1;"></div>
         </div>
     </div>
+
+    <!-- Вкладка 3: Календарь -->
+<div id="tournamentCalendarView" style="display: none; flex-direction: column; gap: 10px;">
+    <div id="tournamentCalendarList" style="display: flex; flex-direction: column; gap: 15px; width: 100%;"></div>
+</div>2
 
     <!-- Кнопки управления -->
 <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; width: 100%; max-width: 340px; z-index: 10;">
@@ -2865,20 +2871,28 @@ if(playBtn) playBtn.style.display = 'none';
     }
  }
 
-function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) {    
+function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) {
     let roundResults = [];
-    
+
     roundMatches.forEach(m => {
-        // Если это матч с участием игрока, берем готовые результаты
-        if (m.teamA === playerTeam && m.teamB === opponent) {
-            roundResults.push({ teamA: playerTeam, scoreA: scorePlayer, teamB: opponent, scoreB: scoreOpp });
-            updateStandings(playerTeam, scorePlayer, opponent, scoreOpp, regScorePlayer, regScoreOpp);
-        } else if (m.teamA === opponent && m.teamB === playerTeam) {
-             roundResults.push({ teamA: opponent, scoreA: scoreOpp, teamB: playerTeam, scoreB: scorePlayer });
-             updateStandings(opponent, scoreOpp, playerTeam, scorePlayer, regScoreOpp, regScorePlayer);
+        // Если это матч с участием игрока
+        if (m.teamA === playerTeam || m.teamB === playerTeam) {
+            if (m.teamA === playerTeam) {
+                m.scoreA = scorePlayer;
+                m.scoreB = scoreOpp;
+                roundResults.push({ teamA: playerTeam, scoreA: scorePlayer, teamB: opponent, scoreB: scoreOpp });
+                updateStandings(playerTeam, scorePlayer, opponent, scoreOpp, regScorePlayer, regScoreOpp);
+            } else {
+                m.scoreA = scoreOpp;
+                m.scoreB = scorePlayer;
+                roundResults.push({ teamA: opponent, scoreA: scoreOpp, teamB: playerTeam, scoreB: scorePlayer });
+                updateStandings(opponent, scoreOpp, playerTeam, scorePlayer, regScoreOpp, regScorePlayer);
+            }
         } else {
-            // Если это матч между ботами, симулируем его в фоне
-            const matchData = generateMatchData(m.teamA, m.teamB, false);
+            // Матч между ботами
+            const matchData = generateMatchData(m.teamA, m.teamB);
+            m.scoreA = matchData.scoreA; // Записываем счет в календарь
+            m.scoreB = matchData.scoreB;
             roundResults.push({ teamA: m.teamA, scoreA: matchData.scoreA, teamB: m.teamB, scoreB: matchData.scoreB });
             updateStandings(m.teamA, matchData.scoreA, m.teamB, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
         }
@@ -3049,6 +3063,62 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
     });
     }
 
+    function renderTournamentCalendar() {
+    const list = document.getElementById('tournamentCalendarList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (!tournamentSchedule || tournamentSchedule.length === 0) {
+        list.innerHTML = '<div style="text-align: center; color: #64748b; margin-top: 20px;">Календарь пуст</div>';
+        return;
+    }
+
+    let html = '';
+    
+    // Проходимся по каждому игровому дню
+    tournamentSchedule.forEach((round, roundIndex) => {
+        html += `<div style="background: #1e293b; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; color: #fbbf24; font-size: 13px;">Игровой день ${roundIndex + 1}</div>`;
+        html += `<div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">`;
+
+        round.forEach(match => {
+            const hasScore = match.scoreA !== undefined && match.scoreB !== undefined;
+            
+            // Ищем логотипы команд
+            const teamAObj = tournamentData.find(t => t.team === match.teamA);
+            const teamBObj = tournamentData.find(t => t.team === match.teamB);
+            const logoA = teamAObj ? teamAObj.logo : '';
+            const logoB = teamBObj ? teamBObj.logo : '';
+
+            // Подсвечиваем команду игрока
+            const isPlayerA = match.teamA === tournamentSquad[0].club;
+            const isPlayerB = match.teamB === tournamentSquad[0].club;
+            const bgA = isPlayerA ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.05)';
+            const bgB = isPlayerB ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.05)';
+            
+            html += `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid #334155;">
+                    <div style="display: flex; align-items: center; gap: 6px; width: 40%; background: ${bgA}; padding: 4px; border-radius: 4px;">
+                        <img src="${logoA}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
+                        <span style="font-size: 11px; font-weight: ${isPlayerA ? 'bold' : 'normal'}; color: ${isPlayerA ? '#3b82f6' : 'white'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${match.teamA}</span>
+                    </div>
+                    
+                    <div style="width: 20%; text-align: center; font-weight: bold; font-size: 14px; color: ${hasScore ? 'white' : '#64748b'};">
+                        ${hasScore ? `${match.scoreA} : ${match.scoreB}` : 'vs'}
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 40%; background: ${bgB}; padding: 4px; border-radius: 4px;">
+                        <span style="font-size: 11px; font-weight: ${isPlayerB ? 'bold' : 'normal'}; color: ${isPlayerB ? '#3b82f6' : 'white'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">${match.teamB}</span>
+                        <img src="${logoB}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+    });
+
+    list.innerHTML = html;
+    }
+
 function renderTournamentTable(playerTeam) {
     const tableContainer = document.getElementById('tournamentTableContainer');
     
@@ -3081,13 +3151,11 @@ function renderTournamentTable(playerTeam) {
             <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
             
             <td style="padding: 8px 2px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <img src="${row.logo}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; background: transparent; border: none; box-shadow: none;">
-                       <img src="${row.logo}" style="width: 100%; height: 100%; object-fit: cover; transform: scale(1.15);">
-                    </div>
-                    <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal}${row.team}</span>
-                </div>
-            </td>
+    <div style="display: flex; align-items: center; gap: 6px;">
+        <img src="${row.logo}" style="width: 24px; height: 24px; min-width: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #334155;">
+        <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${row.team}</span>
+    </div>
+</td>2
             
             <td style="padding: 8px 2px; text-align: center; color: #10b981; font-weight: bold;">${row.wins}</td>
             <td style="padding: 8px 2px; text-align: center; color: #ef4444;">${row.losses}</td>
@@ -3104,20 +3172,37 @@ function renderTournamentTable(playerTeam) {
 function switchTournamentTab(tab) {
     const standView = document.getElementById('tournamentStandingsView');
     const statsView = document.getElementById('tournamentStatsView');
+    const calView = document.getElementById('tournamentCalendarView');
+
     const standBtn = document.getElementById('tabTournamentStandings');
     const statsBtn = document.getElementById('tabTournamentStats');
+    const calBtn = document.getElementById('tabTournamentCalendar');
 
+    // Сначала сбрасываем стили у всех кнопок
+    [standBtn, statsBtn, calBtn].forEach(btn => {
+        if(btn) {
+            btn.style.background = 'rgba(51, 65, 85, 0.8)';
+            btn.style.color = '#cbd5e1';
+        }
+    });
+
+    // Прячем все вкладки
+    if(standView) standView.style.display = 'none';
+    if(statsView) statsView.style.display = 'none';
+    if(calView) calView.style.display = 'none';
+
+    // Включаем нужную
     if (tab === 'standings') {
-        standView.style.display = 'block'; 
-        statsView.style.display = 'none';
-        standBtn.style.background = '#3b82f6'; 
-        statsBtn.style.background = 'rgba(51, 65, 85, 0.8)';
-    } else {
-        standView.style.display = 'none'; 
-        statsView.style.display = 'block';
-        standBtn.style.background = 'rgba(51, 65, 85, 0.8)'; 
-        statsBtn.style.background = '#3b82f6';
-        renderTournamentStats(); // Вызываем отрисовку статистики при переходе
+        if(standView) standView.style.display = 'block';
+        if(standBtn) { standBtn.style.background = '#3b82f6'; standBtn.style.color = 'white'; }
+    } else if (tab === 'stats') {
+        if(statsView) statsView.style.display = 'block';
+        if(statsBtn) { statsBtn.style.background = '#3b82f6'; statsBtn.style.color = 'white'; }
+        renderTournamentStats();
+    } else if (tab === 'calendar') {
+        if(calView) calView.style.display = 'block';
+        if(calBtn) { calBtn.style.background = '#3b82f6'; calBtn.style.color = 'white'; }
+        renderTournamentCalendar();
     }
 }
 
