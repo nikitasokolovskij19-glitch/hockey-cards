@@ -2711,179 +2711,163 @@ rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute -
 
     function simulateVisualMatch(teamA, teamB, onComplete) {
     document.getElementById('match-a-name').innerText = teamA;
-    document.getElementById('match-a-logo').src = PLAYERS.find(p => p.club === teamA).logo;
+    document.getElementById('match-a-logo').src = PLAYERS.find(p => p.club === teamA)?.logo || '';
     document.getElementById('match-b-name').innerText = teamB;
-    document.getElementById('match-b-logo').src = PLAYERS.find(p => p.club === teamB).logo;
+    document.getElementById('match-b-logo').src = PLAYERS.find(p => p.club === teamB)?.logo || '';
     document.getElementById('match-score').innerText = '0 : 0';
-    document.getElementById('match-time').innerText = '1 период • 00:00';
+    document.getElementById('match-time').innerText = "1' (1 период)";
     document.getElementById('match-log').innerHTML = '';
     document.getElementById('match-continue-btn').style.display = 'none';
     document.getElementById('btn-view-stats').style.display = 'none';
     document.getElementById('matchSimView').style.display = 'flex';
 
-        const matchData = generateMatchData(teamA, teamB);
+    const matchData = generateMatchData(teamA, teamB);
+    let allEvents = [...matchData.events];
+    let curMin = 1;
+    let curPer = 1;
+    let isOT = false;
 
-// СБРОС ИНТЕРФЕЙСА ПЕРЕД МАТЧЕМ
-document.getElementById('match-score').innerText = '0 : 0';
-document.getElementById('match-time').innerText = "1' (1 период)";
-document.getElementById('match-log').innerHTML = '';
-
-let allEvents = [...matchData.events];
-let curMin = 1;
-let curPer = 1;
-let isOT = false;
-
-function tick() {
-    const logDiv = document.getElementById('match-log');
-    const timeEl = document.getElementById('match-time');
-    
-    // Показываем события текущей минуты
-    let currentPeriodId = isOT ? 'OT' : curPer;
-    let evs = allEvents.filter(e => e.minute === curMin && e.period === currentPeriodId);
-
-    evs.forEach(ev => {
-    if (ev.scoreA !== undefined) document.getElementById('match-score').innerText = `${ev.scoreA} : ${ev.scoreB}`;
-    
-    if (ev.type === 'goal') {
-        // Жирным выделяем счет забившей команды
-        let scoreA_color = ev.isTeamA ? 'white' : '#475569';
-        let scoreB_color = !ev.isTeamA ? 'white' : '#475569';
+    function tick() {
+        const logDiv = document.getElementById('match-log');
+        const timeEl = document.getElementById('match-time');
+        let currentPeriodId = isOT ? 'OT' : curPer;
         
-        // Форматируем имена (41. А. Радулов)
-        const formatName = (p) => {
-            if(!p) return '';
-            const parts = p.name.split(' ');
-            const lastName = parts[1] || parts[0];
-            const firstName = parts[0] || '';
-            return `${p.number || ''} ${firstName[0]}. ${lastName}`;
+        let evs = allEvents.filter(e => e.minute === curMin && e.period === currentPeriodId);
+        evs.forEach(ev => {
+            if (ev.scoreA !== undefined && ev.scoreB !== undefined) {
+                document.getElementById('match-score').innerText = `${ev.scoreA} : ${ev.scoreB}`;
+            }
+
+            if (ev.type === 'goal') {
+                let scoreA_color = ev.isTeamA ? 'white' : '#475569';
+                let scoreB_color = !ev.isTeamA ? 'white' : '#475569';
+                const formatName = (p) => {
+                    if(!p) return '';
+                    const parts = p.name.split(' ');
+                    const lastName = parts[1] || parts[0];
+                    const firstName = parts[0] || '';
+                    return `${p.number || ''} ${firstName[0]}. ${lastName}`;
+                };
+                let assistsText = ev.assists.map(a => formatName(a)).join(', ');
+
+                logDiv.innerHTML += `
+                    <div style="display: flex; align-items: center; border-bottom: 1px solid #1e293b; padding: 10px 0; width: 100%;">
+                        <div style="width: 50px; text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.2;">
+                            <div>${ev.minuteStr}</div>
+                            <div>${ev.strength}</div>
+                        </div>
+                        <div style="width: 70px; text-align: center; font-size: 20px; font-weight: bold; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 5px;">
+                            <span style="color: ${scoreA_color};">${ev.scoreA}</span><span style="color: #64748b;">:</span><span style="color: ${scoreB_color};">${ev.scoreB}</span>
+                        </div>
+                        <div style="flex: 1; padding-left: 15px; font-size: 13px; line-height: 1.3;">
+                            <div style="font-weight: bold; color: white;">${formatName(ev.scorer)}</div>
+                            ${assistsText ? `<div style="color: #94a3b8; font-size: 11px;">${assistsText}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            } else if (ev.type === 'change') {
+                logDiv.innerHTML += `<div style="margin: 10px 0; color: #fbbf24; font-size: 12px; text-align: center;">${ev.text}</div>`;
+            } else if (ev.text) {
+                logDiv.innerHTML += `<div style="margin: 10px 0; text-align: center;">${ev.text}</div>`;
+            }
+            logDiv.scrollTop = logDiv.scrollHeight;
+        });
+
+        timeEl.innerText = `${curMin}' (${isOT ? 'Овертайм' : curPer + ' период'})`;
+        let maxMin = isOT ? 5 : 20;
+
+        if (curMin >= maxMin) {
+            if (!isOT) {
+                if (curPer < 3) { curPer++; curMin = 1; }
+                else if (matchData.regScoreA === matchData.regScoreB) { isOT = true; curMin = 1; }
+                else return endMatch();
+            } else {
+                let otGoal = allEvents.some(e => e.period === 'OT' && e.type === 'goal');
+                if (!otGoal) return startShootout();
+                else return endMatch();
+            }
+        } else {
+            curMin++;
+        }
+        setTimeout(tick, isOT ? 400 : 333);
+    }
+    function startShootout() {
+        const logDiv = document.getElementById('match-log');
+        const timeEl = document.getElementById('match-time');
+        timeEl.innerText = 'Серия буллитов';
+
+        let soIdx = 0;
+        function nextBullet() {
+            if (soIdx >= matchData.shootoutEvents.length) {
+                document.getElementById('match-score').innerText = `${matchData.scoreA} : ${matchData.scoreB}`;
+                return endMatch();
+            }
+            let ev = matchData.shootoutEvents[soIdx];
+            logDiv.innerHTML += `<div style="margin-bottom: 8px;">${ev.text}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            soIdx++;
+            setTimeout(nextBullet, 1000);
+        }
+        setTimeout(nextBullet, 1000);
+    }
+
+    function endMatch() {
+        document.getElementById('match-time').innerText = "Матч окончен";
+        document.getElementById('match-log').innerHTML += `<div style="text-align: center; font-size: 18px; font-weight: bold; color: #fbbf24; margin-top: 10px;">Матч завершен!</div>`;
+        document.getElementById('match-continue-btn').style.display = 'block';
+        document.getElementById('btn-view-stats').style.display = 'block';
+
+        document.getElementById('btn-view-stats').onclick = () => {
+            const statsDiv = document.getElementById('matchStatsContent');
+            let goalsHtml = '';
+            matchData.events.forEach(ev => {
+                if (ev.type === 'goal') { 
+                    let cleanText = `<b>${ev.scorer.name}</b>`;
+                    goalsHtml += `<div style="display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid #2a2a3a;">
+                        <span style="color: #64748b; width: 30px;">${ev.minuteStr}</span>
+                        <span style="flex: 1; color: #fff;">${cleanText}</span>
+                    </div>`;
+                }
+            });
+
+            const row = (name, valA, valB) => `
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding: 6px 0;">
+                    <div style="width: 30%; text-align: left; font-weight: bold; color: white;">${valA}</div>
+                    <div style="width: 40%; text-align: center; color: #94a3b8; font-size: 11px; text-transform: uppercase;">${name}</div>
+                    <div style="width: 30%; text-align: right; font-weight: bold; color: white;">${valB}</div>
+                </div>
+            `;
+
+            statsDiv.innerHTML = `
+                <div style="text-align: center; font-weight: bold; color: #fbbf24; margin-bottom: 10px;">СТАТИСТИКА МАТЧА</div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px;">
+                    <div style="color: #3b82f6; font-weight: bold;">${teamA}</div>
+                    <div style="color: #3b82f6; font-weight: bold;">${teamB}</div>
+                </div>
+                ${row('Голы', matchData.scoreA, matchData.scoreB)}
+                ${row('Броски', matchData.stats.shotsA, matchData.stats.shotsB)}
+                ${row('Броски в створ', matchData.stats.shotsOnTargetA, matchData.stats.shotsOnTargetB)}
+                ${row('Вбрасывания', matchData.stats.faceoffA + '%', matchData.stats.faceoffB + '%')}
+                ${row('Блокированные', matchData.stats.blockedA, matchData.stats.blockedB)}
+                ${row('Силовые приёмы', matchData.stats.hitsA, matchData.stats.hitsB)}
+                ${row('Штраф', matchData.stats.penaltyA, matchData.stats.penaltyB)}
+                <div style="font-size: 12px; color: #fbbf24; text-align: center; margin-top: 15px; border-top: 1px solid #334155; padding-top: 10px;">Голы:</div>
+                <div style="max-height: 100px; overflow-y: auto; text-align: left; font-size: 11px;">
+                    ${goalsHtml || '<div style="text-align: center; color: #64748b; padding: 10px 0;">Голов не было</div>'}
+                </div>
+            `;
+            document.getElementById('matchStatsView').style.display = 'flex';
         };
 
-        let assistsText = ev.assists.map(a => formatName(a)).join(', ');
+        document.getElementById('match-continue-btn').onclick = () => {
+            document.getElementById('matchSimView').style.display = 'none';
+            onComplete(matchData.scoreA, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
+        };
+    } // <--- ЗАКРЫВАЕТ endMatch
 
-        logDiv.innerHTML += `
-            <div style="display: flex; align-items: center; border-bottom: 1px solid #1e293b; padding: 10px 0; width: 100%;">
-                <div style="width: 50px; text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.2;">
-                    <div>${ev.minuteStr}</div>
-                    <div>${ev.strength}</div>
-                </div>
-                <div style="width: 70px; text-align: center; font-size: 20px; font-weight: bold; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 5px;">
-                    <span style="color: ${scoreA_color};">${ev.scoreA}</span><span style="color: #64748b;">:</span><span style="color: ${scoreB_color};">${ev.scoreB}</span>
-                </div>
-                <div style="flex: 1; padding-left: 15px; font-size: 13px; line-height: 1.3;">
-                    <div style="font-weight: bold; color: white;">${formatName(ev.scorer)}</div>
-                    ${assistsText ? `<div style="color: #94a3b8; font-size: 11px;">${assistsText}</div>` : ''}
-                </div>
-            </div>
-        `;
-    } else if (ev.type === 'change') {
-        logDiv.innerHTML += `<div style="margin: 10px 0; color: #fbbf24; font-size: 12px; text-align: center;">${ev.text}</div>`;
-    } else if (ev.text) {
-        logDiv.innerHTML += `<div style="margin: 10px 0; text-align: center;">${ev.text}</div>`;
-    }
-    logDiv.scrollTop = logDiv.scrollHeight;
-});
-
-    timeEl.innerText = `${curMin}' (${isOT ? 'Овертайм' : curPer + ' период'})`;
-}
+    setTimeout(tick, 1000);
+} // <--- ЗАКРЫВАЕТ simulateVisualMatch
         
-    let maxMin = isOT ? 5 : 20;
-    
-    if (curMin >= maxMin) {
-    if (!isOT) {
-        if (curPer < 3) { curPer++; curMin = 1; }
-        else if (matchData.regScoreA === matchData.regScoreB) { isOT = true; curMin = 1; }
-        else return endMatch();
-    } else {
-        // Если в овертайме забили, завершаем. Если нет - буллиты.
-        let otGoal = allEvents.some(e => e.period === 'OT' && e.text.includes('🥅'));
-        if (!otGoal) return startShootout();
-        else return endMatch();
-    }
-} else {
-    curMin++;
-    }
-    setTimeout(tick, isOT ? 400 : 333); 
-}
-
-function startShootout() {
-    const logDiv = document.getElementById('match-log');
-    const timeEl = document.getElementById('match-time');
-    timeEl.innerText = 'Серия буллитов';
-    
-    let soIdx = 0;
-    function nextBullet() {
-    if (soIdx >= matchData.shootoutEvents.length) {
-        document.getElementById('match-score').innerText = `${matchData.scoreA} : ${matchData.scoreB}`; // Обновляем счет после буллитов
-        return endMatch();
-    }
-    let ev = matchData.shootoutEvents[soIdx];
-    logDiv.innerHTML += `<div style="margin-bottom: 8px;">${ev.text}</div>`;
-    logDiv.scrollTop = logDiv.scrollHeight;
-    soIdx++;
-    setTimeout(nextBullet, 1000); 
-    }
-    setTimeout(nextBullet, 1000);
-}
-
-function endMatch() {
-    document.getElementById('match-time').innerText = "Матч окончен";
-    document.getElementById('match-log').innerHTML += `<div style="text-align: center; font-size: 18px; font-weight: bold; color: #fbbf24; margin-top: 10px;">Матч завершен!</div>`;
-    document.getElementById('match-continue-btn').style.display = 'block';
-    document.getElementById('btn-view-stats').style.display = 'block';
-    
-    document.getElementById('btn-view-stats').onclick = () => {
-        const statsDiv = document.getElementById('matchStatsContent');
-        let goalsHtml = '';
-        
-        matchData.events.forEach(ev => {
-            if (ev.text.includes('🥅')) {
-                let cleanText = ev.text.replace(/<[^>]+>/g, ''); 
-                goalsHtml += `<div style="display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid #2a2a3a;">
-                    <span style="color: #64748b; width: 30px;">${ev.minute}'</span>
-                    <span style="flex: 1; color: #fff;">${cleanText}</span>
-                </div>`;
-            }
-        }); // <--- ВОТ ЭТА СКОБКА ЗАКРЫВАЕТ ЦИКЛ ГОЛОВ
-
-        const row = (name, valA, valB) => `
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding: 6px 0;">
-                <div style="width: 30%; text-align: left; font-weight: bold; color: white;">${valA}</div>
-                <div style="width: 40%; text-align: center; color: #94a3b8; font-size: 11px; text-transform: uppercase;">${name}</div>
-                <div style="width: 30%; text-align: right; font-weight: bold; color: white;">${valB}</div>
-            </div>
-        `;
-
-        statsDiv.innerHTML = `
-            <div style="text-align: center; font-weight: bold; color: #fbbf24; margin-bottom: 10px;">СТАТИСТИКА МАТЧА</div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px;">
-                <div style="color: #3b82f6; font-weight: bold;">${teamA}</div>
-                <div style="color: #3b82f6; font-weight: bold;">${teamB}</div>
-            </div>
-
-            ${row('Голы', matchData.scoreA, matchData.scoreB)}
-            ${row('Броски', matchData.stats.shotsA, matchData.stats.shotsB)}
-            ${row('Броски в створ', matchData.stats.shotsOnTargetA, matchData.stats.shotsOnTargetB)}
-            ${row('Вбрасывания', matchData.stats.faceoffA + '%', matchData.stats.faceoffB + '%')}
-            ${row('Блокированные', matchData.stats.blockedA, matchData.stats.blockedB)}
-            ${row('Силовые приёмы', matchData.stats.hitsA, matchData.stats.hitsB)}
-            ${row('Штраф', matchData.stats.penaltyA, matchData.stats.penaltyB)}
-            
-            <div style="font-size: 12px; color: #fbbf24; text-align: center; margin-top: 15px; border-top: 1px solid #334155; padding-top: 10px;">Голы:</div>
-            <div style="max-height: 100px; overflow-y: auto; text-align: left; font-size: 11px;">
-                ${goalsHtml || '<div style="text-align: center; color: #64748b; padding: 10px 0;">Голов не было</div>'}
-            </div>
-        `;
-        document.getElementById('matchStatsView').style.display = 'flex';
-    }; // <--- ЗАКРЫВАЕТ НАЖАТИЕ НА СТАТИСТИКУ
-
-    document.getElementById('match-continue-btn').onclick = () => {
-        document.getElementById('matchSimView').style.display = 'none';
-        onComplete(matchData.scoreA, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
-    }; // <--- ЗАКРЫВАЕТ НАЖАТИЕ НА ПРОДОЛЖИТЬ
-} // <--- ЗАКРЫВАЕТ ФУНКЦИЮ endMatch
-
-setTimeout(tick, 1000);
-    }
 
     // --- ТУРНИР: ЗАПУСК ДНЯ И ОБРАБОТКА РЕЗУЛЬТАТОВ ---
  function runTournament() {
