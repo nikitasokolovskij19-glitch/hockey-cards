@@ -3003,25 +3003,46 @@ let aPool = allField.filter(p => p !== shooter);
         }
 
     if (scoreA === scoreB) {
-        shootoutEvents.push({ text: `<br><b style="color:#fbbf24;">--- СЕРИЯ БУЛЛИТОВ ---</b>` });
-        let soA = 0, soB = 0, shotsA = 0, shotsB = 0;
-        while (true) {
-            let fwdA = squadA.filter(p => p.pos === "Нападающий");
-            let shA = fwdA.length > 0 ? fwdA[Math.floor(Math.random() * fwdA.length)] : squadA[0];
-            if (Math.random() < 0.35) { soA++; recordStat(shA, teamA, 'goal'); shootoutEvents.push({ text: `✅ <b>${shA.name}</b> (${teamA}) — забивает! <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); } 
-            else { shootoutEvents.push({ text: `❌ <b>${shA.name}</b> (${teamA}) — не забивает. <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); }
-            shotsA++;
-            if (shotsA >= 3 && shotsB >= 3 && soA !== soB) break;
-            if (shotsA >= 3 && soA > soB + (3 - shotsB)) break;
-            
-            let fwdB = squadB.filter(p => p.pos === "Нападающий");
-            let shB = fwdB.length > 0 ? fwdB[Math.floor(Math.random() * fwdB.length)] : squadB[0];
-            if (Math.random() < 0.35) { soB++; recordStat(shB, teamB, 'goal'); shootoutEvents.push({ text: `✅ <b>${shB.name}</b> (${teamB}) — забивает! <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); } 
-            else { shootoutEvents.push({ text: `❌ <b>${shB.name}</b> (${teamB}) — не забивает. <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); }
-            shotsB++;
-            if (shotsA >= 3 && shotsB >= 3 && soA !== soB) break;
+    // Центрируем заголовок так же, как и периоды
+    shootoutEvents.push({ text: `<div style="text-align: center; color: #fbbf24; font-weight: bold; margin: 15px 0 10px 0; font-size: 12px; opacity: 0.8;">--- СЕРИЯ БУЛЛИТОВ ---</div>` });
+    
+    // Функция для сокращения имени (А. Радулов)
+    const formatShooter = (p) => {
+        if (!p || !p.name) return '';
+        const parts = p.name.split(' ');
+        const lastName = parts[1] || parts[0];
+        const firstName = parts[0] || '';
+        return `${firstName[0]}. ${lastName}`;
+    };
+
+    let soA = 0, soB = 0, shotsA = 0, shotsB = 0;
+    while (true) {
+        // Бьет команда А
+        let fwdA = squadA.filter(p => p.pos === "Нападающий");
+        let shA = fwdA.length > 0 ? fwdA[Math.floor(Math.random() * fwdA.length)] : squadA[0];
+        if (Math.random() < 0.35) { 
+            soA++; recordStat(shA, teamA, 'goal'); 
+            shootoutEvents.push({ text: `✅ <b>${formatShooter(shA)}</b> (${teamA}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); 
+        } else { 
+            shootoutEvents.push({ text: `❌ <b>${formatShooter(shA)}</b> (${teamA}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); 
         }
-        scoreA += soA; scoreB += soB;
+        shotsA++;
+        if (shotsA >= 3 && shotsB >= 3 && soA !== soB) break;
+        if (shotsA >= 3 && soA > soB + (3 - shotsB)) break;
+        
+        // Бьет команда Б
+        let fwdB = squadB.filter(p => p.pos === "Нападающий");
+        let shB = fwdB.length > 0 ? fwdB[Math.floor(Math.random() * fwdB.length)] : squadB[0];
+        if (Math.random() < 0.35) { 
+            soB++; recordStat(shB, teamB, 'goal'); 
+            shootoutEvents.push({ text: `✅ <b>${formatShooter(shB)}</b> (${teamB}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); 
+        } else { 
+            shootoutEvents.push({ text: `❌ <b>${formatShooter(shB)}</b> (${teamB}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` }); 
+        }
+        shotsB++;
+        if (shotsA >= 3 && shotsB >= 3 && soA !== soB) break;
+    }
+    scoreA += soA; scoreB += soB;
     }
 
     return { events, shootoutEvents, scoreA, scoreB, regScoreA, regScoreB, stats };
