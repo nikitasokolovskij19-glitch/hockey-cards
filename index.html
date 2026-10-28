@@ -220,6 +220,56 @@
         color: #a1a1aa !important;
         border: 1px solid #3f3f46 !important;
     }
+
+    /* --- 3D КАРТОЧКА И ГОЛОГРАФИЯ --- */
+.tilt-container {
+    perspective: 1000px; /* Создает 3D-пространство */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tilt-card {
+    transform-style: preserve-3d; /* Сохраняет 3D-объем */
+    transition: transform 0.1s ease-out; /* Плавность при наклоне */
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+/* Радужный перелив (виден только на Эпических/Легендарных) */
+.holo-overlay {
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: linear-gradient(45deg, rgba(255,0,0,0.4), rgba(255,255,0,0.4), rgba(0,255,0,0.4), rgba(0,255,255,0.4), rgba(0,0,255,0.4), rgba(255,0,255,0.4), rgba(255,0,0,0.4));
+    background-size: 400% 400%;
+    animation: holoShift 4s linear infinite;
+    pointer-events: none;
+    z-index: 10;
+    mix-blend-mode: overlay;
+    opacity: 0.8;
+}
+
+@keyframes holoShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Белый пробегающий блик */
+.shine {
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: linear-gradient(to right, transparent 40%, rgba(255,255,255,0.8) 50%, transparent 60%);
+    transform: rotate(30deg);
+    pointer-events: none;
+    z-index: 11;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.tilt-card .shine { opacity: 1; }
+        
 </style>
 </head>
 <body>
@@ -491,48 +541,57 @@
     <div class="flip-card" id="flipCard">
         <div class="flip-card-inner">
             <div class="flip-card-front" id="detailFront">
-                <<div class="card" style="width: 100%; height: 100%;">
-    <div class="card-image-container">
-        <div class="season-badge" id="d-season">2013/14</div>
-        <div class="overall-badge">
-            🔥
-            <div class="text-container">
-                <div class="value" id="d-overall">89</div>
-                <div class="label">Сила</div>
-            </div>
-        </div>
-        <div id="d-img" style="width: 100%; height: 100%;"></div>
-        <div class="top-right-info">
-            <div class="club-logo" id="d-clubLogo">КХЛ</div>
-        </div>
-    </div>
-    <div class="card-info">
-        <div class="name-block">
-            <div class="name" id="d-name">Игрок</div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                <div class="position" id="d-pos">Нападающий</div>
-                <div id="d-rarity" style="font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; border: 1px solid; display: none;"></div>
-            </div>
-        </div>
-        <div class="info-table">
-            <div class="info-table-left">
-                <div class="stats">
-                    <div class="stat">СКО <span id="d-sc">85</span></div>
-                    <div class="stat">БРС <span id="d-br">98</span></div>
-                    <div class="stat">ПАС <span id="d-ps">95</span></div>
-                    <div class="stat">СИЛ <span id="d-si">80</span></div>
-                    <div class="stat">ВЫН <span id="d-end">88</span></div>
-                    <div class="stat">КАТ <span id="d-skate">90</span></div>
+                <div class="tilt-container">
+    <div class="tilt-card card" id="3dCard" style="width: 100%; height: 100%; position: relative;">
+        
+        <!-- Слои для эффекта Радулова -->
+        <div class="holo-overlay" id="holoEffect" style="display: none;"></div>
+        <div class="shine" id="shineEffect" style="display: none;"></div>
+
+        <!-- Твой старый код карточки -->
+        <div class="card-image-container">
+            <div class="season-badge" id="d-season">2013/14</div>
+            <div class="overall-badge">
+                <div class="text-container">
+                    <div class="value" id="d-overall">89</div>
+                    <div class="label">Сила</div>
                 </div>
             </div>
-            <div class="info-table-right">
-                <div class="info-number" id="d-number">#00</div>
-                <div class="player-flag" id="d-flag">🏳️</div>
+            <div id="d-img" style="width: 100%; height: 100%;"></div>
+            <div class="top-right-info">
+                <div class="club-logo" id="d-clubLogo">КХЛ</div>
             </div>
         </div>
-        <div class="flip-hint">Нажми, чтобы перевернуть</div>
-    </div>
+        
+        <div class="card-info">
+            <div class="name-block">
+                <div class="name" id="d-name">Игрок</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                    <div class="position" id="d-pos">Нападающий</div>
+                    <div id="d-rarity" style="font-size: 10px; font-weight: 800; text-transform: uppercase;"></div>
                 </div>
+            </div>
+            <div class="info-table">
+                <div class="info-table-left">
+                    <div class="stats">
+                        <div class="stat">СКО <span id="d-sc">85</span></div>
+                        <div class="stat">БРС <span id="d-br">98</span></div>
+                        <div class="stat">ПАС <span id="d-ps">95</span></div>
+                        <div class="stat">СИЛ <span id="d-si">80</span></div>
+                        <div class="stat">ВЫН <span id="d-end">88</span></div>
+                        <div class="stat">КАТ <span id="d-skate">90</span></div>
+                    </div>
+                </div>
+                <div class="info-table-right">
+                    <div class="info-number" id="d-number">#00</div>
+                    <div class="player-flag" id="d-flag">🏳️</div>
+                </div>
+            </div>
+            <div class="flip-hint">Нажми, чтобы перевернуть</div>
+        </div>
+
+    </div> <!-- Закрывается tilt-card -->
+</div> <!-- Закрывается tilt-container -->
             </div>
             <div class="flip-card-back" id="detailBack"></div>
         </div>
@@ -1876,6 +1935,37 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
         }
 
     function openDetailView(player) {
+
+    // --- ЛОГИКА 3D НАКЛОНА ---
+let handleOrientation = (event) => {
+    const card = document.querySelector('.tilt-card');
+    if (!card) return;
+    
+    let beta = event.beta || 0;   // Наклон вперед/назад
+    let gamma = event.gamma || 0; // Наклон влево/вправо
+    
+    // Ограничиваем углы (чтобы карточка не переворачивалась вверх ногами)
+    let tiltX = Math.max(-20, Math.min(20, (beta - 45) * 0.5)); 
+    let tiltY = Math.max(-20, Math.min(20, gamma * 0.5));
+    
+    card.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+    
+    // Сдвигаем блик в зависимости от наклона
+    const shine = card.querySelector('.shine');
+    if (shine) {
+        let shineX = 50 + (tiltY * 2);
+        let shineY = 50 - (tiltX * 2);
+        shine.style.backgroundPosition = `${shineX}% ${shineY}%`;
+    }
+};
+
+// Включаем гироскоп, если это Радулов (или другая редкая карточка)
+if (player.rarity_num >= 4) {
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', handleOrientation);
+    }
+}
+    
     currentViewPlayer = player;
     document.getElementById('d-name').innerText = player.name;
     document.getElementById('d-season').innerText = player.season;
@@ -1915,7 +2005,24 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
     // Вставляем картинки с проверкой
     document.getElementById('d-img').innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('d-clubLogo').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
-    
+
+    // --- ВКЛЮЧАЕМ 3D И ГОЛОГРАФИЮ ТОЛЬКО ДЛЯ РЕДКИХ ---
+const holoEffect = document.getElementById('holoEffect');
+const shineEffect = document.getElementById('shineEffect');
+const card3D = document.getElementById('3dCard');
+
+if (player.rarity_num >= 4) {
+    if (holoEffect) holoEffect.style.display = 'block';
+    if (shineEffect) shineEffect.style.display = 'block';
+} else {
+    // Если карточка обычная, прячем эффекты
+    if (holoEffect) holoEffect.style.display = 'none';
+    if (shineEffect) shineEffect.style.display = 'none';
+    // И сбрасываем наклон, если он был
+    if (card3D) card3D.style.transform = 'none';
+}
+// ---------------------------------------------------
+        
     // ... (дальше идет код с кнопкой продажи, который у тебя уже есть) ...
     const rarity = getRarityInfo(overall);
     const dRarityEl = document.getElementById('d-rarity');
