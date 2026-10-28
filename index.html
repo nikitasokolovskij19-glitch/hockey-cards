@@ -2023,14 +2023,9 @@ function handleOrientation(event) {
     document.getElementById('d-img').innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
     document.getElementById('d-clubLogo').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
 
-// Включаем эффекты для редких карточек
-const holoEffect = document.getElementById('holoEffect');
-const sparkleEffect = document.getElementById('sparkleEffect'); // Блёстки вместо блика
-const card3D = document.getElementById('3dCard');
-
 // Сбрасываем калибровку при открытии новой карточки
-initialBeta = null; 
-initialGamma = null; 
+initialBeta = null;
+initialGamma = null;
 currentTiltX = 0;
 currentTiltY = 0;
 isCentered = false;
