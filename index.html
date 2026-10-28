@@ -175,7 +175,7 @@
         
         .btn-nav { background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
 
-        <style>
+       <style>
     /* --- ГЛОБАЛЬНАЯ ЧЕРНО-СЕРАЯ ТЕМА --- */
     #shopView, #collectionView, #questsView, #packView, #profileView { 
     background: transparent !important; 
@@ -221,31 +221,11 @@
         color: #a1a1aa !important;
         border: 1px solid #3f3f46 !important;
     }
+ </style>
 </style>
-    
-    </style>
+</style>
 </head>
 <body>
-
-    <style>
-    /* Принудительно фиксируем нижнее меню */
-    div[style*="display: flex"][style*="justify-content: space-around"] {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        background: #0f172a !important;
-        z-index: 9999 !important;
-        padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
-        box-sizing: border-box !important;
-        border-top: 1px solid #1e293b !important;
-    }
-    
-    /* Добавляем отступ снизу для экранов, чтобы меню не перекрывало контент */
-    #shopView, #collectionView, #questsView, #profileView {
-        padding-bottom: 90px !important;
-    }
-    </style>
     
     <div id="globalHomeBtn" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10000; background: rgba(30, 41, 59, 0.8); border-radius: 50%; width: 45px; height: 45px; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onclick="goHome()">❌</div>
     <div id="globalBackBtn" style="display: none; position: fixed; top: 15px; left: 15px; z-index: 10000; background: rgba(30, 41, 59, 0.8); border-radius: 50%; width: 45px; height: 45px; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onclick="goBack()">↩️</div>
