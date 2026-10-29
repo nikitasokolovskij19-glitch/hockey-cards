@@ -3765,22 +3765,34 @@ const formatName = (p) => {
     }
 }
 
-    // Функция предзагрузки всех картинок
+    // Функция предзагрузки (Ленивая загрузка)
 function preloadGameAssets(playersData) {
     return new Promise((resolve) => {
-        const urls = new Set();
-        playersData.forEach(p => {
-            if (p.img) urls.add(p.img);
-            if (p.logo) urls.add(p.logo);
-        });
-        
-        const urlArray = Array.from(urls);
+        const urlsToLoad = new Set();
+
+        // 1. Добавляем ВСЕ логотипы клубов (они нужны для фона и таблиц)
+        if (typeof ALL_KHL_CLUBS !== 'undefined') {
+            ALL_KHL_CLUBS.forEach(club => {
+                if (club.logo) urlsToLoad.add(club.logo);
+            });
+        }
+
+        // 2. Добавляем карточки ТОЛЬКО из текущей коллекции игрока
+        if (typeof collection !== 'undefined' && collection.length > 0) {
+            collection.forEach(p => {
+                if (p.img) urlsToLoad.add(p.img);
+            });
+        }
+
+        // Превращаем в массив
+        const urlArray = Array.from(urlsToLoad);
         const total = urlArray.length;
         let loaded = 0;
-        
+
         const progressBar = document.getElementById('splashProgress');
         const progressText = document.getElementById('splashText');
-        
+
+        // Если нечего грузить (пустая коллекция) - сразу скрываем экран
         if (total === 0) return resolve();
 
         urlArray.forEach(url => {
@@ -3789,9 +3801,21 @@ function preloadGameAssets(playersData) {
                 loaded++;
                 const percent = Math.round((loaded / total) * 100);
                 if (progressBar) progressBar.style.width = percent + '%';
-                if (progressText) progressText.innerText = `Загрузка карточек... ${percent}%`;
+                if (progressText) progressText.innerText = `Загрузка альбома... ${percent}%`;
                 
-                if (loaded === total) resolve();
+                if (loaded === total) {
+                    // Когда основное загружено, запускаем ФОНОВУЮ загрузку остального
+                    setTimeout(() => {
+                        playersData.forEach(p => {
+                            if (p.img && !urlsToLoad.has(p.img)) {
+                                const bgImg = new Image();
+                                bgImg.src = p.img; // Браузер скачает и закэширует её
+                            }
+                        });
+                    }, 100);
+                    
+                    resolve();
+                }
             };
             img.src = url;
         });
