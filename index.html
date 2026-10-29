@@ -307,6 +307,21 @@
 </style>
 </head>
 <body>
+
+    <!-- ЭКРАН ЗАГРУЗКИ -->
+<div id="splashScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: radial-gradient(circle at center, #1e293b 0%, #09090b 100%); z-index: 9999999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: opacity 0.5s ease;">
+    
+    <h1 style="font-size: 28px; color: #fbbf24; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; text-shadow: 0 0 20px rgba(251, 191, 36, 0.5); animation: pulse 2s infinite;">
+        КХЛ Карточки
+    </h1>
+    
+    <!-- Полоса загрузки -->
+    <div style="width: 70%; max-width: 300px; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; position: relative;">
+        <div id="splashProgress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius: 4px; transition: width 0.2s ease;"></div>
+    </div>
+    
+    <div id="splashText" style="margin-top: 15px; font-size: 14px; color: #94a3b8; font-weight: bold;">Загрузка базы... 0%</div>
+</div>
     
     <div id="globalHomeBtn" style="display: none; position: fixed; top: 15px; right: 15px; z-index: 10000; background: rgba(30, 41, 59, 0.8); border-radius: 50%; width: 45px; height: 45px; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onclick="goHome()">❌</div>
     <div id="globalBackBtn" style="display: none; position: fixed; top: 15px; left: 15px; z-index: 10000; background: rgba(30, 41, 59, 0.8); border-radius: 50%; width: 45px; height: 45px; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.5);" onclick="goBack()">↩️</div>
@@ -3750,59 +3765,104 @@ const formatName = (p) => {
     }
 }
 
-                // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
-        fetch('players.json?time=' + new Date().getTime())
-            .then(response => {
-                if (!response.ok) throw new Error('Файл не найден');
-                return response.json();
-            })
-            .then(data => {
-    PLAYERS = data; 
-    
-    sanitizeUserData(); // <--- ДОБАВИТЬ ВОТ ЭТУ СТРОКУ
-    
-    updateUI(); 
-    updateProfile(); 
-                // --- ВОССТАНОВЛЕНИЕ ТУРНИРА ПРИ СТАРТЕ ---
-const savedTourney = localStorage.getItem('khl_active_tournament');
-if (savedTourney) {
-    try {
-        const t = JSON.parse(savedTourney);
-        // Если турнир еще не доигран, восстанавливаем данные
-        if (t.schedule && t.roundIndex < t.schedule.length) {
-            tournamentSchedule = t.schedule;
-            tournamentData = t.data;
-            tournamentPlayerStats = t.playerStats;
-            currentRoundIndex = t.roundIndex;
-            tournamentSquad = t.squad;
-            tournamentBench = t.bench;
-        } else {
-            localStorage.removeItem('khl_active_tournament'); // Очищаем, если турнир уже был завершен
-        }
-    } catch(e) { console.error("Ошибка загрузки турнира:", e); }
-}
-// ------------------------------------------
+    // Функция предзагрузки всех картинок
+function preloadGameAssets(playersData) {
+    return new Promise((resolve) => {
+        const urls = new Set();
+        playersData.forEach(p => {
+            if (p.img) urls.add(p.img);
+            if (p.logo) urls.add(p.logo);
+        });
+        
+        const urlArray = Array.from(urls);
+        const total = urlArray.length;
+        let loaded = 0;
+        
+        const progressBar = document.getElementById('splashProgress');
+        const progressText = document.getElementById('splashText');
+        
+        if (total === 0) return resolve();
+
+        urlArray.forEach(url => {
+            const img = new Image();
+            img.onload = img.onerror = () => {
+                loaded++;
+                const percent = Math.round((loaded / total) * 100);
+                if (progressBar) progressBar.style.width = percent + '%';
+                if (progressText) progressText.innerText = `Загрузка карточек... ${percent}%`;
                 
-                // Засчитываем вход
-addQuestProgress('play');
-
-const now = new Date();
-const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
-const todayStr = mskTime.toISOString().split('T')[0];
-
-if (!questsData.weekly.loginDays.includes(todayStr)) {
-    questsData.weekly.loginDays.push(todayStr);
-    if (questsData.weekly.loginDays.length > 3) {
-        questsData.weekly.loginDays.shift();
-    }
-    addQuestProgress('login3', 1);
+                if (loaded === total) resolve();
+            };
+            img.src = url;
+        });
+    });
 }
-localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
-            })
-            .catch(error => {
-                alert("Ошибка загрузки базы: " + error.message);
-                console.error(error);
-            });
+
+// --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА БАЗЫ ИГРОКОВ ---
+fetch('players.json?time=' + new Date().getTime())
+    .then(response => {
+        if (!response.ok) throw new Error('Файл не найден');
+        return response.json();
+    })
+    .then(data => {
+        PLAYERS = data;
+        
+        // Восстанавливаем данные пользователя и обновляем интерфейс
+        sanitizeUserData();
+        updateUI();
+        updateProfile();
+        
+        // Восстановление турнира при старте
+        const savedTourney = localStorage.getItem('khl_active_tournament');
+        if (savedTourney) {
+            try {
+                const t = JSON.parse(savedTourney);
+                if (t.schedule && t.roundIndex < t.schedule.length) {
+                    tournamentSchedule = t.schedule;
+                    tournamentData = t.data;
+                    tournamentPlayerStats = t.playerStats;
+                    currentRoundIndex = t.roundIndex;
+                    tournamentSquad = t.squad;
+                    tournamentBench = t.bench;
+                } else {
+                    localStorage.removeItem('khl_active_tournament');
+                }
+            } catch(e) { console.error("Ошибка загрузки турнира:", e); }
+        }
+
+        // Засчитываем вход и логин
+        addQuestProgress('play');
+        const now = new Date();
+        const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+        const todayStr = mskTime.toISOString().split('T')[0];
+
+        if (!questsData.weekly.loginDays.includes(todayStr)) {
+            questsData.weekly.loginDays.push(todayStr);
+            if (questsData.weekly.loginDays.length > 3) {
+                questsData.weekly.loginDays.shift();
+            }
+            addQuestProgress('login3', 1);
+        }
+        localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+
+        // ВОТ ЗДЕСЬ МЫ ЗАПУСКАЕМ ЗАГРУЗКУ КАРТИНОК И ЖДЕМ ЕЁ ОКОНЧАНИЯ
+        return preloadGameAssets(data);
+    })
+    .then(() => {
+        // ЭТОТ БЛОК СРАБОТАЕТ, КОГДА ВСЕ КАРТИНКИ ЗАГРУЗЯТСЯ
+        const splash = document.getElementById('splashScreen');
+        if (splash) {
+            splash.style.opacity = '0'; // Делаем прозрачным
+            setTimeout(() => {
+                splash.style.display = 'none'; // Полностью скрываем через 0.5 сек
+            }, 500);
+        }
+    })
+    .catch(error => {
+        alert("Ошибка загрузки базы: " + error.message);
+        console.error(error);
+    });
+    
  </script>
 </body>
 </html>
