@@ -835,9 +835,16 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
     window.onerror = function(message, source, lineno, colno, error) {
-        alert("ОШИБКА: " + message + "\nСтрока: " + lineno);
-        return false;
-    };
+    // Если ошибка "Script error." — это скрытая системная ошибка (обычно от Telegram SDK). Игнорируем её.
+    if (message === "Script error." || message.includes("Script error.")) {
+        console.warn("Перехвачена системная ошибка (проигнорирована):", message);
+        return true; 
+    }
+    
+    // Для всех остальных (реальных) ошибок — показываем окно
+    alert("ОШИБКА: " + message + "\nСтрока: " + lineno);
+    return false;
+};
 
     let PLAYERS = []; 
 
