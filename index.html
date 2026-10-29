@@ -2247,25 +2247,31 @@ if (badge && badgeLabel) {
     const sellPrice = overall * GAME_CONFIG.sellMultiplier;
     
     const inSquad = squad.some(s => s && s.name === player.name && s.season === player.season);
-    const totalCount = collection.filter(p => p.name === player.name && p.season === player.season).length;
+const totalCount = collection.filter(p => p.name === player.name && p.season === player.season).length;
 
-    if (inSquad && totalCount === 1) {
-        sellBtn.innerText = `Игрок в звене 🏒`;
-        sellBtn.style.background = '#475569';
-        sellBtn.style.cursor = 'not-allowed';
-        sellBtn.style.boxShadow = 'none';
-        sellBtn.onclick = () => alert('Этот игрок в звене. Уберите его, чтобы продать.');
-    } else {
-        sellBtn.innerText = `Продать (${sellPrice} 💵)`;
-        sellBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-        sellBtn.style.cursor = 'pointer';
-        sellBtn.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.4)';
-        sellBtn.onclick = () => {
-            const maxSellable = inSquad ? totalCount - 1 : totalCount;
-            if (maxSellable > 1) openSellModal(player, maxSellable, overall);
-            else executeSale(player, 1, overall);
-        };
-    }
+// Если карточка всего одна (неважно, в звене она или нет) - продавать нельзя
+if (totalCount === 1) {
+    sellBtn.innerText = 'Последняя карточка ❌';
+    sellBtn.style.background = '#475569';
+    sellBtn.style.cursor = 'not-allowed';
+    sellBtn.style.boxShadow = 'none';
+    sellBtn.onclick = () => showAlert('Нельзя продать последнюю карточку. Она должна оставаться в коллекции!');
+} else {
+    sellBtn.innerText = `Продать (${sellPrice} 💵)`;
+    sellBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+    sellBtn.style.cursor = 'pointer';
+    sellBtn.style.boxShadow = '0 4px 15px rgba(239, 68, 68, 0.4)';
+    sellBtn.onclick = () => {
+        // Всегда оставляем минимум 1 карточку
+        const maxSellable = totalCount - 1; 
+        
+        if (maxSellable > 1) {
+            openSellModal(player, maxSellable, overall);
+        } else {
+            executeSale(player, 1, overall);
+        }
+    };
+}
 
 // --- ЗАДНЯЯ СТОРОНА ---
 const backSide = document.getElementById('detailBack');
