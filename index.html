@@ -2589,23 +2589,24 @@ function canFormValidSquad(clubName) {
 }
 
 function handleTournamentBtnClick() {
-    // 1. ПРИНУДИТЕЛЬНО скрываем ВСЕ возможные экраны турнира
+    // 1. ПРИНУДИТЕЛЬНО скрываем ВСЕ экраны турнира, чтобы они не перекрывали друг друга
     document.getElementById('shopView').style.display = 'none';
     document.getElementById('tournamentRulesView').style.display = 'none';
     document.getElementById('tournamentSquadBuilder').style.display = 'none';
     document.getElementById('tournamentView').style.display = 'none';
 
-    // 2. Смотрим, есть ли активный турнир
-    if (tournamentSchedule && tournamentSchedule.length > 0 && currentRoundIndex < tournamentSchedule.length) {
+    // 2. Проверяем, есть ли активный турнир и целостность данных
+    if (tournamentSchedule && tournamentSchedule.length > 0 && currentRoundIndex < tournamentSchedule.length && tournamentSquad && tournamentSquad[0]) {
         // Если турнир идет, показываем таблицу
         document.getElementById('tournamentView').style.display = 'flex';
-        document.getElementById('globalHomeBtn').style.display = 'flex';
         prepareTournament();
     } else {
         // Если турнира нет, показываем правила
         document.getElementById('tournamentRulesView').style.display = 'flex';
-        document.getElementById('globalHomeBtn').style.display = 'flex';
     }
+    
+    // Показываем кнопку "Домой" в углу
+    document.getElementById('globalHomeBtn').style.display = 'flex';
     }
 
 // 2. Открытие сборщика
