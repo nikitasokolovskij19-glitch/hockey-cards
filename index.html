@@ -176,13 +176,13 @@ html, body {
 .slot-pos { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.3); position: absolute; top: 8px; }
 .slot-plus { width: 24px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: rgba(255,255,255,0.5); }
         
-.collection-grid { 
-    display: grid; 
-    grid-template-columns: repeat(4, 1fr); /* Меняем 3 на 4 */
-    gap: 6px; /* Уменьшаем отступ между карточками, чтобы они поместились */
-    width: 100%; 
-    padding: 5px; /* Немного уменьшаем отступы по краям */
-    box-sizing: border-box; 
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px; /* Уменьшаем расстояние между карточками */
+    width: 100%;
+    padding: 0 4px; /* Убираем отступы сверху/снизу, оставляем по 4px по бокам */
+    box-sizing: border-box;
 }
         
         .mini-card-wrapper { 
@@ -1644,27 +1644,37 @@ function generatePlayerMiniCardHTML(player, showCount) {
     const logoUrl = player.logo ? player.logo : '';
 
     return `
-        <div style="position: relative; width: 100%; height: 100%;">
-            <img src="${imgUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; z-index: 1;" onerror="this.style.display='none';">
-            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 65%; background: linear-gradient(to top, #0f172a 40%, transparent); z-index: 2;"></div>
-            <div style="position: absolute; top: 0; left: 0; background: rgba(15,23,42,0.85); color: ${rarityColor}; font-weight: 800; font-size: 14px; padding: 3px 6px; border-bottom-right-radius: 8px; z-index: 3; border-right: 1px solid ${rarityColor}; border-bottom: 1px solid ${rarityColor};">
-                ${overall}
+    <div style="position: relative; width: 100%; height: 100%;">
+        <img src="${imgUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; z-index: 1;" onerror="this.style.display='none'">
+        
+        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 65%; background: linear-gradient(to top, #0f172a 40%, transparent); z-index: 2;"></div>
+        
+        <!-- УМЕНЬШЕННАЯ ПЛАШКА OVR -->
+        <div style="position: absolute; top: 0; left: 0; background: rgba(15,23,42,0.85); color: ${rarityColor}; font-weight: 800; font-size: 11px; padding: 2px 5px; border-bottom-right-radius: 6px; z-index: 3; border-right: 1px solid ${rarityColor}; border-bottom: 1px solid ${rarityColor};">
+            ${overall}
+        </div>
+        
+        <!-- УМЕНЬШЕННЫЙ ЛОГОТИП КЛУБА -->
+        <div style="position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); overflow: hidden;">
+            <img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 1px;" onerror="this.style.display='none';">
+        </div>
+        
+        <div style="position: absolute; bottom: 4px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 3; padding: 0 2px; box-sizing: border-box;">
+            
+            <!-- УМЕНЬШЕННОЕ ИМЯ ИГРОКА -->
+            <div style="font-size: 8px; font-weight: 800; text-transform: uppercase; width: 100%; text-align: center; color: #fff; text-shadow: 1px 1px 2px black; line-height: 1.1; white-space: normal; word-break: break-word; margin-bottom: 2px;">
+                ${player.name}
             </div>
-            <div style="position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; background: #ffffff; border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.5); overflow: hidden;">
-                <img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px; background: #fff; border-radius: 50%;" onerror="this.style.display='none';">
-            </div>
-            <div style="position: absolute; bottom: 5px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 3; padding: 0 4px; box-sizing: border-box;">
-                <div style="font-size: 9px; font-weight: 800; text-transform: uppercase; width: 100%; text-align: center; text-shadow: 1px 1px 2px black; line-height: 1.1; white-space: normal; word-break: break-word; margin-bottom: 2px;">
-                    ${player.name}
-                </div>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 10px; color: #cbd5e1; font-weight: 700;">
-                    <span>${player.flag || '🏳️'}</span>
-                    <span>${player.number || ''}</span>
-                    ${showCount && player.count > 1 ? `<span style="background:#e11d48; color:white; border-radius:4px; padding:0 4px; font-size:9px;">x${player.count}</span>` : ''}
-                </div>
+            
+            <!-- Нижняя строка (флаг, номер, количество) -->
+            <div style="display: flex; align-items: center; justify-content: center; gap: 3px; font-size: 8px; color: #cbd5e1; font-weight: 700;">
+                <span>${player.flag || '🏳️'}</span>
+                <span>${player.number || ''}</span>
+                ${showCount && player.count > 1 ? `<span style="background:#e11d48; color:white; border-radius: 3px; padding: 0 3px; font-size: 8px;">x${player.count}</span>` : ''}
             </div>
         </div>
-    `;
+    </div>
+`;
     }
 
 function renderSquad() {
