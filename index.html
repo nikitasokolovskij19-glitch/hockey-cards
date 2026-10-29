@@ -493,15 +493,18 @@ html, body {
         </div>
     </div>
 
-    <div style="display: flex; gap: 10px; width: 100%; margin-top: 15px;">
-    <!-- Кнопка СБРОСА теперь слева -->
-    <button onclick="resetGameProgress()" style="flex: 1; padding: 12px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">
-        🗑️ Сбросить
+    <div style="display: flex; gap: 10px; width: 90%; max-width: 340px; margin: 20px auto 10px auto; align-items: center; justify-content: center;">
+    
+    <!-- Маленькая квадратная кнопка СБРОСА -->
+    <button onclick="resetGameProgress()" title="Сбросить прогресс" style="width: 48px; height: 48px; flex-shrink: 0; padding: 0; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; border-radius: 8px; font-size: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; box-sizing: border-box;">
+        🗑️
     </button>
-    <!-- Кнопка ЗАКРЫТЬ теперь справа -->
-    <button onclick="document.getElementById('profileView').style.display='none'" style="flex: 1; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid #475569; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">
+    
+    <!-- Широкая кнопка ЗАКРЫТЬ -->
+    <button onclick="document.getElementById('profileView').style.display='none'" style="flex: 1; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid #475569; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; box-sizing: border-box;">
         Закрыть
     </button>
+    
     </div>
 </div>
 
