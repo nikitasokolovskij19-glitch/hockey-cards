@@ -840,6 +840,21 @@
     };
 
     let PLAYERS = []; 
+
+       // ПЕРЕХВАТ СТАНДАРТНОГО ALERT
+window.alert = function(message) {
+    const alertBox = document.getElementById('customAlert');
+    const alertText = document.getElementById('customAlertText');
+    
+    if (alertBox && alertText) {
+        alertText.innerText = message;
+        alertBox.style.display = 'flex';
+    } else {
+        // Если наше окно вдруг не загрузилось, показываем стандартное
+        console.log("ALERT: " + message);
+    }
+};
+    
     let currentSortMode = 'rating'; 
 
     const GAME_CONFIG = {
@@ -1699,8 +1714,21 @@ function renderPackButtons() {
     });
 }
 
+    // Функция для показа красивого окна
+function showAlert(message) {
+    const alertBox = document.getElementById('customAlert');
+    const alertText = document.getElementById('customAlertText');
+    if (alertBox && alertText) {
+        alertText.innerText = message;
+        alertBox.style.display = 'flex';
+    } else {
+        // Если окно не найдено, показываем стандартное (на всякий случай)
+        window.alert(message); 
+    }
+}
+
 function buyPack(season, price) {
-    if (userCoins < price) { alert(`У тебя не хватает ${GAME_CONFIG.currencyName}!`); return; }
+if (userCoins < price) { showAlert('У тебя не хватает долларов!'); return; }
     
     const roll = Math.random() * 100; 
 let targetRarityNum = 1;
@@ -3924,5 +3952,15 @@ function refreshUserData() {
     });
     
  </script>
+
+<!-- КРАСИВОЕ ОКНО УВЕДОМЛЕНИЙ -->
+<div id="customAlert" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 9999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);">
+    <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #fbbf24; border-radius: 16px; padding: 25px 20px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h3 style="margin-top: 0; color: #fbbf24; font-size: 20px; margin-bottom: 15px;">Уведомление</h3>
+        <p id="customAlertText" style="color: #cbd5e1; font-size: 15px; margin-bottom: 25px; line-height: 1.4;">Текст уведомления</p>
+        <button onclick="document.getElementById('customAlert').style.display='none'" style="width: 100%; padding: 14px; background: #fbbf24; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;">ОК</button>
+    </div>
+</div>
+    
 </body>
 </html>
