@@ -357,6 +357,22 @@ html, body {
     z-index: 9999999 !important; /* Поверх всего */
     /* display: flex; мы не ставим, чтобы JS мог его скрывать */
 }
+
+        /* Жесткий фикс для содержимого турнира */
+#tournamentView {
+    display: flex !important;
+    flex-direction: column !important;
+    z-index: 9999999 !important;
+}
+#tournamentMainContainer {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+#tournamentTabs, #tournamentStatus {
+    display: flex !important;
+    opacity: 1 !important;
+}
         
 </style>
 </head>
