@@ -2589,19 +2589,24 @@ function canFormValidSquad(clubName) {
 }
 
 function handleTournamentBtnClick() {
-    // Если турнир уже идет, открываем таблицу
+    // 1. ПРИНУДИТЕЛЬНО скрываем ВСЕ возможные экраны турнира
+    document.getElementById('shopView').style.display = 'none';
+    document.getElementById('tournamentRulesView').style.display = 'none';
+    document.getElementById('tournamentSquadBuilder').style.display = 'none';
+    document.getElementById('tournamentView').style.display = 'none';
+
+    // 2. Смотрим, есть ли активный турнир
     if (tournamentSchedule && tournamentSchedule.length > 0 && currentRoundIndex < tournamentSchedule.length) {
-        document.getElementById('tournamentSquadBuilder').style.display = 'none';
+        // Если турнир идет, показываем таблицу
         document.getElementById('tournamentView').style.display = 'flex';
         document.getElementById('globalHomeBtn').style.display = 'flex';
         prepareTournament();
     } else {
-        // Если турнира нет, открываем правила
-        document.getElementById('shopView').style.display = 'none';
+        // Если турнира нет, показываем правила
         document.getElementById('tournamentRulesView').style.display = 'flex';
         document.getElementById('globalHomeBtn').style.display = 'flex';
     }
-}
+    }
 
 // 2. Открытие сборщика
 function openTournamentSquadBuilder() {
