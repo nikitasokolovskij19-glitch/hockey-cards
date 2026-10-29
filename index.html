@@ -317,52 +317,6 @@ html, body {
 #d-img { transition: transform 0.1s ease-out; }
 .card-info { transition: transform 0.1s ease-out; }
 .card .shine { opacity: 1; }
-
-/* Эффект для верхней кнопки Турнира */
-#tournamentBtn {
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-#tournamentBtn:active {
-    transform: scale(0.96); /* Кнопка чуть уменьшается при нажатии */
-    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.6);
-}
-
-/* ФИКС ВЫСОТЫ, чтобы карточки не сжимались в полоски */
-#squadSelectList .mini-card-wrapper, 
-#tournamentSelectList .mini-card-wrapper {
-    height: 115px !important;
-    aspect-ratio: auto !important;
-}
-
-        
-        /* Жесткий фикс для экрана правил */
-#tournamentRulesView {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: rgba(15, 23, 42, 0.95) !important; /* Темный фон */
-    z-index: 9999999 !important; /* Поверх всего */
-    /* display: flex; мы не ставим, чтобы JS мог его скрывать */
-}
-
-        /* Жесткий фикс для содержимого турнира */
-#tournamentView {
-    display: flex !important;
-    flex-direction: column !important;
-    z-index: 9999999 !important;
-}
-#tournamentMainContainer {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-#tournamentTabs, #tournamentStatus {
-    display: flex !important;
-    opacity: 1 !important;
-}
         
 </style>
 </head>
