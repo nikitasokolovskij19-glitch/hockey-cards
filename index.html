@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+2<!DOCTYPE html>
 <html lang="ru">
 <head>
 
@@ -317,6 +317,29 @@ html, body {
 #d-img { transition: transform 0.1s ease-out; }
 .card-info { transition: transform 0.1s ease-out; }
 .card .shine { opacity: 1; }
+
+        /* Фикс для 4 колонок и высоты карточек в экранах замены */
+#squadSelectList, #tournamentSelectList {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+    padding: 0 4px !important;
+    align-content: start !important;
+    top: 95px !important; /* Опускаем сетку чуть ниже, чтобы она не наезжала на заголовок */
+    bottom: 20px !important;
+    left: 0 !important;
+    right: 0 !important;
+    position: absolute !important;
+    overflow-y: auto !important;
+}
+
+/* Принудительно задаем высоту карточкам, чтобы они не сжимались */
+#squadSelectList .mini-card-wrapper, 
+#tournamentSelectList .mini-card-wrapper {
+    height: 115px !important;
+    aspect-ratio: auto !important;
+    width: 100% !important;
+}
         
 </style>
 </head>
