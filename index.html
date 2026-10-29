@@ -2243,14 +2243,14 @@ if (badge && badgeLabel) {
     dRarityEl.style.borderColor = rarity.color;
     dRarityEl.style.display = 'block';
 
-    const sellBtn = document.getElementById('detailSellBtn');
-    const sellPrice = overall * GAME_CONFIG.sellMultiplier;
-    
-    const inSquad = squad.some(s => s && s.name === player.name && s.season === player.season);
+const sellBtn = document.getElementById('detailSellBtn');
+const sellPrice = overall * GAME_CONFIG.sellMultiplier;
+
+const inSquad = squad.some(s => s && s.name === player.name && s.season === player.season);
 const totalCount = collection.filter(p => p.name === player.name && p.season === player.season).length;
 
+// Если игрок в звене и это его единственная копия — продавать нельзя
 if (inSquad && totalCount === 1) {
-    // Если игрок в звене и это его единственная копия — продавать нельзя
     sellBtn.innerText = 'Игрок в звене ❌';
     sellBtn.style.background = '#475569';
     sellBtn.style.cursor = 'not-allowed';
@@ -2272,7 +2272,7 @@ if (inSquad && totalCount === 1) {
         }
     };
 }
-
+        
 // --- ЗАДНЯЯ СТОРОНА ---
 const backSide = document.getElementById('detailBack');
 
