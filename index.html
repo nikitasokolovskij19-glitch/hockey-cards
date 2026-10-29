@@ -3831,6 +3831,41 @@ fetch('players.json?time=' + new Date().getTime())
     })
     .then(data => {
         PLAYERS = data;
+
+        // Функция для авто-обновления карточек в коллекции и звене
+function refreshUserData() {
+    if (!PLAYERS || PLAYERS.length === 0) return;
+
+    // 1. Обновляем коллекцию
+    let coll = JSON.parse(localStorage.getItem('khl_collection')) || [];
+    coll = coll.map(oldPlayer => {
+        // Ищем этого же игрока в свежей базе
+        const freshPlayer = PLAYERS.find(p => p.name === oldPlayer.name && p.season === oldPlayer.season);
+        if (freshPlayer) {
+            return freshPlayer; // Заменяем на свежие данные (новые ссылки на фото)
+        }
+        return oldPlayer; // Если игрока удалили из базы, оставляем как есть
+    });
+    localStorage.setItem('khl_collection', JSON.stringify(coll));
+
+    // 2. Обновляем текущее звено
+    let sq = JSON.parse(localStorage.getItem('khl_squad')) || [null, null, null, null, null, null];
+    sq = sq.map(oldPlayer => {
+        if (!oldPlayer) return null;
+        const freshPlayer = PLAYERS.find(p => p.name === oldPlayer.name && p.season === oldPlayer.season);
+        return freshPlayer ? freshPlayer : oldPlayer;
+    });
+    localStorage.setItem('khl_squad', JSON.stringify(sq));
+
+    // 3. Обновляем состав турнира (если он активен)
+    if (typeof tournamentSquad !== 'undefined' && tournamentSquad) {
+        tournamentSquad = tournamentSquad.map(oldPlayer => {
+            if (!oldPlayer) return null;
+            const freshPlayer = PLAYERS.find(p => p.name === oldPlayer.name && p.season === oldPlayer.season);
+            return freshPlayer ? freshPlayer : oldPlayer;
+        });
+    }
+}
         
         // Восстанавливаем данные пользователя и обновляем интерфейс
         sanitizeUserData();
