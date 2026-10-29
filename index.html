@@ -3505,22 +3505,37 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
     list.innerHTML = html;
     }
 
+    // Словарь сокращений для таблицы
+const teamShortNames = {
+    "Авангард": "АВА", "Автомобилист": "АВТ", "Адмирал": "АДМ", "Ак Барс": "АКБ",
+    "Амур": "АМУР", "Атлант": "АТЛ", "Барыс": "БАР", "Витязь": "ВИТ",
+    "Динамо Минск": "ДМН", "Динамо Москва": "ДИН", "Динамо Рига": "ДРГ",
+    "Донбасс": "ДОН", "Йокерит": "ЙОК", "Слован": "СЛВ", "Сочи": "СОЧ",
+    "Лев": "ЛЕВ", "Металлург Мг": "ММГ", "Металлург Нк": "МНК", "ЦСКА": "ЦСКА",
+    "СКА": "СКА", "Сибирь": "СИБ", "Северсталь": "СЕВ", "Спартак": "СПА",
+    "Трактор": "ТРА", "Лада": "ЛАД", "Локомотив": "ЛОК", "Медвешчак": "МЕД",
+    "Нефтехимик": "НЕФ", "Салават Юлаев": "СЮ", "Торпедо": "ТОР", "Югра": "ЮГР"
+};
+
 function renderTournamentTable(playerTeam) {
     const tableContainer = document.getElementById('tournamentTableContainer');
     
-    let html = `<table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #cbd5e1; table-layout: fixed;">
-        <thead>
-            <tr style="border-bottom: 2px solid #334155; color: #94a3b8; font-size: 10px; text-transform: uppercase;">
-                <th style="padding: 8px 2px; text-align: center; width: 12%;">#</th>
-                <th style="padding: 8px 2px; text-align: left; width: 36%;">Клуб</th>
-                <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Победы">В</th>
-                <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Поражения">П</th>
-                <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Голы забитые">ГЗ</th>
-                <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Голы пропущенные">ГП</th>
-                <th style="padding: 8px 2px; text-align: center; width: 12%;" title="Очки">О</th>
-            </tr>
-        </thead>
-        <tbody>`;
+    let html = `
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #cbd5e1; table-layout: fixed;">
+            <thead>
+                <tr style="border-bottom: 2px solid #334155; color: #94a3b8; font-size: 10px; text-transform: uppercase;">
+                    <th style="padding: 8px 2px; text-align: center; width: 8%;">#</th>
+                    <th style="padding: 8px 2px; text-align: left; width: 34%;">Клуб</th>
+                    <th style="padding: 8px 2px; text-align: center; width: 8%;" title="Сыгранные матчи">М</th>
+                    <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Победы">В</th>
+                    <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Поражения">П</th>
+                    <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Голы забитые">ГЗ</th>
+                    <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Голы пропущенные">ГП</th>
+                    <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Очки">О</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
 
     tournamentData.forEach((row, index) => {
         const isPlayer = row.team === playerTeam;
@@ -3528,27 +3543,31 @@ function renderTournamentTable(playerTeam) {
         const color = isPlayer ? '#3b82f6' : 'white';
         const fontWeight = isPlayer ? 'bold' : 'normal';
         
-        let medal = '';
-        if (index === 0) medal = '🥇 ';
-        else if (index === 1) medal = '🥈 ';
-        else if (index === 2) medal = '🥉 ';
+        // Берем сокращение из словаря, если нет — первые 3 буквы
+        const shortName = teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase();
 
-        html += `<tr style="background: ${bg}; border-bottom: 1px solid #1e293b;">
-            <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
-            
-            <td style="padding: 8px 2px;">
-    <div style="display: flex; align-items: center; gap: 6px;">
-        <img src="${row.logo}" style="width: 24px; height: 24px; min-width: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #334155;">
-        <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${row.team}</span>
-    </div>
-</td>
-            
-            <td style="padding: 8px 2px; text-align: center; color: #10b981; font-weight: bold;">${row.wins}</td>
-            <td style="padding: 8px 2px; text-align: center; color: #ef4444;">${row.losses}</td>
-            <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsFor}</td>
-            <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsAgainst}</td>
-            <td style="padding: 8px 2px; text-align: center; font-weight: bold; color: #fbbf24; font-size: 15px;">${row.points}</td>
-        </tr>`;
+        let medal = '';
+        if (index === 0) medal = '🥇';
+        else if (index === 1) medal = '🥈';
+        else if (index === 2) medal = '🥉';
+
+        html += `
+            <tr style="background: ${bg}; border-bottom: 1px solid #1e293b;">
+                <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
+                <td style="padding: 8px 2px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #334155; background: #1e293b;">
+                        <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal} ${shortName}</span>
+                    </div>
+                </td>
+                <td style="padding: 8px 2px; text-align: center; color: #94a3b8;">${row.games || 0}</td>
+                <td style="padding: 8px 2px; text-align: center; color: #10b981; font-weight: bold;">${row.wins}</td>
+                <td style="padding: 8px 2px; text-align: center; color: #ef4444;">${row.losses}</td>
+                <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsFor}</td>
+                <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsAgainst}</td>
+                <td style="padding: 8px 2px; text-align: center; font-weight: bold; color: #fbbf24; font-size: 14px;">${row.points}</td>
+            </tr>
+        `;
     });
 
     html += `</tbody></table>`;
