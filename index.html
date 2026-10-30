@@ -4027,26 +4027,33 @@ function switchTournamentTab(tab) {
     const statsBtn = document.getElementById('tabTournamentStats');
     const calBtn = document.getElementById('tabTournamentCalendar');
 
-    [standBtn, statsBtn, calBtn].forEach(btn => {
-    if(btn) {
-        btn.style.background = '#18181b'; // Темно-серый
-        btn.style.color = '#a1a1aa'; // Серый текст
-        btn.style.border = '1px solid #27272a';
-    }
-});
+    // 1. ПРИНУДИТЕЛЬНО скрываем все три раздела
+    if(standView) standView.style.display = 'none';
+    if(statsView) statsView.style.display = 'none';
+    if(calView) calView.style.display = 'none';
 
-if (tab === 'standings') {
-    if(standView) standView.style.display = 'block';
-    if(standBtn) { standBtn.style.background = '#e4e4e7'; standBtn.style.color = '#09090b'; }
-} else if (tab === 'stats') {
-    if(statsView) statsView.style.display = 'block';
-    if(statsBtn) { statsBtn.style.background = '#e4e4e7'; statsBtn.style.color = '#09090b'; }
-    renderTournamentStats();
-} else if (tab === 'calendar') {
-    if(calView) calView.style.display = 'block';
-    if(calBtn) { calBtn.style.background = '#e4e4e7'; calBtn.style.color = '#09090b'; }
-    renderTournamentCalendar();
-}
+    // 2. Сбрасываем стили у всех кнопок (делаем их темно-серыми)
+    [standBtn, statsBtn, calBtn].forEach(btn => {
+        if(btn) {
+            btn.style.background = '#18181b';
+            btn.style.color = '#a1a1aa';
+            btn.style.border = '1px solid #27272a';
+        }
+    });
+
+    // 3. Показываем нужный раздел и красим его кнопку в белый
+    if (tab === 'standings') {
+        if(standView) standView.style.display = 'block';
+        if(standBtn) { standBtn.style.background = '#e4e4e7'; standBtn.style.color = '#09090b'; standBtn.style.border = '1px solid #e4e4e7'; }
+    } else if (tab === 'stats') {
+        if(statsView) statsView.style.display = 'block';
+        if(statsBtn) { statsBtn.style.background = '#e4e4e7'; statsBtn.style.color = '#09090b'; statsBtn.style.border = '1px solid #e4e4e7'; }
+        renderTournamentStats();
+    } else if (tab === 'calendar') {
+        if(calView) calView.style.display = 'block';
+        if(calBtn) { calBtn.style.background = '#e4e4e7'; calBtn.style.color = '#09090b'; calBtn.style.border = '1px solid #e4e4e7'; }
+        renderTournamentCalendar();
+    }
 }
 
     // --- ТУРНИР: СТАТИСТИКА ИГРОКОВ ---
