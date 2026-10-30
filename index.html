@@ -913,7 +913,7 @@ button[onclick="closeDayResults()"] {
 </div>
 
 <!-- МОДАЛКА ВЫБОРА ИГРОКА В ТУРНИР -->
-<div id="tournamentSelectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 10000; flex-direction: column; align-items: center; justify-content: center;">
+<div id="tournamentSelectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0, 0, 0, 0.9); z-index: 9999999 !important; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
     
     <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #3b82f6; border-radius: 24px; padding: 15px; width: 95%; max-width: 400px; height: 90vh; display: flex; flex-direction: column; box-sizing: border-box;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; width: 100%; padding: 0 5px;">
@@ -923,8 +923,8 @@ button[onclick="closeDayResults()"] {
         <!-- Список игроков -->
         <div id="tournamentSelectList" style="flex: 1; overflow-y: auto; padding: 0 4px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; align-content: start;">
     
-        <button onclick="document.getElementById('tournamentSelectModal').style.display='none';" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px;">Отмена</button>
-    </div>
+            <button onclick="document.getElementById('tournamentSelectModal').style.display='none'; document.getElementById('tournamentSquadBuilder').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="width: 100%; padding: 14px; background: rgba(51, 65, 85, 0.8); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer;">Назад</button>
+        </div>
 </div>
 </div>
 
@@ -3063,10 +3063,19 @@ if (startBtn) {
             cardWrapper.innerHTML = generatePlayerMiniCardHTML(p, true);
             
             cardWrapper.onclick = () => {
-                tournamentSquad[currentSelectSlotIndex] = p;
-                document.getElementById('tournamentSelectModal').style.display = 'none';
-                renderTournamentSquadSlots();
-            };
+    // 1. Записываем игрока в слот
+    tournamentSquad[slotIndex] = player;
+    
+    // 2. Закрываем окно выбора
+    document.getElementById('tournamentSelectModal').style.display = 'none';
+    
+    // 3. Обновляем слоты в сборке
+    renderTournamentSquadSlots();
+    
+    // 4. Убеждаемся, что мы остаемся в сборке турнира, а не на главном экране
+    document.getElementById('tournamentSquadBuilder').style.display = 'flex';
+    document.getElementById('shopView').style.display = 'none';
+};
             list.appendChild(cardWrapper);
         });
     }
