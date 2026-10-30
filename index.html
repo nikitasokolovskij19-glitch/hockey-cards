@@ -937,13 +937,28 @@ window.alert = function(message) {
     let currentSortMode = 'rating'; 
 
     const GAME_CONFIG = {
-        currency: '💵', currencyName: 'долларов', packPrice: 50, bonusAmount: 50, sellMultiplier: 2
-    };
+    currency: '💵', 
+    currencyName: 'долларов', 
+    packPrice: 250, 
+    startCoins: 2500,
+    sellPrices: {
+        1: 50,   // Обычная
+        2: 100,  // Редкая
+        3: 300,  // Супер редкая
+        4: 1200, // Легендарная
+        5: 5000  // Эпическая
+    },
+    tournamentRewards: {
+        1: 5000,
+        2: 2500,
+        3: 1000
+    }
+};
 
     let tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
 
-    let userCoins = parseInt(localStorage.getItem('khl_coins')) || 100;
+    let userCoins = parseInt(localStorage.getItem('khl_coins')) || GAME_CONFIG.startCoins;
     let userExp = parseInt(localStorage.getItem('khl_exp')) || 0;
     let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
     let squad = JSON.parse(localStorage.getItem('khl_squad')) || [null, null, null, null, null, null];
@@ -1563,19 +1578,20 @@ function renderQuests() {
     list.innerHTML = '';
 
     const dailyQuests = [
-        { id: 'play', title: 'Зайти в игру', target: 1 },
-        { id: 'open1', title: 'Открыть 1 пак', target: 1 },
-        { id: 'sell1', title: 'Продать 1 карточку', target: 1 },
-        { id: 'squad', title: 'Изменить звено', target: 1 },
-        { id: 'open3', title: 'Открыть 3 пака', target: 3 }
-    ];
+    { id: 'play', title: 'Зайти в игру', target: 1, reward: 50 },
+    { id: 'open1', title: 'Открыть 1 пак', target: 1, reward: 100 },
+    { id: 'sell1', title: 'Продать 1 карточку', target: 1, reward: 50 },
+    { id: 'squad', title: 'Собрать звено', target: 1, reward: 150 },
+    { id: 'open3', title: 'Открыть 3 пака', target: 3, reward: 200 }
+];
     const weeklyQuests = [
-        { id: 'open10', title: 'Открыть 10 паков', target: 10 },
-        { id: 'sell5', title: 'Продать 5 карточек', target: 5 },
-        { id: 'fullSquad', title: 'Собрать 6 слотов', target: 6 },
-        { id: 'epicDrop', title: 'Выбить 80+ OVR', target: 1 },
-        { id: 'login3', title: 'Зайти 3 дня подряд', target: 3 }
-    ];
+    { id: 'login3', title: 'Заходить 3 дня подряд', target: 3, reward: 300 },
+    { id: 'open10', title: 'Открыть 10 паков', target: 10, reward: 500 },
+    { id: 'sell5', title: 'Продать 5 карточек', target: 5, reward: 200 },
+    { id: 'fullSquad', title: 'Собрать звено из одноклубников', target: 1, reward: 500 },
+    { id: 'legendDrop', title: 'Выбить Легендарную (80+)', target: 1, reward: 800 },
+    { id: 'epicDrop', title: 'Выбить Эпическую (90+)', target: 1, reward: 1500 }
+];
 
     const currentList = currentQuestTab === 'daily' ? dailyQuests : weeklyQuests;
     const currentData = currentQuestTab === 'daily' ? questsData.daily : questsData.weekly;
@@ -1595,7 +1611,7 @@ function renderQuests() {
         let rightSide = '';
         if (isClaimed) rightSide = `<div style="font-size: 20px;">✅</div>`;
         else if (isDone) {
-            const rewardAmt = currentQuestTab === 'daily' ? 50 : 150;
+const rewardAmt = q.reward || 50;
             rightSide = `<button onclick="claimSmallReward('${q.id}', ${rewardAmt})" style="background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Забрать ${rewardAmt} 💵</button>`;
         } else rightSide = `<div style="font-size: 20px;">⏳</div>`;
 
@@ -1608,7 +1624,7 @@ function renderQuests() {
     
     if (mainClaimed) rewardBtn.innerText = '🎁 ГЛАВНАЯ НАГРАДА ПОЛУЧЕНА';
     else if (allCompleted) {
-        rewardBtn.innerText = currentQuestTab === 'daily' ? '🎁 Забрать 300 💵' : '🏆 Забрать 1000 💵 + Карту';
+rewardBtn.innerText = currentQuestTab === 'daily' ? `🎁 Забрать 400 💵` : `🏆 Забрать 2000 💵`;
         rewardBtn.onclick = claimMainQuestReward;
     } else rewardBtn.innerText = '🔒 Выполните все квесты';
 
@@ -2000,7 +2016,8 @@ document.getElementById('globalBackBtn').style.display = 'none';
     // --- ПРОГРЕСС КВЕСТОВ ПРИ ОТКРЫТИИ ПАКА ---
     addQuestProgress('open1');
     addQuestProgress('open3');
-    if (overall >= 80) addQuestProgress('epicDrop');
+if (overall >= 80 && overall < 90) addQuestProgress('legendDrop');
+if (overall >= 90) addQuestProgress('epicDrop');
     
     addExp(25);
 }
@@ -2320,7 +2337,7 @@ if (badge && badgeLabel) {
     dRarityEl.style.display = 'block';
 
 const sellBtn = document.getElementById('detailSellBtn');
-const sellPrice = overall * GAME_CONFIG.sellMultiplier;
+const sellPrice = GAME_CONFIG.sellPrices[rarity.num] || 50;
 
 const inSquad = squad.some(s => s && s.name === player.name && s.season === player.season);
 const totalCount = collection.filter(p => p.name === player.name && p.season === player.season).length;
@@ -2466,10 +2483,13 @@ document.getElementById('closeDetailBtn').onclick = function() {
         // --- ПРОДАЖА ---
         let currentSellPlayer = null;
         let currentSellPrice = 0;
+        let currentSellOverall = 0;
 
         function openSellModal(player, maxSellable, overall) {
             currentSellPlayer = player;
-            currentSellPrice = overall * GAME_CONFIG.sellMultiplier;
+currentSellOverall = overall;
+const rarityInfo = getRarityInfo(overall);
+currentSellPrice = GAME_CONFIG.sellPrices[rarityInfo.num] || 50;
             document.getElementById('sellModalPlayerName').innerText = player.name;
             const slider = document.getElementById('sellSlider');
             slider.max = maxSellable;
@@ -2487,7 +2507,7 @@ document.getElementById('closeDetailBtn').onclick = function() {
 
         function confirmSale() {
             const count = parseInt(document.getElementById('sellSlider').value);
-            const overall = currentSellPrice / GAME_CONFIG.sellMultiplier;
+            const overall = currentSellOverall;
             executeSale(currentSellPlayer, count, overall);
             document.getElementById('sellModalView').style.display = 'none';
         }
@@ -2500,7 +2520,9 @@ document.getElementById('closeDetailBtn').onclick = function() {
                 } else { break; }
             }
             
-            const totalPrice = countToSell * (overall * GAME_CONFIG.sellMultiplier);
+const rarityInfo = getRarityInfo(overall);
+const singlePrice = GAME_CONFIG.sellPrices[rarityInfo.num] || 50;
+const totalPrice = countToSell * singlePrice;
             userCoins += totalPrice;
             
             localStorage.setItem('khl_collection', JSON.stringify(collection));
@@ -2679,7 +2701,8 @@ function openTournamentSquadBuilder() {
 
     const startBtn = document.getElementById('startTournamentBtn');
 if (startBtn) {
-    startBtn.innerText = '▶ НАЧАТЬ ТУРНИР';
+    const entryFee = getTournamentEntryFee();
+    startBtn.innerText = `▶ НАЧАТЬ ТУРНИР (${entryFee} 💵)`;
     startBtn.style.backgroundColor = '#10b981'; // Зеленый
     startBtn.onclick = startTournament;
 }
