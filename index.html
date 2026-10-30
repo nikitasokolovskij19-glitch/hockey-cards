@@ -1852,26 +1852,49 @@ function showAlert(message) {
 }
 
 function buyPack(season, price) {
-if (userCoins < price) { showAlert('У тебя не хватает долларов!'); return; }
+    if (userCoins < price) { showAlert('У тебя не хватает долларов!'); return; }
+
+    // 1. Собираем всех доступных игроков выбранного сезона
+    let availablePlayers = PLAYERS.filter(p => p.season === season);
     
-    const roll = Math.random() * 100; 
-let targetRarityNum = 1;
+    if (availablePlayers.length === 0) { 
+        showAlert("В этом сезоне пока нет игроков!"); 
+        return; 
+    }
 
-if (roll > 99.5) targetRarityNum = 5;       // 0.5% Эпическая
-else if (roll > 97) targetRarityNum = 4;    // 2.5% Легендарная
-else if (roll > 89) targetRarityNum = 3;    // 8% Супер редкая
-else if (roll > 70) targetRarityNum = 2;    // 19% Редкая
-// Остальные 70% (от 0 до 70) — Обычная
+    // 2. ЗАДАЕМ ВЕСА (чем меньше число, тем реже выпадает КОНКРЕТНАЯ карточка)
+const rarityWeights = {
+    1: 150, // Обычная
+    2: 50,  // Редкая
+    3: 15,  // Супер редкая
+    4: 4,   // Легендарная
+    5: 1    // Эпическая
+};
 
-    let availablePlayers = PLAYERS.filter(p => p.season === season && p.rarity_num === targetRarityNum);
-    if (availablePlayers.length === 0) availablePlayers = PLAYERS.filter(p => p.season === season);
-    if (availablePlayers.length === 0) { alert("В этом сезоне пока нет игроков!"); return; }
+    // 3. Считаем общий вес всех карточек в базе (математический анализ)
+    let totalWeight = 0;
+    availablePlayers.forEach(p => {
+        totalWeight += rarityWeights[p.rarity_num] || 500;
+    });
 
+    // 4. Крутим рулетку от 0 до totalWeight
+    let randomRoll = Math.random() * totalWeight;
+    let currentWeight = 0;
+    let player = availablePlayers[0];
+
+    // 5. Находим выпавшую карточку
+    for (let p of availablePlayers) {
+        currentWeight += rarityWeights[p.rarity_num] || 500;
+        if (randomRoll <= currentWeight) {
+            player = p;
+            break;
+        }
+    }
+
+    // Дальше идет твой старый код выдачи карточки:
     userCoins -= price;
     updateUI();
-
-    const randomIndex = Math.floor(Math.random() * availablePlayers.length);
-    const player = availablePlayers[randomIndex];
+    
     collection.push(player);
     localStorage.setItem('khl_collection', JSON.stringify(collection));
 
