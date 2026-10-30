@@ -340,6 +340,18 @@ html, body {
     aspect-ratio: auto !important;
     width: 100% !important;
 }
+
+        /* Жесткое скругление логотипов в матче */
+.match-logo {
+    width: 55px !important;
+    height: 55px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    background-color: #ffffff !important; /* Белый фон на случай прозрачности */
+    border: 2px solid #334155 !important;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5) !important;
+    display: block !important;
+}2
         
 </style>
 </head>
@@ -833,11 +845,8 @@ html, body {
     
     <!-- Левая команда -->
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 30%;">
-        <!-- Круглая рамка для логотипа -->
-        <div style="width: 55px; height: 55px; border-radius: 50%; overflow: hidden; border: 2px solid #3b82f6; margin-bottom: 8px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-            <img id="match-a-logo" src="" style="width: 100%; height: 100%; object-fit: cover;">
-        </div>
-        <div id="match-a-name" style="font-size: 12px; font-weight: 800; text-align: center; color: #3b82f6; width: 100%; line-height: 1.2;">Команда А</div>
+        <img id="match-a-logo" class="match-logo" src="" style="border-color: #3b82f6 !important;">
+        <div id="match-a-name" style="font-size: 12px; font-weight: 800; text-align: center; color: #3b82f6; width: 100%; line-height: 1.2; margin-top: 8px;">Команда А</div>
     </div>
     
     <!-- Счет -->
@@ -848,14 +857,12 @@ html, body {
     
     <!-- Правая команда -->
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 30%;">
-        <!-- Круглая рамка для логотипа -->
-        <div style="width: 55px; height: 55px; border-radius: 50%; overflow: hidden; border: 2px solid #ef4444; margin-bottom: 8px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-            <img id="match-b-logo" src="" style="width: 100%; height: 100%; object-fit: cover;">
-        </div>
-        <div id="match-b-name" style="font-size: 12px; font-weight: 800; text-align: center; color: #ef4444; width: 100%; line-height: 1.2;">Команда Б</div>
+        <img id="match-b-logo" class="match-logo" src="" style="border-color: #ef4444 !important;">
+        <div id="match-b-name" style="font-size: 12px; font-weight: 800; text-align: center; color: #ef4444; width: 100%; line-height: 1.2; margin-top: 8px;">Команда Б</div>
     </div>
 
-</div>2
+</div>
+    
     <!-- Лента событий -->
     <div id="match-log" style="width: 92%; max-width: 450px; flex: 1; background: rgba(30, 41, 59, 0.6); border-radius: 12px; padding: 15px; overflow-y: auto; margin: 15px auto; box-sizing: border-box; display: flex; flex-direction: column;">
         <div style="text-align: center; color: #64748b; margin-top: 50%; transform: translateY(-50%);">Матч начнется сейчас...</div>
