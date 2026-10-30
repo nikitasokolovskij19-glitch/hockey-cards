@@ -325,12 +325,13 @@ html, body {
     gap: 6px !important;
     padding: 0 4px !important;
     align-content: start !important;
-    top: 95px !important; /* Опускаем сетку чуть ниже, чтобы она не наезжала на заголовок */
-    bottom: 20px !important;
-    left: 0 !important;
-    right: 0 !important;
-    position: absolute !important;
-    overflow-y: auto !important;
+    
+    /* ВОТ ГЛАВНЫЕ ИСПРАВЛЕНИЯ: */
+    flex: 1 !important; /* Занимаем всё свободное место внутри рамки */
+    width: 100% !important;
+    overflow-y: auto !important; /* Включаем прокрутку строго внутри этого блока */
+    margin-top: 10px !important;
+    position: relative !important; /* Убираем absolute, чтобы не вылезало за рамки */
 }
 
 /* Принудительно задаем высоту карточкам, чтобы они не сжимались */
