@@ -3901,40 +3901,45 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
 
     let html = '';
     
-    // Проходимся по каждому игровому дню
     tournamentSchedule.forEach((round, roundIndex) => {
-html += `<div style="background: #18181b; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; color: #e4e4e7; font-size: 13px; border: 1px solid #27272a;">Игровой день ${roundIndex + 1}</div>`;
+        // Заголовок дня (темно-серый, без желтого)
+        html += `<div style="background: #18181b; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; color: #e4e4e7; font-size: 13px; border: 1px solid #27272a;">Игровой день ${roundIndex + 1}</div>`;
         html += `<div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">`;
 
         round.forEach(match => {
             const hasScore = match.scoreA !== undefined && match.scoreB !== undefined;
             
-            // Ищем логотипы команд
             const teamAObj = tournamentData.find(t => t.team === match.teamA);
             const teamBObj = tournamentData.find(t => t.team === match.teamB);
             const logoA = teamAObj ? teamAObj.logo : '';
             const logoB = teamBObj ? teamBObj.logo : '';
 
-            // Подсвечиваем команду игрока
             const isPlayerA = match.teamA === tournamentSquad[0].club;
             const isPlayerB = match.teamB === tournamentSquad[0].club;
+            
+            // Фон для команд (без синего, просто серый)
             const bgA = isPlayerA ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
             const bgB = isPlayerB ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
             
+            // Цвета названий команд
+            const colorA = isPlayerA ? '#ffffff' : '#a1a1aa';
+            const colorB = isPlayerB ? '#ffffff' : '#a1a1aa';
+            
             html += `
-<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a;">
-<div style="display: flex; align-items: center; gap: 6px; width: 40%; background: ${bgA}; padding: 4px; border-radius: 4px;">
-                        <img src="${logoA}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
-<span style="font-size: 11px; font-weight: ${isPlayerA ? '900' : 'normal'}; color: ${isPlayerA ? '#ffffff' : '#a1a1aa'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${match.teamA}</span>
-</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a;">
                     
-<div style="width: 20%; text-align: center; font-weight: bold; font-size: 14px; color: ${hasScore ? '#ffffff' : '#71717a'};">
-${hasScore ? `${match.scoreA} : ${match.scoreB}` : 'vs'}
+                    <div style="display: flex; align-items: center; gap: 6px; width: 40%; background: ${bgA}; padding: 4px; border-radius: 4px;">
+                        <img src="${logoA}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
+                        <span style="font-size: 11px; font-weight: ${isPlayerA ? '900' : 'normal'}; color: ${colorA}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${match.teamA}</span>
+                    </div>
+                    
+                    <div style="width: 20%; text-align: center; font-weight: bold; font-size: 14px; color: ${hasScore ? '#ffffff' : '#71717a'};">
+                        ${hasScore ? `${match.scoreA} : ${match.scoreB}` : 'vs'}
                     </div>
                     
                     <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 40%; background: ${bgB}; padding: 4px; border-radius: 4px;">
-<span style="font-size: 11px; font-weight: ${isPlayerB ? '900' : 'normal'}; color: ${isPlayerB ? '#ffffff' : '#a1a1aa'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">${match.teamB}</span>
-<img src="${logoB}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
+                        <span style="font-size: 11px; font-weight: ${isPlayerB ? '900' : 'normal'}; color: ${colorB}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">${match.teamB}</span>
+                        <img src="${logoB}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
                     </div>
                 </div>
             `;
