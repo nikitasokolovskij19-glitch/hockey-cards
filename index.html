@@ -2841,7 +2841,12 @@ function openTournamentSquadBuilder() {
 
     const startBtn = document.getElementById('startTournamentBtn');
 if (startBtn) {
-    const entryFee = getTournamentEntryFee();
+    const now = new Date();
+const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+const todayStr = mskTime.toISOString().split('T')[0];
+let entryData = JSON.parse(localStorage.getItem('khl_tournament_entry')) || { date: '', count: 0 };
+if (entryData.date !== todayStr) { entryData.count = 0; }
+const entryFee = 50 * (entryData.count + 1);
     startBtn.innerText = `▶ НАЧАТЬ ТУРНИР (${entryFee} 💵)`;
     startBtn.style.backgroundColor = '#10b981'; // Зеленый
     startBtn.onclick = startTournament;
