@@ -888,26 +888,28 @@ button[onclick="closeDayResults()"] {
 </div>
 
 <!-- ОКНО СБОРКИ ТУРНИРНОГО ЗВЕНА -->
-<div id="tournamentSquadBuilder" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; overflow-y: auto; padding: 20px; box-sizing: border-box;">
-    <h2 style="color: #ffffff; margin-top: 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px;">СБОРКА ЗВЕНА</h2>
+<div id="tournamentSquadBuilder" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #000000; z-index: 999999; flex-direction: column; padding: 20px; box-sizing: border-box; overflow-y: auto;">
     
-    <div style="font-size: 14px; font-weight: bold; color: #a1a1aa; margin-bottom: 15px; text-transform: uppercase;">Одноклубники: <span id="tournamentSquadCount" style="color: #ffffff;">0 / 6</span></div>
-        Одноклубники: <span id="tournamentSquadCount" style="color: #3b82f6;">0 / 6</span>
+    <h2 style="color: #ffffff; margin-top: 10px; font-size: 22px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">СБОРКА ЗВЕНА</h2>
+    
+    <div style="text-align: center; font-size: 14px; font-weight: bold; color: #a1a1aa; margin-bottom: 20px; text-transform: uppercase;">
+        Одноклубники: <span id="tournamentSquadCount" style="color: #ffffff;">0 / 6</span>
     </div>
-    
-    <!-- Сетка слотов (3 НАП, 2 ЗАЩ, 1 ВРТ) -->
-    <div id="tournamentSquadSlots" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 340px; margin-bottom: 20px;"></div>
-    
+
+    <!-- Сетка слотов -->
+    <div id="tournamentSquadSlots" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;"></div>
+
     <!-- Список запасных -->
-    <div style="width: 100%; max-width: 340px; background: rgba(30, 41, 59, 0.5); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
-        <div style="font-size: 12px; color: #a1a1aa; margin-bottom: 8px; text-transform: uppercase;">ЗАПАСНЫЕ (АВТО):</div>
+    <div style="width: 100%; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; box-sizing: border-box; margin-bottom: 20px; border: 1px solid #27272a;">
+        <div style="font-size: 12px; color: #a1a1aa; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">ЗАПАСНЫЕ (АВТО):</div>
         <div id="tournamentBenchList" style="font-size: 13px; color: #cbd5e1; display: flex; flex-direction: column; gap: 5px;"></div>
     </div>
 
-    <!-- Кнопка старта (появится только если всё верно) -->
-    <button id="startTournamentBtn" onclick="startTournament()" style="width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; margin-top: 15px;">▶ НАЧАТЬ ТУРНИР</button>
+    <!-- Кнопка старта -->
+    <button id="startTournamentBtn" onclick="startTournament()" style="width: 100%; padding: 16px; background: #e4e4e7; color: #09090b; border: none; border-radius: 8px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; margin-bottom: 10px;">▶ НАЧАТЬ ТУРНИР</button>
     
-    <button onclick="document.getElementById('tournamentSquadBuilder').style.display='none'; document.getElementById('tournamentRulesView').style.display='flex';" style="width: 100%; max-width: 340px; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer; margin-bottom: 30px;">Назад</button>
+    <!-- Кнопка назад -->
+    <button onclick="document.getElementById('tournamentSquadBuilder').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="width: 100%; padding: 14px; background: rgba(51, 65, 85, 0.8); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer;">Назад</button>
 </div>
 
 <!-- МОДАЛКА ВЫБОРА ИГРОКА В ТУРНИР -->
