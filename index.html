@@ -443,6 +443,33 @@ html, body {
     font-size: 24px;
     margin-top: 5px;
 }
+
+        /* --- ГЛОБАЛЬНЫЙ СТИЛЬ ЧСБ ДЛЯ ВСЕХ КНОПОК --- */
+#tournamentPlayBtn, 
+#startTournamentBtn, 
+#match-continue-btn,
+button[onclick="closeDayResults()"] {
+    background: #e4e4e7 !important; /* Белый фон */
+    color: #09090b !important; /* Черный текст */
+    border: none !important;
+    font-weight: 900 !important;
+}
+
+/* --- ГЛОБАЛЬНЫЙ СТИЛЬ ЧСБ ДЛЯ РАМОК ОКОН --- */
+#dayResultsView > div, 
+#calendarModalView > div {
+    border-color: #3f3f46 !important; /* Темно-серая рамка вместо золотой */
+}
+
+/* --- КАЛЕНДАРЬ --- */
+.cal-card.today {
+    border-color: #e4e4e7 !important; /* Белая рамка для сегодня */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2) !important;
+}
+.cal-card.claimed {
+    border-color: #3f3f46 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}
         
 </style>
 </head>
@@ -853,9 +880,9 @@ html, body {
 
 <!-- ОКНО СБОРКИ ТУРНИРНОГО ЗВЕНА -->
 <div id="tournamentSquadBuilder" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; overflow-y: auto; padding: 20px; box-sizing: border-box;">
-    <h2 style="color: #fbbf24; margin-top: 0; font-size: 20px;">Сборка звена</h2>
+    <h2 style="color: #ffffff; margin-top: 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px;">СБОРКА ЗВЕНА</h2>
     
-    <div style="font-size: 14px; font-weight: bold; color: white; margin-bottom: 15px;">
+    <div style="font-size: 14px; font-weight: bold; color: #a1a1aa; margin-bottom: 15px; text-transform: uppercase;">Одноклубники: <span id="tournamentSquadCount" style="color: #ffffff;">0 / 6</span></div>
         Одноклубники: <span id="tournamentSquadCount" style="color: #3b82f6;">0 / 6</span>
     </div>
     
@@ -864,7 +891,7 @@ html, body {
     
     <!-- Список запасных -->
     <div style="width: 100%; max-width: 340px; background: rgba(30, 41, 59, 0.5); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
-        <div style="font-size: 12px; color: #fbbf24; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">Запасные (авто):</div>
+        <div style="font-size: 12px; color: #a1a1aa; margin-bottom: 8px; text-transform: uppercase;">ЗАПАСНЫЕ (АВТО):</div>
         <div id="tournamentBenchList" style="font-size: 13px; color: #cbd5e1; display: flex; flex-direction: column; gap: 5px;"></div>
     </div>
 
@@ -2933,8 +2960,7 @@ function renderTournamentSquadSlots() {
 
     const counter = document.getElementById('tournamentSquadCount');
     counter.innerText = `${filledCount} / 6`;
-    counter.style.color = (filledCount === 6 && firstClub) ? '#10b981' : '#3b82f6';
-
+    counter.style.color = (filledCount === 6 && firstClub) ? '#ffffff' : '#a1a1aa';
     const hasCorrectPositions = 
         tournamentSquad[0]?.pos === "Нападающий" && tournamentSquad[1]?.pos === "Нападающий" && tournamentSquad[2]?.pos === "Нападающий" &&
         tournamentSquad[3]?.pos === "Защитник" && tournamentSquad[4]?.pos === "Защитник" &&
@@ -3733,8 +3759,8 @@ function updateStandings(teamA, scoreA, teamB, scoreB, regA, regB) {
 
     results.forEach(r => {
     const isPlayerMatch = (r.teamA === playerTeam || r.teamB === playerTeam);
-    const bg = isPlayerMatch ? 'rgba(59, 130, 246, 0.15)' : 'rgba(39, 39, 42, 0.8)';
-    const border = isPlayerMatch ? '1px solid #3b82f6' : '1px solid #3f3f46';
+    const bg = isPlayerMatch ? 'rgba(255, 255, 255, 0.1)' : 'rgba(39, 39, 42, 0.8)';
+    const border = isPlayerMatch ? '1px solid #e4e4e7' : '1px solid #3f3f46';
     const colorA = r.scoreA > r.scoreB ? '#f4f4f5' : '#a1a1aa';
     const colorB = r.scoreB > r.scoreA ? '#f4f4f5' : '#a1a1aa';
 
@@ -4183,8 +4209,8 @@ const formatName = (p) => {
                         <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 15px; font-weight: 900; color: #3b82f6;">${svpStr}</div>
-                        <div style="font-size: 9px; color: #64748b;">${p.saves}/${p.shotsAgainst}</div>
+                        <div style="font-size: 15px; font-weight: 900; color: #ffffff;">${svpStr}</div>
+                        <div style="font-size: 9px; color: #a1a1aa;">${p.saves}/${p.shotsAgainst}</div>
                     </div>
                 </div>
             `;
