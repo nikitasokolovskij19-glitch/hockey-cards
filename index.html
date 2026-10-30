@@ -1190,13 +1190,13 @@ function initBackgroundCanvas() {
             }
 
             // Отрисовка картинки (вписываем в круг)
-            if (l1.img.complete) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(l1.x, l1.y, l1.r, 0, Math.PI * 2);
-                ctx.clip();
-                ctx.drawImage(l1.img, l1.x - l1.r, l1.y - l1.r, l1.r * 2, l1.r * 2);
-                ctx.restore();
+if (l1.img.complete) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(l1.x, l1.y, l1.r, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(l1.img, l1.x - l1.r, l1.y - l1.r, l1.r * 2, l1.r * 2);
+    ctx.restore();
             }
         }
         requestAnimationFrame(animate);
