@@ -1385,11 +1385,24 @@ function showConfirm(message, callback) {
     }
     }
 
-    // Функция полного сброса прогресса
-function resetGameProgress() {
-    showConfirm("ВНИМАНИЕ! Вы уверены, что хотите полностью сбросить прогресс? Все карточки, монеты и достижения будут удалены навсегда!", () => {
-        // Это выполнится только если нажали "ОК"
+    function resetGameProgress() {
+    showConfirm("ВНИМАНИЕ! Вы уверены, что хотите полностью сбросить прогресс? Все карточки, монеты, квесты и достижения будут удалены навсегда!", () => {
+        // 1. Полная очистка памяти
         localStorage.clear();
+        
+        // 2. Явное удаление всех ключей игры (для надежности)
+        localStorage.removeItem('khl_coins');
+        localStorage.removeItem('khl_exp');
+        localStorage.removeItem('khl_collection');
+        localStorage.removeItem('khl_squad');
+        localStorage.removeItem('khl_quests_data');
+        localStorage.removeItem('khl_calendar');
+        localStorage.removeItem('khl_active_tournament');
+        localStorage.removeItem('khl_tournament_entry');
+        localStorage.removeItem('khl_user_avatar');
+        localStorage.removeItem('khl_nickname');
+        
+        // 3. Принудительная перезагрузка
         location.reload();
     });
     }
