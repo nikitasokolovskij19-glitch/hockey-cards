@@ -380,21 +380,22 @@ html, body {
 
 /* Сегодняшний день (который можно забрать) */
 .cal-card.today {
-    border: 2px solid #10b981; /* Зеленая рамка */
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    border: 2px solid #fbbf24; /* Золотая рамка */
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
     cursor: pointer;
     transform: scale(1.02);
+    background: linear-gradient(145deg, #1e293b, #0f172a);
 }
 
 .cal-card.today:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
 }
 
 /* Забранный день */
 .cal-card.claimed {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: #10b981;
+    background: rgba(251, 191, 36, 0.05);
+    border-color: #475569; /* Темно-серый, а не зеленый */
     opacity: 0.7;
 }
 
@@ -1260,8 +1261,9 @@ function addExp(amount) {
     
     const newLevel = getLevelData(userExp).level;
     if (newLevel > oldLevel) {
-        const reward = (newLevel - oldLevel) * 10;
-        userCoins += reward;
+        // Выдаем награду за каждый новый уровень
+const reward = 1000 + (newLevel - 2) * 100;
+userCoins += reward;
         updateUI();
         alert(`🎉 Уровень повышен до ${newLevel}!\nНаграда: +${reward} ${GAME_CONFIG.currency}`);
     }
@@ -1728,6 +1730,7 @@ function claimSmallReward(questId, amount) {
     currentData.rewardsTaken[questId] = true;
     userCoins += amount;
     updateUI();
+    addExp(200); // Даем 200 опыта за квест
     localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
     renderQuests();
 }
@@ -1738,17 +1741,14 @@ function claimMainQuestReward() {
     currentData.mainClaimed = true;
     
     if (currentQuestTab === 'daily') {
-        userCoins += 300;
-        alert('Вы получили 300 💵!');
-    } else {
-        userCoins += 1000;
-        alert('Вы получили 1000 💵 и карточку 75+ OVR!');
-        let available = PLAYERS.filter(p => {
-            const ovr = Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
-            return ovr >= 75 && ovr <= 84;
-        });
-        if (available.length > 0) collection.push(available[Math.floor(Math.random() * available.length)]);
-        localStorage.setItem('khl_collection', JSON.stringify(collection));
+    userCoins += 400; // или твоя сумма
+    addExp(2000);     // <--- ДОБАВИТЬ СЮДА
+    showAlert(`Вы получили 400 💵!`);
+} else {
+    userCoins += 2000; // или твоя сумма
+    addExp(5000);      // <--- ДОБАВИТЬ СЮДА
+    showAlert(`Вы получили 2000 💵 и Премиум-пак!`);
+    // ... код выдачи пака
     }
     localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
     updateUI();
@@ -2004,6 +2004,29 @@ const rarityWeights = {
     collection.push(player);
     localStorage.setItem('khl_collection', JSON.stringify(collection));
 
+    // --- НАЧИСЛЕНИЕ ОПЫТА ЗА ПАК ---
+let expGained = 200; // Базовый опыт за открытие пака
+
+// Проверяем, новая ли это карточка (была ли она у нас ДО этого пуша)
+// Так как мы уже запушили игрока, проверяем сколько таких карточек в коллекции. Если 1 - значит новая.
+const copies = collection.filter(c => c.name === player.name && c.season === player.season).length;
+if (copies === 1) {
+    expGained += 300; // Бонус за новую карточку
+}
+
+// Бонус за редкость
+const rarityExp = {
+    1: 10,
+    2: 50,
+    3: 200,
+    4: 500,
+    5: 1000
+};
+expGained += rarityExp[player.rarity_num] || 10;
+
+// Начисляем общий опыт
+addExp(expGained);
+
     packsView.style.display = 'none';
 
     document.getElementById('r-name').innerText = player.name;
@@ -2108,8 +2131,6 @@ document.getElementById('globalBackBtn').style.display = 'none';
     addQuestProgress('open3');
 if (overall >= 80 && overall < 90) addQuestProgress('legendDrop');
 if (overall >= 90) addQuestProgress('epicDrop');
-    
-    addExp(25);
 }
 
 document.getElementById('closeRevealBtn').addEventListener('click', function() {
@@ -3563,11 +3584,21 @@ function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, sc
                 m.scoreB = scoreOpp;
                 roundResults.push({ teamA: playerTeam, scoreA: scorePlayer, teamB: opponent, scoreB: scoreOpp });
                 updateStandings(playerTeam, scorePlayer, opponent, scoreOpp, regScorePlayer, regScoreOpp);
+
+               if (scorePlayer > scoreOpp) {
+    addExp(200); // Опыт за победу в матче
+               }
+                
             } else {
                 m.scoreA = scoreOpp;
                 m.scoreB = scorePlayer;
                 roundResults.push({ teamA: opponent, scoreA: scoreOpp, teamB: playerTeam, scoreB: scorePlayer });
                 updateStandings(opponent, scoreOpp, playerTeam, scorePlayer, regScoreOpp, regScorePlayer);
+            
+            if (scorePlayer > scoreOpp) {
+    addExp(200); // Опыт за победу в матче
+            }
+            
             }
         } else {
             // Матч между ботами
@@ -3668,15 +3699,20 @@ function closeDayResults() {
     const playerTeam = tournamentSquad[0].club;
     const playerPos = tournamentData.findIndex(t => t.team === playerTeam) + 1;
     
-    // Начисляем награды
     if (playerPos === 1) {
-        alert(`🏆 ПОБЕДА В ТУРНИРЕ!\nВаша команда заняла 1 место. Награда: 2000 💵`);
-        userCoins += 2000;
-    } else if (playerPos <= 3) {
-        alert(`🥉 Вы на ${playerPos} месте! Награда: 500 💵`);
-        userCoins += 500;
-    } else {
-        alert(`😔 Ваша команда на ${playerPos} месте. Попробуйте усилить состав!`);
+    alert(`🏆 ПОБЕДА В ТУРНИРЕ!\nВаша команда заняла 1 место. Награда: 5000 💵`);
+    userCoins += 5000;
+    addExp(5000);
+} else if (playerPos === 2) {
+    alert(`🥈 Вы на 2 месте! Награда: 2500 💵`);
+    userCoins += 2500;
+    addExp(3000);
+} else if (playerPos === 3) {
+    alert(`🥉 Вы на 3 месте! Награда: 1000 💵`);
+    userCoins += 1000;
+    addExp(1500);
+} else {
+    alert(`😔 Ваша команда на ${playerPos} месте. Попробуйте усилить состав!`);
     }
     
     updateUI();
