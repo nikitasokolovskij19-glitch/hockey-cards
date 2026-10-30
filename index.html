@@ -351,7 +351,81 @@ html, body {
     border: 2px solid #334155 !important;
     box-shadow: 0 0 10px rgba(0,0,0,0.5) !important;
     display: block !important;
-}2
+}
+
+        /* Сетка календаря */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* Карточка дня */
+.cal-card {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Сегодняшний день (который можно забрать) */
+.cal-card.today {
+    border: 2px solid #10b981; /* Зеленая рамка */
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    cursor: pointer;
+    transform: scale(1.02);
+}
+
+.cal-card.today:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+/* Забранный день */
+.cal-card.claimed {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+    opacity: 0.7;
+}
+
+/* Заблокированный день (будущий) */
+.cal-card.locked {
+    background: rgba(15, 23, 42, 0.5);
+    border-color: #1e293b;
+    opacity: 0.6;
+}
+
+/* Текстовые стили внутри карточки */
+.cal-day-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cal-reward-text {
+    font-size: 18px;
+    font-weight: 900;
+    color: #fbbf24; /* Золотой цвет для денег */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Иконка статуса (галочка или замочек) */
+.cal-status-icon {
+    font-size: 24px;
+    margin-top: 5px;
+}
         
 </style>
 </head>
@@ -2605,31 +2679,46 @@ document.getElementById('calendarBtn').onclick = () => {
 function renderCalendar() {
     const grid = document.getElementById('calendarGrid');
     grid.innerHTML = '';
-    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-    const rewards = ['50 💵', '100 💵', '📦 Пак', '150 💵', '200 💵', '📦 Пак', '500 💵'];
     
-    // Текущий день недели (Пн = 0, Вс = 6)
-    let currentDayIndex = new Date().getDay() - 1; 
-    if (currentDayIndex === -1) currentDayIndex = 6;
+    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const rewards = ["1000 💵", "1500 💵", "3000 💵", "1000 💵", "1500 💵", "2000 💵", "5000 💵"];
+
+    // Определяем текущий день недели (Пн = 0, Вс = 6)
+    let todayIndex = new Date().getDay() - 1;
+    if (todayIndex === -1) todayIndex = 6; // Воскресенье
 
     days.forEach((day, index) => {
         const isClaimed = calendarData.claimedDays.includes(index);
-        const isToday = index === currentDayIndex;
-        const isLocked = index > currentDayIndex;
+        const isToday = index === todayIndex;
+        const isLocked = index > todayIndex;
 
+        // Создаем карточку дня
         const div = document.createElement('div');
-        div.style.cssText = `background: ${isClaimed ? 'rgba(16, 185, 129, 0.2)' : (isToday ? 'rgba(245, 158, 11, 0.2)' : 'rgba(30, 41, 59, 0.6)')}; border: 2px solid ${isClaimed ? '#10b981' : (isToday ? '#f59e0b' : 'rgba(255,255,255,0.1)')}; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;`;
+        div.className = `cal-card ${isClaimed ? 'claimed' : ''} ${isToday ? 'today' : ''} ${isLocked ? 'locked' : ''}`;
         
-        let btnText = rewards[index];
-        if (isClaimed) btnText = '✅';
-        else if (isLocked) btnText = '🔒';
+        // Внутреннее наполнение
+        let statusHtml = '';
+        if (isClaimed) {
+            statusHtml = '<div class="cal-status-icon">✅</div>';
+        } else if (isToday) {
+            statusHtml = '<div class="cal-status-icon" style="animation: pulse 1.5s infinite;">🎁</div>';
+        } else if (isLocked) {
+            statusHtml = '<div class="cal-status-icon" style="opacity: 0.5;">🔒</div>';
+        }
 
-        div.innerHTML = `<div style="font-weight: 800; font-size: 14px; color: ${isClaimed ? '#10b981' : 'white'};">${day}</div><div style="font-size: 12px; font-weight: bold; color: #fbbf24;">${btnText}</div>`;
+        div.innerHTML = `
+            <div class="cal-day-name" style="${isToday ? 'color: #10b981;' : ''}">${day}</div>
+            <div class="cal-reward-text" style="${isClaimed ? 'color: #64748b; text-decoration: line-through;' : ''}">${rewards[index]}</div>
+            ${statusHtml}
+        `;
 
+        // Если сегодня и не забрано - добавляем клик
         if (isToday && !isClaimed) {
-            div.style.cursor = 'pointer';
             div.onclick = () => claimCalendarReward(index, rewards[index]);
         }
+
+        // Обновляем сетку
+        grid.className = 'calendar-grid';
         grid.appendChild(div);
     });
 }
