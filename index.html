@@ -1046,6 +1046,37 @@ window.alert = function(message) {
     }
 };
 
+    // --- ЛОГИКА ВХОДА В ТУРНИР ---
+function getTournamentEntryFee() {
+    // Получаем текущую дату по Минску (UTC+3)
+    const now = new Date();
+    const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+    const todayStr = mskTime.toISOString().split('T')[0];
+
+    // Получаем сохраненные данные о входах
+    let entryData = JSON.parse(localStorage.getItem('khl_tournament_entry')) || { date: '', count: 0 };
+
+    // Если наступил новый день — сбрасываем счетчик
+    if (entryData.date !== todayStr) {
+        entryData.date = todayStr;
+        entryData.count = 0;
+    }
+
+    // Сохраняем обновленные данные на случай, если день только что сменился
+    localStorage.setItem('khl_tournament_entry', JSON.stringify(entryData));
+
+    // Стоимость: 1-й вход 50, 2-й 100, 3-й 150 и т.д.
+    const baseFee = 50;
+    return baseFee * (entryData.count + 1);
+}
+
+function registerTournamentEntry() {
+    let entryData = JSON.parse(localStorage.getItem('khl_tournament_entry')) || { date: '', count: 0 };
+    entryData.count++;
+    localStorage.setItem('khl_tournament_entry', JSON.stringify(entryData));
+}
+// -----------------------------
+
     let tg = window.Telegram.WebApp;
     if (tg && tg.expand) tg.expand();
 
@@ -3084,37 +3115,6 @@ function generateSchedule(teams) {
     }
     return schedule;
 }
-
-    // --- ЛОГИКА ВХОДА В ТУРНИР ---
-function getTournamentEntryFee() {
-    // Получаем текущую дату по Минску (UTC+3)
-    const now = new Date();
-    const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
-    const todayStr = mskTime.toISOString().split('T')[0];
-
-    // Получаем сохраненные данные о входах
-    let entryData = JSON.parse(localStorage.getItem('khl_tournament_entry')) || { date: '', count: 0 };
-
-    // Если наступил новый день — сбрасываем счетчик
-    if (entryData.date !== todayStr) {
-        entryData.date = todayStr;
-        entryData.count = 0;
-    }
-
-    // Сохраняем обновленные данные на случай, если день только что сменился
-    localStorage.setItem('khl_tournament_entry', JSON.stringify(entryData));
-
-    // Стоимость: 1-й вход 50, 2-й 100, 3-й 150 и т.д.
-    const baseFee = 50;
-    return baseFee * (entryData.count + 1);
-}
-
-function registerTournamentEntry() {
-    let entryData = JSON.parse(localStorage.getItem('khl_tournament_entry')) || { date: '', count: 0 };
-    entryData.count++;
-    localStorage.setItem('khl_tournament_entry', JSON.stringify(entryData));
-}
-// -----------------------------
 
 // Запуск турнира (вызывается из сборщика звена)
 function startTournament() {
