@@ -1509,13 +1509,26 @@ while (ratingContainer.scrollWidth > ratingContainer.clientWidth && parseInt(rat
     let countryCounts = {};
 
     for (let i = 0; i < 6; i++) {
-        if (squad[i]) {
-            const p = squad[i];
-            squadTotalRating += getPlayerOVR(p);
-            if (p.club) clubCounts[p.club] = (clubCounts[p.club] || 0) + 1;
-            const country = p.flag || '🏳️';
-            countryCounts[country] = (countryCounts[country] || 0) + 1;
-        }
+    if (squad[i]) {
+        const p = squad[i];
+        
+        // Определяем позицию
+        let posShort = "НАП";
+        if (p.pos === "Защитник") posShort = "ЗАЩ";
+        if (p.pos === "Вратарь") posShort = "ВРТ";
+
+        // Выводим строку с игроком
+        html += `
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-top: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+            <div style="display: flex; gap: 6px; align-items: center; color: #cbd5e1;">
+                <span style="color: #71717a; font-size: 10px; width: 25px;">${posShort}</span>
+                <span style="color: #a1a1aa; font-weight: bold; width: 30px;">${p.number || ''}</span>
+                <span style="text-transform: uppercase;">${p.name}</span>
+                <span>${p.flag || ''}</span>
+            </div>
+            <span style="font-weight: bold; color: white; font-size: 14px;">${getPlayerOVR(p)}</span>
+        </div>`;
+    }
     }
 
     let clubBonus = 0;
