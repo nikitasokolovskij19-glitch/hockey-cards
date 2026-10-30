@@ -1523,72 +1523,73 @@ while (ratingContainer.scrollWidth > ratingContainer.clientWidth && parseInt(rat
     let countryBonus = 0;
 
     const baseRating = squadTotalRating / 6;
-    const finalRating = (baseRating + (clubBonus + countryBonus)).toFixed(1).replace('.', ','); // Заглушка, посчитаем ниже
+    const finalRating = (baseRating + (clubBonus + countryBonus)).toFixed(1).replace('.', ',');
 
     let html = `
-    <div style="text-align: center; margin-bottom: 25px;">
-        <div style="font-size: 13px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Рейтинг звена</div>
-        <div style="font-size: 42px; font-weight: 900; color: #ffffff; text-shadow: 0 0 20px rgba(255,255,255,0.2);">${finalRating} <span style="font-size: 20px; color: #71717a;">OVR</span></div>
-    </div>
+        <div style="text-align: center; margin-bottom: 25px;">
+            <div style="font-size: 13px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Рейтинг звена</div>
+            <div style="font-size: 42px; font-weight: 900; color: #ffffff; text-shadow: 0 0 20px rgba(255,255,255,0.2);">${finalRating} <span style="font-size: 20px; color: #71717a;">OVR</span></div>
+        </div>
 
-    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #27272a; color: #a1a1aa; font-size: 14px;">
-        <span>Средний рейтинг игроков:</span>
-        <span style="color: #ffffff; font-weight: bold;">${baseRating.toFixed(1).replace('.', ',')}</span>
-    </div>
-    
-    <div style="margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid #27272a;">
-        <div style="font-size: 11px; color: #71717a; text-transform: uppercase; margin-bottom: 10px;">Бонусы Химии:</div>
-`;
+        <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #27272a; color: #a1a1aa; font-size: 14px;">
+            <span>Средний рейтинг игроков:</span>
+            <span style="color: #ffffff; font-weight: bold;">${baseRating.toFixed(1).replace('.', ',')}</span>
+        </div>
+        
+        <div style="margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid #27272a;">
+            <div style="font-size: 11px; color: #71717a; text-transform: uppercase; margin-bottom: 10px;">Бонусы Химии:</div>
+    `;
 
-    // Вывод бонусов за клубы
     let hasAnyBonus = false;
     for (let c in clubCounts) {
         if (clubCounts[c] >= 2) {
             let b = (clubCounts[c] - 1);
             clubBonus += b;
-html += `<div style="display: flex; justify-content: space-between; font-size: 13px; color: #e4e4e7; margin-bottom: 5px;">
-<span>Бонус за клуб (${c} x${clubCounts[c]}):</span>
-                        <span style="font-weight: bold;">+${b}</span>
-                     </div>`;
+            html += `<div style="display: flex; justify-content: space-between; font-size: 13px; color: #e4e4e7; margin-bottom: 5px;">
+                <span>Бонус за клуб (${c} x${clubCounts[c]}):</span>
+                <span style="font-weight: bold;">+${b}</span>
+            </div>`;
             hasAnyBonus = true;
         }
     }
-    
-    // Вывод бонусов за страны
+
     for (let c in countryCounts) {
         if (countryCounts[c] >= 2) {
             let b = (countryCounts[c] - 1) * 0.5;
             countryBonus += b;
-html += `<div style="display: flex; justify-content: space-between; font-size: 13px; color: #10b981; margin-bottom: 5px;">
-<span>Бонус за страну (${c} x${countryCounts[c]}):</span>
-                        <span style="font-weight: bold;">+${b.toFixed(1).replace('.', ',')}</span>
-                     </div>`;
+            html += `<div style="display: flex; justify-content: space-between; font-size: 13px; color: #e4e4e7; margin-bottom: 5px;">
+                <span>Бонус за страну (${c} x${countryCounts[c]}):</span>
+                <span style="font-weight: bold;">+${b.toFixed(1).replace('.', ',')}</span>
+            </div>`;
             hasAnyBonus = true;
         }
     }
 
-    </div> <!-- Закрываем плашку бонусов -->
-
-if (!hasAnyBonus) {
-        html += `<div style="text-align: center; font-size: 12px; color: #64748b; margin-top: 10px;">Нет связок для бонуса</div>`;
+    if (!hasAnyBonus) {
+        html += `<div style="text-align: center; font-size: 12px; color: #64748b; margin-top: 5px;">Нет активных бонусов</div>`;
     }
+    html += `</div>`;
 
-    // Пересчитываем финальный рейтинг правильно
     const finalTotal = baseRating + clubBonus + countryBonus;
     html = html.replace(`${finalRating} OVR`, `${finalTotal.toFixed(1).replace('.', ',')} OVR`);
 
-    html += `<div style="margin-top: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);"></div>`;
-    html += `<div style="margin-top: 10px; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Состав:</div>`;
-    
+    html += `<div style="margin-top: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; font-size: 11px; color: #94a3b8; text-transform: uppercase;">Состав:</div>`;
+
     for (let i = 0; i < 6; i++) {
         if (squad[i]) {
             const p = squad[i];
-            html += `<div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 5px;">
+            html += `<div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px;">
                 <span style="color: #cbd5e1;">${p.name}</span>
                 <span style="font-weight: bold; color: white;">${getPlayerOVR(p)}</span>
             </div>`;
         }
     }
+
+    html += `
+        <button onclick="document.getElementById('teamRatingModal').style.display='none'" style="width: 100%; margin-top: 20px; padding: 16px; background: #27272a; color: #ffffff; border: 1px solid #3f3f46; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s;">
+            Закрыть
+        </button>
+    `;
 
     container.innerHTML = html;
     document.getElementById('teamRatingModal').style.display = 'flex';
