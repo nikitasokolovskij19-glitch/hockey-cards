@@ -318,25 +318,40 @@ html, body {
 .card-info { transition: transform 0.1s ease-out; }
 .card .shine { opacity: 1; }
 
-        /* Фикс для 4 колонок, высоты карточек и прокрутки */
+        /* ОБЩИЕ СТИЛИ ДЛЯ СЕТОК ВЫБОРА ИГРОКОВ */
 #squadSelectList, #tournamentSelectList {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
-    gap: 4px !important; /* Уменьшили расстояние между карточками, чтобы они стали шире */
-    padding: 0 2px 80px 2px !important; /* ДОБАВИЛИ ОТСТУП СНИЗУ (80px), чтобы последний ряд прокручивался */
+    gap: 6px !important;
+    padding: 0 4px 80px 4px !important; /* Отступ 80px снизу, чтобы последний ряд не обрезался! */
     align-content: start !important;
-    flex: 1 !important; 
+    align-items: start !important; /* ЗАПРЕЩАЕТ карточкам растягиваться по высоте */
     width: 100% !important;
     overflow-y: auto !important; 
     margin-top: 10px !important;
-    position: relative !important;
     box-sizing: border-box !important;
+    grid-auto-rows: max-content !important; /* Высота строки строго по размеру карточки */
 }
 
-/* Делаем карточки ниже */
+/* Настройки для главного экрана звена */
+#squadSelectList {
+    position: absolute !important;
+    top: 75px !important;
+    bottom: 20px !important;
+    left: 0 !important;
+    right: 0 !important;
+}
+
+/* Настройки для окна турнира */
+#tournamentSelectList {
+    flex: 1 !important;
+    position: relative !important;
+}
+
+/* ЕДИНЫЙ РАЗМЕР КАРТОЧЕК ДЛЯ ОБОИХ ЭКРАНОВ */
 #squadSelectList .mini-card-wrapper, 
 #tournamentSelectList .mini-card-wrapper {
-    height: 105px !important; /* Уменьшили высоту со 135 до 105, чтобы карточки стали приземистее */
+    height: 110px !important; /* Задаем фиксированную высоту */
     aspect-ratio: auto !important;
     width: 100% !important;
     border-radius: 8px !important;
