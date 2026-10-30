@@ -3476,7 +3476,11 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
 // ВОТ ЭТА СТРОКА БЫЛА ПОТЕРЯНА:
 evs.forEach(ev => {
     if (ev.scoreA !== undefined && ev.scoreB !== undefined) {
-        document.getElementById('match-score').innerText = `${ev.scoreA} : ${ev.scoreB}`;
+    let cA = '#fbbf24', cB = '#fbbf24';
+    if (ev.scoreA > ev.scoreB) { cA = '#10b981'; cB = '#ef4444'; }
+    else if (ev.scoreB > ev.scoreA) { cA = '#ef4444'; cB = '#10b981'; }
+    
+    document.getElementById('match-score').innerHTML = `<span style="color:${cA}">${ev.scoreA}</span> <span style="color:#64748b">:</span> <span style="color:${cB}">${ev.scoreB}</span>`;
     }
 
     if (ev.type === 'goal') {
@@ -3724,34 +3728,43 @@ function updateStandings(teamA, scoreA, teamB, scoreB, regA, regB) {
     content.innerHTML = '';
 
     results.forEach(r => {
-        const isPlayerMatch = (r.teamA === playerTeam || r.teamB === playerTeam);
-        // Если матч с участием игрока - синий фон, иначе темно-серый
-        const bg = isPlayerMatch ? 'rgba(59, 130, 246, 0.15)' : 'rgba(39, 39, 42, 0.8)';
-        const border = isPlayerMatch ? '1px solid #3b82f6' : '1px solid #3f3f46';
-        const colorA = r.scoreA > r.scoreB ? '#f4f4f5' : '#a1a1aa';
-        const colorB = r.scoreB > r.scoreA ? '#f4f4f5' : '#a1a1aa';
+    const isPlayerMatch = (r.teamA === playerTeam || r.teamB === playerTeam);
+    const bg = isPlayerMatch ? 'rgba(59, 130, 246, 0.15)' : 'rgba(39, 39, 42, 0.8)';
+    const border = isPlayerMatch ? '1px solid #3b82f6' : '1px solid #3f3f46';
+    const colorA = r.scoreA > r.scoreB ? '#f4f4f5' : '#a1a1aa';
+    const colorB = r.scoreB > r.scoreA ? '#f4f4f5' : '#a1a1aa';
 
-        content.innerHTML += `
-    <div style="display: grid; grid-template-columns: 1fr 70px 1fr; align-items: center; background: ${bg}; border: ${border}; border-radius: 8px; padding: 12px 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
-        
-        <!-- Левая команда -->
-        <div style="text-align: right; font-weight: ${isPlayerMatch ? 'bold' : 'normal'}; color: #f4f4f5; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;">
-            ${r.teamA}
+    // НОВОЕ: Определяем цвета для счета
+    let scoreColorA = '#fbbf24'; // Желтый по умолчанию (для ничьей)
+    let scoreColorB = '#fbbf24';
+    
+    if (r.scoreA > r.scoreB) { 
+        scoreColorA = '#10b981'; // Зеленый
+        scoreColorB = '#ef4444'; // Красный
+    } else if (r.scoreB > r.scoreA) { 
+        scoreColorA = '#ef4444'; 
+        scoreColorB = '#10b981';
+    }
+
+    content.innerHTML += `
+        <div style="display: grid; grid-template-columns: 1fr 70px 1fr; align-items: center; background: ${bg}; border: ${border}; border-radius: 8px; padding: 12px 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
+            
+            <div style="text-align: right; font-weight: ${isPlayerMatch ? 'bold' : 'normal'}; color: ${colorA}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;">
+                ${r.teamA}
+            </div>
+            
+            <div style="text-align: center; font-size: 18px; font-weight: 900; white-space: nowrap;">
+                <span style="color: ${scoreColorA};">${r.scoreA}</span> <span style="color:#64748b">:</span> <span style="color: ${scoreColorB};">${r.scoreB}</span>
+            </div>
+            
+            <div style="text-align: left; font-weight: ${isPlayerMatch ? 'bold' : 'normal'}; color: ${colorB}; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px;">
+                ${r.teamB}
+            </div>
+            
         </div>
+    `;
+});
         
-        <!-- СЧЕТ (Жестко по центру) -->
-        <div style="text-align: center; font-size: 18px; font-weight: 900; color: #fbbf24; white-space: nowrap;">
-            ${r.scoreA} : ${r.scoreB}
-        </div>
-        
-        <!-- Правая команда -->
-        <div style="text-align: left; font-weight: ${isPlayerMatch ? 'bold' : 'normal'}; color: #f4f4f5; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px;">
-            ${r.teamB}
-        </div>
-        
-    </div>
-`;
-    });
     document.getElementById('dayResultsView').style.display = 'flex';
     }
 
@@ -3907,43 +3920,60 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
         html += `<div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">`;
 
         round.forEach(match => {
-            const hasScore = match.scoreA !== undefined && match.scoreB !== undefined;
-            
-            const teamAObj = tournamentData.find(t => t.team === match.teamA);
-            const teamBObj = tournamentData.find(t => t.team === match.teamB);
-            const logoA = teamAObj ? teamAObj.logo : '';
-            const logoB = teamBObj ? teamBObj.logo : '';
+    const hasScore = match.scoreA !== undefined && match.scoreB !== undefined;
+    
+    const teamAObj = tournamentData.find(t => t.team === match.teamA);
+    const teamBObj = tournamentData.find(t => t.team === match.teamB);
+    const logoA = teamAObj ? teamAObj.logo : '';
+    const logoB = teamBObj ? teamBObj.logo : '';
 
-            const isPlayerA = match.teamA === tournamentSquad[0].club;
-            const isPlayerB = match.teamB === tournamentSquad[0].club;
+    const isPlayerA = match.teamA === tournamentSquad[0].club;
+    const isPlayerB = match.teamB === tournamentSquad[0].club;
+    
+    // Фон для команд (без синего, просто серый)
+    const bgA = isPlayerA ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
+    const bgB = isPlayerB ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
+    
+    // Цвета названий команд
+    const colorA = isPlayerA ? '#ffffff' : '#a1a1aa';
+    const colorB = isPlayerB ? '#ffffff' : '#a1a1aa';
+
+    // НОВАЯ ЛОГИКА: Определяем цвета для счета
+    let scoreColorA = '#ffffff';
+    let scoreColorB = '#ffffff';
+    if (hasScore) {
+        if (match.scoreA > match.scoreB) {
+            scoreColorA = '#10b981'; // Зеленый (победитель)
+            scoreColorB = '#ef4444'; // Красный (проигравший)
+        } else if (match.scoreB > match.scoreA) {
+            scoreColorA = '#ef4444'; 
+            scoreColorB = '#10b981';
+        } else {
+            scoreColorA = '#fbbf24'; // Желтый (ничья/буллиты)
+            scoreColorB = '#fbbf24';
+        }
+    }
+
+    html += `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a;">
             
-            // Фон для команд (без синего, просто серый)
-            const bgA = isPlayerA ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
-            const bgB = isPlayerB ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
+            <div style="display: flex; align-items: center; gap: 6px; width: 40%; background: ${bgA}; padding: 4px; border-radius: 4px;">
+                <img src="${logoA}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
+                <span style="font-size: 11px; font-weight: ${isPlayerA ? '900' : 'normal'}; color: ${colorA}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${match.teamA}</span>
+            </div>
             
-            // Цвета названий команд
-            const colorA = isPlayerA ? '#ffffff' : '#a1a1aa';
-            const colorB = isPlayerB ? '#ffffff' : '#a1a1aa';
+            <div style="width: 20%; text-align: center; font-weight: bold; font-size: 14px;">
+                ${hasScore ? `<span style="color: ${scoreColorA};">${match.scoreA}</span> <span style="color:#64748b">:</span> <span style="color: ${scoreColorB};">${match.scoreB}</span>` : '<span style="color: #71717a;">vs</span>'}
+            </div>
             
-            html += `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a;">
-                    
-                    <div style="display: flex; align-items: center; gap: 6px; width: 40%; background: ${bgA}; padding: 4px; border-radius: 4px;">
-                        <img src="${logoA}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
-                        <span style="font-size: 11px; font-weight: ${isPlayerA ? '900' : 'normal'}; color: ${colorA}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${match.teamA}</span>
-                    </div>
-                    
-                    <div style="width: 20%; text-align: center; font-weight: bold; font-size: 14px; color: ${hasScore ? '#ffffff' : '#71717a'};">
-                        ${hasScore ? `${match.scoreA} : ${match.scoreB}` : 'vs'}
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 40%; background: ${bgB}; padding: 4px; border-radius: 4px;">
-                        <span style="font-size: 11px; font-weight: ${isPlayerB ? '900' : 'normal'}; color: ${colorB}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">${match.teamB}</span>
-                        <img src="${logoB}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
-                    </div>
-                </div>
-            `;
-        });
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 40%; background: ${bgB}; padding: 4px; border-radius: 4px;">
+                <span style="font-size: 11px; font-weight: ${isPlayerB ? '900' : 'normal'}; color: ${colorB}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">${match.teamB}</span>
+                <img src="${logoB}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
+            </div>
+        </div>
+    `;
+});
+        
         html += `</div>`;
     });
 
