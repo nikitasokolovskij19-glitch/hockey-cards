@@ -322,24 +322,24 @@ html, body {
 #squadSelectList, #tournamentSelectList {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
-    gap: 6px !important;
-    padding: 0 4px !important;
+    gap: 6px !important; /* Расстояние между карточками */
+    padding: 0 4px !important; /* МИНИМАЛЬНЫЙ отступ от синей рамки (всего 4 пикселя) */
     align-content: start !important;
-    
-    /* ВОТ ГЛАВНЫЕ ИСПРАВЛЕНИЯ: */
-    flex: 1 !important; /* Занимаем всё свободное место внутри рамки */
+    flex: 1 !important; 
     width: 100% !important;
-    overflow-y: auto !important; /* Включаем прокрутку строго внутри этого блока */
+    overflow-y: auto !important; 
     margin-top: 10px !important;
-    position: relative !important; /* Убираем absolute, чтобы не вылезало за рамки */
+    position: relative !important;
+    box-sizing: border-box !important;
 }
 
-/* Принудительно задаем высоту карточкам, чтобы они не сжимались */
+/* Принудительно задаем высоту карточкам */
 #squadSelectList .mini-card-wrapper, 
 #tournamentSelectList .mini-card-wrapper {
-    height: 115px !important;
+    height: 135px !important; /* Оставляем увеличенную высоту */
     aspect-ratio: auto !important;
     width: 100% !important;
+    border-radius: 8px !important;
 }
 
         /* Жесткое скругление логотипов в матче */
