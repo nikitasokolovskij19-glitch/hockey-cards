@@ -1526,14 +1526,19 @@ while (ratingContainer.scrollWidth > ratingContainer.clientWidth && parseInt(rat
     const finalRating = (baseRating + (clubBonus + countryBonus)).toFixed(1).replace('.', ','); // Заглушка, посчитаем ниже
 
     let html = `
-        <div style="font-size: 28px; font-weight: 800; color: #fbbf24; text-align: center; margin-bottom: 15px; text-shadow: 0 0 10px rgba(251,191,36,0.3);">
-            ${finalRating} OVR
-        </div>
-        <div style="display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 13px;">
-            <span>Средний рейтинг игроков:</span>
-            <span style="color: white; font-weight: bold;">${baseRating.toFixed(1).replace('.', ',')}</span>
-        </div>
-    `;
+    <div style="text-align: center; margin-bottom: 25px;">
+        <div style="font-size: 13px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Рейтинг звена</div>
+        <div style="font-size: 42px; font-weight: 900; color: #ffffff; text-shadow: 0 0 20px rgba(255,255,255,0.2);">${finalRating} <span style="font-size: 20px; color: #71717a;">OVR</span></div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #27272a; color: #a1a1aa; font-size: 14px;">
+        <span>Средний рейтинг игроков:</span>
+        <span style="color: #ffffff; font-weight: bold;">${baseRating.toFixed(1).replace('.', ',')}</span>
+    </div>
+    
+    <div style="margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid #27272a;">
+        <div style="font-size: 11px; color: #71717a; text-transform: uppercase; margin-bottom: 10px;">Бонусы Химии:</div>
+`;
 
     // Вывод бонусов за клубы
     let hasAnyBonus = false;
@@ -1541,8 +1546,8 @@ while (ratingContainer.scrollWidth > ratingContainer.clientWidth && parseInt(rat
         if (clubCounts[c] >= 2) {
             let b = (clubCounts[c] - 1);
             clubBonus += b;
-            html += `<div style="display: flex; justify-content: space-between; font-size: 13px; color: #10b981; margin-top: 5px;">
-                        <span>Бонус за клуб (${c} x${clubCounts[c]}):</span>
+html += `<div style="display: flex; justify-content: space-between; font-size: 13px; color: #e4e4e7; margin-bottom: 5px;">
+<span>Бонус за клуб (${c} x${clubCounts[c]}):</span>
                         <span style="font-weight: bold;">+${b}</span>
                      </div>`;
             hasAnyBonus = true;
@@ -1554,15 +1559,17 @@ while (ratingContainer.scrollWidth > ratingContainer.clientWidth && parseInt(rat
         if (countryCounts[c] >= 2) {
             let b = (countryCounts[c] - 1) * 0.5;
             countryBonus += b;
-            html += `<div style="display: flex; justify-content: space-between; font-size: 13px; color: #10b981; margin-top: 5px;">
-                        <span>Бонус за страну (${c} x${countryCounts[c]}):</span>
+html += `<div style="display: flex; justify-content: space-between; font-size: 13px; color: #10b981; margin-bottom: 5px;">
+<span>Бонус за страну (${c} x${countryCounts[c]}):</span>
                         <span style="font-weight: bold;">+${b.toFixed(1).replace('.', ',')}</span>
                      </div>`;
             hasAnyBonus = true;
         }
     }
 
-    if (!hasAnyBonus) {
+    </div> <!-- Закрываем плашку бонусов -->
+
+if (!hasAnyBonus) {
         html += `<div style="text-align: center; font-size: 12px; color: #64748b; margin-top: 10px;">Нет связок для бонуса</div>`;
     }
 
@@ -3374,34 +3381,39 @@ let aPool = allField.filter(p => p !== shooter);
 
     let soA = 0, soB = 0, shotsA = 0, shotsB = 0;
     
-    while (true) {
-        // Бьет команда А
-        let fwdA = squadA.filter(p => p.pos === "Нападающий");
-        let shA = fwdA.length > 0 ? fwdA[Math.floor(Math.random() * fwdA.length)] : squadA[0];
-        let isGoalA = Math.random() < 0.35;
-        if (isGoalA) { soA++; recordStat(shA, teamA, 'goal'); }
-        
-        shootoutEvents.push({ 
-            text: `${isGoalA ? '✅' : '❌'} <b>${formatShooter(shA)}</b> (${teamA}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` 
-        });
-        
-        shotsA++;
-        if (shotsA >= 3 && shotsB >= 3 && soA !== soB) break;
-        if (shotsA >= 3 && soA > soB + (3 - shotsB)) break;
-        
-        // Бьет команда Б
-        let fwdB = squadB.filter(p => p.pos === "Нападающий");
-        let shB = fwdB.length > 0 ? fwdB[Math.floor(Math.random() * fwdB.length)] : squadB[0];
-        let isGoalB = Math.random() < 0.35;
-        if (isGoalB) { soB++; recordStat(shB, teamB, 'goal'); }
-        
-        shootoutEvents.push({ 
-            text: `${isGoalB ? '✅' : '❌'} <b>${formatShooter(shB)}</b> (${teamB}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` 
-        });
-        
-        shotsB++;
-        if (shotsA >= 3 && shotsB >= 3 && soA !== soB) break;
-    }
+    let round = 1;
+while (true) {
+    // --- Бьет команда А ---
+    let fwdA = squadA.filter(p => p.pos === "Нападающий");
+    let shA = fwdA.length > 0 ? fwdA[Math.floor(Math.random() * fwdA.length)] : squadA[0];
+    let isGoalA = Math.random() < 0.35;
+    if (isGoalA) { soA++; recordStat(shA, teamA, 'goal'); }
+    
+    shootoutEvents.push({ 
+        text: `${isGoalA ? '✅' : '❌'} <b>${formatShooter(shA)}</b> (${teamA}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` 
+    });
+
+    // Досрочная победа А (только в первых 3 раундах)
+    if (round <= 3 && soA > soB + (4 - round)) break;
+
+    // --- Бьет команда Б ---
+    let fwdB = squadB.filter(p => p.pos === "Нападающий");
+    let shB = fwdB.length > 0 ? fwdB[Math.floor(Math.random() * fwdB.length)] : squadB[0];
+    let isGoalB = Math.random() < 0.35;
+    if (isGoalB) { soB++; recordStat(shB, teamB, 'goal'); }
+    
+    shootoutEvents.push({ 
+        text: `${isGoalB ? '✅' : '❌'} <b>${formatShooter(shB)}</b> (${teamB}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` 
+    });
+
+    // Досрочная победа Б (только в первых 3 раундах)
+    if (round <= 3 && soB > soA + (3 - round)) break;
+
+    // Если прошло 3+ раунда и счет разный (обе команды били) - конец
+    if (round >= 3 && soA !== soB) break;
+    
+    round++;
+}
     
     // В общий счет матча добавляется ТОЛЬКО 1 ГОЛ победителю
     if (soA > soB) {
