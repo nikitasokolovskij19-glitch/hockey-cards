@@ -318,12 +318,12 @@ html, body {
 .card-info { transition: transform 0.1s ease-out; }
 .card .shine { opacity: 1; }
 
-        /* Фикс для 4 колонок и высоты карточек в экранах замены */
+        /* Фикс для 4 колонок, высоты карточек и прокрутки */
 #squadSelectList, #tournamentSelectList {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
-    gap: 6px !important; /* Расстояние между карточками */
-    padding: 0 4px !important; /* МИНИМАЛЬНЫЙ отступ от синей рамки (всего 4 пикселя) */
+    gap: 4px !important; /* Уменьшили расстояние между карточками, чтобы они стали шире */
+    padding: 0 2px 80px 2px !important; /* ДОБАВИЛИ ОТСТУП СНИЗУ (80px), чтобы последний ряд прокручивался */
     align-content: start !important;
     flex: 1 !important; 
     width: 100% !important;
@@ -333,10 +333,10 @@ html, body {
     box-sizing: border-box !important;
 }
 
-/* Принудительно задаем высоту карточкам */
+/* Делаем карточки ниже */
 #squadSelectList .mini-card-wrapper, 
 #tournamentSelectList .mini-card-wrapper {
-    height: 135px !important; /* Оставляем увеличенную высоту */
+    height: 105px !important; /* Уменьшили высоту со 135 до 105, чтобы карточки стали приземистее */
     aspect-ratio: auto !important;
     width: 100% !important;
     border-radius: 8px !important;
