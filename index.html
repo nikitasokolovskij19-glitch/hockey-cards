@@ -4060,25 +4060,31 @@ function switchTournamentTab(tab) {
 function changeStatsTab(tab) {
     currentTournamentStatsTab = tab;
     
-    // Массив со всеми ID кнопок
+    // Список всех 4 кнопок подвкладок
     const tabs = ['points', 'goals', 'assists', 'goalies'];
     
     tabs.forEach(t => {
-        // Делаем первую букву заглавной для поиска ID (points -> Points)
         const btnId = 'statTab' + t.charAt(0).toUpperCase() + t.slice(1);
         const btn = document.getElementById(btnId);
         
         if (btn) {
-    if (tab === currentTournamentStatsTab) {
-        btn.style.background = '#e4e4e7'; // Белый фон
-        btn.style.color = '#09090b'; // Черный текст
-    } else {
-        btn.style.background = 'transparent';
-        btn.style.color = '#a1a1aa'; // Серый текст
-    }
+            if (t === tab) {
+                // СТИЛЬ ДЛЯ АКТИВНОЙ ВКЛАДКИ (Белая с черным текстом)
+                btn.style.background = '#e4e4e7';
+                btn.style.color = '#09090b';
+                btn.style.fontWeight = '900';
+                btn.style.border = '1px solid #e4e4e7';
+            } else {
+                // СТИЛЬ ДЛЯ НЕАКТИВНОЙ ВКЛАДКИ (Темная с серым текстом)
+                btn.style.background = '#18181b';
+                btn.style.color = '#a1a1aa';
+                btn.style.fontWeight = 'bold';
+                btn.style.border = '1px solid #27272a';
+            }
         }
     });
-    
+
+    // Вызываем отрисовку контента
     renderTournamentStats();
 }
 
