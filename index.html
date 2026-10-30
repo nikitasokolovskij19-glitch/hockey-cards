@@ -1500,7 +1500,7 @@ while (ratingContainer.scrollWidth > ratingContainer.clientWidth && parseInt(rat
     renderAvatarOptions();
 }
 
-    function openTeamRatingModal() {
+function openTeamRatingModal() {
     const container = document.getElementById('teamRatingBreakdown');
     if (!container) return;
 
@@ -1509,33 +1509,20 @@ while (ratingContainer.scrollWidth > ratingContainer.clientWidth && parseInt(rat
     let countryCounts = {};
 
     for (let i = 0; i < 6; i++) {
-    if (squad[i]) {
-        const p = squad[i];
-        
-        // Определяем позицию
-        let posShort = "НАП";
-        if (p.pos === "Защитник") posShort = "ЗАЩ";
-        if (p.pos === "Вратарь") posShort = "ВРТ";
-
-        // Выводим строку с игроком
-        html += `
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-top: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
-            <div style="display: flex; gap: 6px; align-items: center; color: #cbd5e1;">
-                <span style="color: #71717a; font-size: 10px; width: 25px;">${posShort}</span>
-                <span style="color: #a1a1aa; font-weight: bold; width: 30px;">${p.number || ''}</span>
-                <span style="text-transform: uppercase;">${p.name}</span>
-                <span>${p.flag || ''}</span>
-            </div>
-            <span style="font-weight: bold; color: white; font-size: 14px;">${getPlayerOVR(p)}</span>
-        </div>`;
-    }
+        if (squad[i]) {
+            const p = squad[i];
+            squadTotalRating += getPlayerOVR(p);
+            if (p.club) clubCounts[p.club] = (clubCounts[p.club] || 0) + 1;
+            const country = p.flag || '🏳️';
+            countryCounts[country] = (countryCounts[country] || 0) + 1;
+        }
     }
 
     let clubBonus = 0;
     let countryBonus = 0;
     const baseRating = squadTotalRating / 6;
 
-    // Начинаем формировать HTML (убрали дубликат заголовка, оставили только один)
+    // Создаем переменную html
     let html = `
         <div style="text-align: center; margin-bottom: 25px;">
             <div style="font-size: 13px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Рейтинг звена</div>
@@ -1581,30 +1568,41 @@ while (ratingContainer.scrollWidth > ratingContainer.clientWidth && parseInt(rat
     }
     html += `</div>`;
 
-    // Считаем ИТОГОВЫЙ рейтинг ПРАВИЛЬНО (с бонусами) и вставляем его
     const finalTotal = baseRating + clubBonus + countryBonus;
     html = html.replace('0.0 <span', `${finalTotal.toFixed(1).replace('.', ',')} <span`);
 
     html += `<div style="margin-top: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; font-size: 11px; color: #94a3b8; text-transform: uppercase;">Состав:</div>`;
 
+    // ЦИКЛ ВЫВОДА ИГРОКОВ (с новым оформлением)
     for (let i = 0; i < 6; i++) {
-    if (squad[i]) {
-        const p = squad[i];
-        html += `<div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px;">
-            <span style="color: #cbd5e1;">${p.name}</span>
-            <span style="font-weight: bold; color: white;">${getPlayerOVR(p)}</span>
-        </div>`;
+        if (squad[i]) {
+            const p = squad[i];
+            
+            let posShort = "НАП";
+            if (p.pos === "Защитник") posShort = "ЗАЩ";
+            if (p.pos === "Вратарь") posShort = "ВРТ";
+
+            html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-top: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+                <div style="display: flex; gap: 6px; align-items: center; color: #cbd5e1;">
+                    <span style="color: #71717a; font-size: 10px; width: 25px;">${posShort}</span>
+                    <span style="color: #a1a1aa; font-weight: bold; width: 30px;">${p.number || ''}</span>
+                    <span style="text-transform: uppercase;">${p.name}</span>
+                    <span>${p.flag || ''}</span>
+                </div>
+                <span style="font-weight: bold; color: white; font-size: 14px;">${getPlayerOVR(p)}</span>
+            </div>`;
+        }
     }
-}
 
-// ВОЗВРАЩАЕМ КНОПКУ ЗАКРЫТЬ
-html += `
-    <button onclick="document.getElementById('teamRatingModal').style.display='none'" style="width: 100%; margin-top: 25px; padding: 16px; background: #27272a; color: #ffffff; border: 1px solid #3f3f46; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s;">
-        Закрыть
-    </button>
-`;
+    // КНОПКА ЗАКРЫТЬ
+    html += `
+        <button onclick="document.getElementById('teamRatingModal').style.display='none'" style="width: 100%; margin-top: 25px; padding: 16px; background: #27272a; color: #ffffff; border: 1px solid #3f3f46; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s;">
+            Закрыть
+        </button>
+    `;
 
-container.innerHTML = html;
+    container.innerHTML = html;
     document.getElementById('teamRatingModal').style.display = 'flex';
     }
 
