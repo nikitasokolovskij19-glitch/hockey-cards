@@ -1297,18 +1297,22 @@ initBackgroundCanvas();
         document.getElementById('globalBackBtn').style.display = 'none';
         renderCollection();
     });
-  // --- ЛОГИКА УРОВНЕЙ ---
-function getLevelData(exp) {
+
+    function getLevelData(exp) {
     let level = 1;
     let currentExp = exp;
-    let expNeeded = 100;
+    let expNeeded = 1000; // Для перехода с 1 на 2 уровень нужно 1000 опыта
+
+    // Пока опыта больше или столько же, сколько нужно для уровня - повышаем уровень
     while (currentExp >= expNeeded) {
         currentExp -= expNeeded;
         level++;
-        expNeeded = expNeeded * 2 + 100;
+        // Для каждого следующего уровня нужно на 1000 опыта больше
+        expNeeded = level * 1000; 
     }
+
     return { level, currentExp, expNeeded };
-}
+    }
 
 function addExp(amount) {
     const oldLevel = getLevelData(userExp).level;
