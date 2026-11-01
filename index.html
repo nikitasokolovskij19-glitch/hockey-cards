@@ -2983,6 +2983,27 @@ function renderTournamentSquadSlots() {
 
     const sameClub = tournamentSquad.every(p => p && p.club === firstClub);
     const isValid = (filledCount === 6 && hasCorrectPositions && sameClub);
+
+    // Сбор запасных (выполняется всегда)
+let benchHtml = '';
+if (firstClub) {
+    const benchCandidates = collection.filter(p => p.club === firstClub && !tournamentSquad.some(s => s && s.name === p.name && s.season === p.season));
+    const uniqueBench = {};
+    benchCandidates.forEach(p => { uniqueBench[`${p.name}_${p.season}`] = p; });
+    tournamentBench = Object.values(uniqueBench);
+
+    benchHtml = tournamentBench.length > 0 ? '' : '<span style="color:#64748b;">Нет запасных</span>';
+    tournamentBench.forEach(p => {
+        benchHtml += `<div style="padding: 6px; background: rgba(15,23,42,0.6); border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between;">
+            <div><span style="font-weight: bold; color: white;">${p.name}</span> <span style="color: #94a3b8; font-size: 11px;">(${p.pos})</span></div>
+            <div style="color: #fbbf24; font-weight: bold;">${getPlayerOVR(p)} OVR</div>
+        </div>`;
+    });
+} else {
+    benchHtml = '';
+    tournamentBench = [];
+}
+document.getElementById('tournamentBenchList').innerHTML = benchHtml;
     
     const startBtn = document.getElementById('startTournamentBtn');
 if (startBtn) {
@@ -2999,7 +3020,6 @@ if (startBtn) {
     startBtn.onclick = startTournament;
 } else {
         startBtn.style.display = 'none';
-        document.getElementById('tournamentBenchList').innerHTML = '<span style="color:#64748b;">Сначала соберите 6 игроков одной команды (3 НАП, 2 ЗАЩ, 1 ВРТ).</span>';
     }
 }
     
