@@ -3612,7 +3612,6 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     const nameB = document.getElementById('match-b-name');
 
     if (currentTournamentMode === 'national') {
-        // СКРЫВАЕМ САМ КОНТЕЙНЕР С БЕЛЫМ ФОНОМ
         if (logoA) logoA.parentElement.style.display = 'none';
         if (logoB) logoB.parentElement.style.display = 'none';
         
@@ -3626,7 +3625,7 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
         if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; nameB.style.color = '#ffffff'; }
     }
 
-    document.getElementById('match-score').innerHTML = `<span style="color:${cA}">${ev.scoreA}</span> <span style="color:#64748b">:</span> <span style="color:${cB}">${ev.scoreB}</span>`;
+    document.getElementById('match-score').innerText = '0 : 0';
     document.getElementById('match-time').innerText = "1' (1 период)";
     document.getElementById('match-log').innerHTML = '';
     document.getElementById('match-continue-btn').style.display = 'none';
@@ -3640,64 +3639,60 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     let isOT = false;
 
     function tick() {
-    const logDiv = document.getElementById('match-log');
-    const timeEl = document.getElementById('match-time');
-    let currentPeriodId = isOT ? 'OT' : curPer;
-    
-    // --- ВСТАВЛЯЕМ ЗАГОЛОВОК ПЕРИОДА ---
-    if (curMin === 1) {
-        let periodName = isOT ? 'ОВЕРТАЙМ' : `${curPer} ПЕРИОД`;
-        logDiv.innerHTML += `<div style="text-align: center; color: #fbbf24; font-weight: bold; margin: 15px 0 10px 0; font-size: 12px; opacity: 0.8;">--- ${periodName} ---</div>`;
-    }
-    // -----------------------------------
+        const logDiv = document.getElementById('match-log');
+        const timeEl = document.getElementById('match-time');
+        let currentPeriodId = isOT ? 'OT' : curPer;
 
-    let evs = allEvents.filter(e => e.minute === curMin && e.period === currentPeriodId);
+        if (curMin === 1) {
+            let periodName = isOT ? 'ОВЕРТАЙМ' : `${curPer} ПЕРИОД`;
+            logDiv.innerHTML += `<div style="text-align: center; color: #fbbf24; font-weight: bold; margin: 15px 0 10px 0; font-size: 12px; opacity: 0.8;">--- ${periodName} ---</div>`;
+        }
 
-// ВОТ ЭТА СТРОКА БЫЛА ПОТЕРЯНА:
-evs.forEach(ev => {
-    if (ev.scoreA !== undefined && ev.scoreB !== undefined) {
-    let cA = '#fbbf24', cB = '#fbbf24';
-    if (ev.scoreA > ev.scoreB) { cA = '#10b981'; cB = '#ef4444'; }
-    else if (ev.scoreB > ev.scoreA) { cA = '#ef4444'; cB = '#10b981'; }
-    
-    document.getElementById('match-score').innerHTML = `<span style="color:${cA}">${ev.scoreA}</span> <span style="color:#64748b">:</span> <span style="color:${cB}">${ev.scoreB}</span>`;
-    }
+        let evs = allEvents.filter(e => e.minute === curMin && e.period === currentPeriodId);
+        evs.forEach(ev => {
+            if (ev.scoreA !== undefined && ev.scoreB !== undefined) {
+                let cA = '#fbbf24', cB = '#fbbf24';
+                if (ev.scoreA > ev.scoreB) { cA = '#10b981'; cB = '#ef4444'; }
+                else if (ev.scoreB > ev.scoreA) { cA = '#ef4444'; cB = '#10b981'; }
+                
+                document.getElementById('match-score').innerHTML = `<span style="color:${cA}">${ev.scoreA}</span> <span style="color:#64748b">:</span> <span style="color:${cB}">${ev.scoreB}</span>`;
+            }
 
-    if (ev.type === 'goal') {
-    let scoreA_color = ev.isTeamA ? 'white' : '#71717a'; // Белый для забившей, серый для пропустившей
-    let scoreB_color = !ev.isTeamA ? 'white' : '#71717a';
-    
-    const formatName = (p) => {
-        if(!p) return '';
-        const parts = p.name.split(' ');
-        const lastName = parts[1] || parts[0];
-        const firstName = parts[0] || '';
-        return `${p.number || ''} ${firstName[0]}. ${lastName}`;
-    };
-    let assistsText = ev.assists.map(a => formatName(a)).join('<br>');
+            if (ev.type === 'goal') {
+                let scoreA_color = ev.isTeamA ? 'white' : '#71717a';
+                let scoreB_color = !ev.isTeamA ? 'white' : '#71717a';
+                
+                const formatName = (p) => {
+                    if(!p) return '';
+                    const parts = p.name.split(' ');
+                    const lastName = parts[1] || parts[0];
+                    const firstName = parts[0] || '';
+                    return `${p.number || ''} ${firstName[0]}. ${lastName}`;
+                };
+                let assistsText = ev.assists.map(a => formatName(a)).join('<br>');
 
-    logDiv.innerHTML += `
-        <div style="display: flex; align-items: center; border-bottom: 1px solid #27272a; padding: 10px 0; width: 100%;">
-            <div style="width: 50px; text-align: center; font-size: 11px; color: #a1a1aa; line-height: 1.2;">
-                <div>${ev.minuteStr}</div>
-                <div>${ev.strength}</div>
-            </div>
-            <div style="width: 70px; text-align: center; font-size: 20px; font-weight: bold; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 5px;">
-                <span style="color: ${scoreA_color};">${ev.scoreA}</span><span style="color: #64748b;">:</span><span style="color: ${scoreB_color};">${ev.scoreB}</span>
-            </div>
-            <div style="flex: 1; padding-left: 15px; font-size: 13px; line-height: 1.3;">
-                <div style="font-weight: bold; color: white;">${formatName(ev.scorer)}</div>
-                ${assistsText ? `<div style="color: #a1a1aa; font-size: 11px;">${assistsText}</div>` : ''}
-            </div>
-        </div>
-    `;
-} else if (ev.type === 'change') {
-    logDiv.innerHTML += `<div style="margin: 10px 0; color: #ffffff; font-size: 12px; text-align: center; background: #27272a; padding: 5px; border-radius: 4px;">${ev.text}</div>`;
-} else if (ev.text) {
-    logDiv.innerHTML += `<div style="margin: 10px 0; text-align: center; color: #a1a1aa; font-size: 12px; font-weight: bold;">${ev.text}</div>`;
-    }
-    logDiv.scrollTop = logDiv.scrollHeight;
-}); // Закрывается forEach
+                logDiv.innerHTML += `
+                    <div style="display: flex; align-items: center; border-bottom: 1px solid #27272a; padding: 10px 0; width: 100%;">
+                        <div style="width: 50px; text-align: center; font-size: 11px; color: #a1a1aa; line-height: 1.2;">
+                            <div>${ev.minuteStr}</div>
+                            <div>${ev.strength}</div>
+                        </div>
+                        <div style="width: 70px; text-align: center; font-size: 20px; font-weight: bold; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 5px;">
+                            <span style="color: ${scoreA_color};">${ev.scoreA}</span><span style="color: #64748b;">:</span><span style="color: ${scoreB_color};">${ev.scoreB}</span>
+                        </div>
+                        <div style="flex: 1; padding-left: 15px; font-size: 13px; line-height: 1.3;">
+                            <div style="font-weight: bold; color: white;">${formatName(ev.scorer)}</div>
+                            ${assistsText ? `<div style="color: #a1a1aa; font-size: 11px;">${assistsText}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            } else if (ev.type === 'change') {
+                logDiv.innerHTML += `<div style="margin: 10px 0; color: #ffffff; font-size: 12px; text-align: center; background: #27272a; padding: 5px; border-radius: 4px;">${ev.text}</div>`;
+            } else if (ev.text) {
+                logDiv.innerHTML += `<div style="margin: 10px 0; text-align: center; color: #a1a1aa; font-size: 12px; font-weight: bold;">${ev.text}</div>`;
+            }
+            logDiv.scrollTop = logDiv.scrollHeight;
+        });
 
         timeEl.innerText = `${curMin}' (${isOT ? 'Овертайм' : curPer + ' период'})`;
         let maxMin = isOT ? 5 : 20;
@@ -3717,6 +3712,7 @@ evs.forEach(ev => {
         }
         setTimeout(tick, isOT ? 400 : 333);
     }
+
     function startShootout() {
         const logDiv = document.getElementById('match-log');
         const timeEl = document.getElementById('match-time');
@@ -3789,58 +3785,50 @@ evs.forEach(ev => {
             document.getElementById('matchSimView').style.display = 'none';
             onComplete(matchData.scoreA, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
         };
-    } // <--- ЗАКРЫВАЕТ endMatch
+    } // <--- ЗАКРЫВАЕТСЯ endMatch
 
     setTimeout(tick, 1000);
-} // <--- ЗАКРЫВАЕТ simulateVisualMatch
-        
+} // <--- ЗАКРЫВАЕТСЯ simulateVisualMatch
 
-    // --- ТУРНИР: ЗАПУСК ДНЯ И ОБРАБОТКА РЕЗУЛЬТАТОВ ---
- function runTournament() {
+    function runTournament() {
     if (isTournamentRunning) return;
 
-    // Защита от вылета: если туры кончились, просто ничего не делаем
     if (!tournamentSchedule || currentRoundIndex >= tournamentSchedule.length) {
-        return; 
+        return;
     }
 
     const playerTeam = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
     let currentRoundMatches = tournamentSchedule[currentRoundIndex];
 
-    // Защита от пустого массива матчей
     if (!currentRoundMatches) {
-    isTournamentRunning = false;
-    prepareTournament(); // Показываем таблицу вместо завершения
-    return;
+        isTournamentRunning = false;
+        prepareTournament();
+        return;
     }
 
     let playerMatch = currentRoundMatches.find(m => m.teamA === playerTeam || m.teamB === playerTeam);
-    
-    isTournamentRunning = true;
-const playBtn = document.getElementById('tournamentPlayBtn');
-if (playBtn) playBtn.style.display = 'none';
 
-try {
-    if (!playerMatch) {
-        processRoundResults(currentRoundMatches, playerTeam, null, 0, 0);
-    } else {
-        let opponent = playerMatch.teamA === playerTeam ? playerMatch.teamB : playerMatch.teamA;
-        simulateVisualMatch(playerTeam, opponent, (scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) => {
-            processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp);
-        });
+    isTournamentRunning = true;
+    const playBtn = document.getElementById('tournamentPlayBtn');
+    if (playBtn) playBtn.style.display = 'none';
+
+    try {
+        if (!playerMatch) {
+            processRoundResults(currentRoundMatches, playerTeam, null, 0, 0);
+        } else {
+            let opponent = playerMatch.teamA === playerTeam ? playerMatch.teamB : playerMatch.teamA;
+            simulateVisualMatch(playerTeam, opponent, (scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) => {
+                processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp);
+            });
+        }
+    } catch (error) {
+        isTournamentRunning = false;
+        if (playBtn) playBtn.style.display = 'block';
+        document.getElementById('matchSimView').style.display = 'none';
+        showAlert("Произошла ошибка при запуске матча. Попробуйте еще раз.\n" + error.message);
+        console.error(error);
     }
-} catch (error) {
-    // Если произошла ошибка - кнопка возвращается, турнир не зависает, а экран матча закрывается
-    isTournamentRunning = false;
-    if (playBtn) playBtn.style.display = 'block';
-    
-    // ВОТ ЭТА СТРОКА ЗАКРЫВАЕТ ЗАВИСШИЙ ЭКРАН МАТЧА
-    document.getElementById('matchSimView').style.display = 'none'; 
-    
-    showAlert("Произошла ошибка при запуске матча. Попробуйте еще раз.\n" + error.message);
-    console.error(error);
     }
- }
 
 function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) {
     let roundResults = [];
@@ -4025,11 +4013,23 @@ localStorage.removeItem('khl_active_tournament'); // Очищаем сохран
     });
     }
 
+// Словарь для названий стран
+function getCountryName(flag) {
+    const countries = {
+        "🇷🇺": "Россия", "🇨🇦": "Канада", "🇫🇮": "Финляндия", "🇨🇿": "Чехия",
+        "🇸🇪": "Швеция", "🇰🇿": "Казахстан", "🇧🇾": "Беларусь", "🇸🇰": "Словакия",
+        "🇸🇮": "Словения", "🇺🇦": "Украина", "🇺🇸": "США", "🇱🇻": "Латвия"
+    };
+    return countries[flag] || flag;
+}
+
 function prepareTournament() {
     const statusEl = document.getElementById('tournamentStatus');
     const startBtn = document.getElementById('tournamentPlayBtn') || document.getElementById('startTournamentBtn');
-    const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
+
     const titleEl = document.getElementById('tournamentMainTitle');
+    const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
+
     if (titleEl) {
         titleEl.innerText = currentTournamentMode === 'national' ? 'ТУРНИР СБОРНЫХ' : 'ТУРНИР КЛУБОВ';
     }
@@ -4044,7 +4044,7 @@ function prepareTournament() {
         if (startBtn) {
             startBtn.style.display = 'block';
             startBtn.innerText = '🏆 ЗАВЕРШИТЬ ТУРНИР';
-            startBtn.style.backgroundColor = '#fbbf24'; // Желтый
+            startBtn.style.backgroundColor = '#fbbf24';
             startBtn.style.color = '#000';
             startBtn.onclick = finishTournament;
         }
@@ -4053,7 +4053,7 @@ function prepareTournament() {
         if (startBtn) {
             startBtn.style.display = 'block';
             startBtn.innerText = `▶ ИГРАТЬ ДЕНЬ ${currentRoundIndex + 1}`;
-            startBtn.style.backgroundColor = '#10b981'; // Зеленый
+            startBtn.style.backgroundColor = '#10b981';
             startBtn.style.color = '#fff';
             startBtn.onclick = runTournament;
         }
@@ -4061,15 +4061,15 @@ function prepareTournament() {
 
     // --- СОХРАНЕНИЕ ТУРНИРА В ПАМЯТЬ ---
     if (tournamentSchedule && tournamentSchedule.length > 0) {
-    localStorage.setItem('khl_active_tournament', JSON.stringify({
-        schedule: tournamentSchedule,
-        data: tournamentData,
-        playerStats: tournamentPlayerStats,
-        roundIndex: currentRoundIndex,
-        squad: tournamentSquad,
-        bench: tournamentBench,
-        mode: currentTournamentMode
-    }));
+        localStorage.setItem('khl_active_tournament', JSON.stringify({
+            schedule: tournamentSchedule,
+            data: tournamentData,
+            playerStats: tournamentPlayerStats,
+            roundIndex: currentRoundIndex,
+            squad: tournamentSquad,
+            bench: tournamentBench,
+            mode: currentTournamentMode
+        }));
     }
 }
 
@@ -4155,41 +4155,91 @@ let logoB_Html = '';
 let nameA = match.teamA;
 let nameB = match.teamB;
 
-if (currentTournamentMode === 'national') {
-    logoA_Html = `<span style="font-size: 16px; line-height: 1; width: 20px; text-align: center;">${logoA}</span>`;
-    logoB_Html = `<span style="font-size: 16px; line-height: 1; width: 20px; text-align: center;">${logoB}</span>`;
-    nameA = getCountryName(match.teamA);
-    nameB = getCountryName(match.teamB);
-} else {
-    logoA_Html = `<img src="${logoA}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">`;
-    logoB_Html = `<img src="${logoB}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">`;
-}
+function renderTournamentCalendar() {
+    const list = document.getElementById('tournamentCalendarList');
+    if (!list) return;
+    list.innerHTML = '';
 
-    html += `
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a;">
-        
-        <div style="display: flex; align-items: center; gap: 6px; width: 40%; background: ${bgA}; padding: 4px; border-radius: 4px;">
-            ${logoA_Html}
-            <span style="font-size: 11px; font-weight: ${isPlayerA ? '900' : 'normal'}; color: ${colorA}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nameA}</span>
-        </div>
-        
-        <div style="width: 20%; text-align: center; font-weight: bold; font-size: 14px;">
-            ${hasScore ? `<span style="color: ${scoreColorA};">${match.scoreA}</span> <span style="color:#64748b">:</span> <span style="color: ${scoreColorB};">${match.scoreB}</span>` : '<span style="color: #71717a;">vs</span>'}
-        </div>
-        
-        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 40%; background: ${bgB}; padding: 4px; border-radius: 4px;">
-            <span style="font-size: 11px; font-weight: ${isPlayerB ? '900' : 'normal'}; color: ${colorB}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">${nameB}</span>
-            ${logoB_Html}
-        </div>
-    </div>
-`;
-});
-        
+    if (!tournamentSchedule || tournamentSchedule.length === 0) {
+        list.innerHTML = '<div style="text-align: center; color: #64748b; margin-top: 20px;">Календарь пуст</div>';
+        return;
+    }
+
+    let html = '';
+    const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
+    
+    tournamentSchedule.forEach((round, roundIndex) => {
+        html += `<div style="background: #18181b; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; color: #e4e4e7; font-size: 13px; border: 1px solid #27272a;">Игровой день ${roundIndex + 1}</div>`;
+        html += `<div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">`;
+
+        round.forEach(match => {
+            const hasScore = match.scoreA !== undefined && match.scoreB !== undefined;
+            
+            const teamAObj = tournamentData.find(t => t.team === match.teamA);
+            const teamBObj = tournamentData.find(t => t.team === match.teamB);
+            const logoA = teamAObj ? teamAObj.logo : '';
+            const logoB = teamBObj ? teamBObj.logo : '';
+
+            const isPlayerA = match.teamA === playerTeamName;
+            const isPlayerB = match.teamB === playerTeamName;
+            
+            const bgA = isPlayerA ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
+            const bgB = isPlayerB ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
+            
+            const colorA = isPlayerA ? '#ffffff' : '#a1a1aa';
+            const colorB = isPlayerB ? '#ffffff' : '#a1a1aa';
+
+            let scoreColorA = '#ffffff';
+            let scoreColorB = '#ffffff';
+            if (hasScore) {
+                if (match.scoreA > match.scoreB) {
+                    scoreColorA = '#10b981'; scoreColorB = '#ef4444';
+                } else if (match.scoreB > match.scoreA) {
+                    scoreColorA = '#ef4444'; scoreColorB = '#10b981';
+                } else {
+                    scoreColorA = '#fbbf24'; scoreColorB = '#fbbf24';
+                }
+            }
+
+            let logoA_Html = '';
+            let logoB_Html = '';
+            let nameA = match.teamA;
+            let nameB = match.teamB;
+
+            if (currentTournamentMode === 'national') {
+                logoA_Html = `<span style="font-size: 16px; line-height: 1; width: 20px; text-align: center;">${logoA}</span>`;
+                logoB_Html = `<span style="font-size: 16px; line-height: 1; width: 20px; text-align: center;">${logoB}</span>`;
+                nameA = getCountryName(match.teamA);
+                nameB = getCountryName(match.teamB);
+            } else {
+                logoA_Html = `<img src="${logoA}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">`;
+                logoB_Html = `<img src="${logoB}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">`;
+            }
+
+            html += `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a;">
+                    
+                    <div style="display: flex; align-items: center; gap: 6px; width: 40%; background: ${bgA}; padding: 4px; border-radius: 4px;">
+                        ${logoA_Html}
+                        <span style="font-size: 11px; font-weight: ${isPlayerA ? '900' : 'normal'}; color: ${colorA}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nameA}</span>
+                    </div>
+                    
+                    <div style="width: 20%; text-align: center; font-weight: bold; font-size: 14px;">
+                        ${hasScore ? `<span style="color: ${scoreColorA};">${match.scoreA}</span> <span style="color:#64748b">:</span> <span style="color: ${scoreColorB};">${match.scoreB}</span>` : '<span style="color: #71717a;">vs</span>'}
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 40%; background: ${bgB}; padding: 4px; border-radius: 4px;">
+                        <span style="font-size: 11px; font-weight: ${isPlayerB ? '900' : 'normal'}; color: ${colorB}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">${nameB}</span>
+                        ${logoB_Html}
+                    </div>
+                </div>
+            `;
+        });
         html += `</div>`;
     });
 
     list.innerHTML = html;
-    }
+}
 
     // Словарь сокращений для таблицы
 const teamShortNames = {
@@ -4202,16 +4252,6 @@ const teamShortNames = {
     "Сибирь": "СИБ", "СКА": "СКА", "Слован": "СЛО", "Сочи": "СОЧИ",
     "Спартак": "СПА", "Торпедо": "ТОР", "Трактор": "ТРА", "Витязь": "ВИТ", "Югра": "ЮГРА"
 };
-
-// Словарь для названий стран
-function getCountryName(flag) {
-    const countries = {
-        "🇷🇺": "Россия", "🇨🇦": "Канада", "🇫🇮": "Финляндия", "🇨🇿": "Чехия",
-        "🇸🇪": "Швеция", "🇰🇿": "Казахстан", "🇧🇾": "Беларусь", "🇸🇰": "Словакия",
-        "🇸🇮": "Словения", "🇺🇦": "Украина", "🇺🇸": "США", "🇱🇻": "Латвия"
-    };
-    return countries[flag] || flag;
-}
 
 function renderTournamentTable(playerTeam) {
     const tableContainer = document.getElementById('tournamentTableContainer');
@@ -4239,26 +4279,14 @@ function renderTournamentTable(playerTeam) {
         const color = isPlayer ? '#ffffff' : '#cbd5e1';
         const fontWeight = isPlayer ? 'bold' : 'normal';
 
-        // ИСПРАВЛЕНИЕ: Если сборные, берем название страны, а не флаг
-        let shortName = currentTournamentMode === 'national' ? getCountryName(row.team) : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
-let logoHtml = '';
-
-tournamentData.forEach((row, index) => {
-    const isPlayer = row.team === playerTeam;
-    const bg = isPlayer ? 'rgba(255, 255, 255, 0.1)' : 'transparent';
-    const color = isPlayer ? '#ffffff' : '#cbd5e1';
-    const fontWeight = isPlayer ? 'bold' : 'normal';
-
-    // ВОТ ЭТА СТРОКА ОБЪЯВЛЯЕТ ПЕРЕМЕННУЮ (скорее всего, у тебя тут было shortName = ...)
-    let displayName = currentTournamentMode === 'national' ? getCountryName(row.team) : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
-    
-    let logoHtml = '';
-    
-    if (currentTournamentMode === 'national') {
-        logoHtml = `<span style="font-size: 20px; line-height: 1; width: 22px; text-align: center;">${row.team}</span>`;
-    } else {
-        logoHtml = `<img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">`;
-    }
+        let displayName = currentTournamentMode === 'national' ? getCountryName(row.team) : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
+        
+        let logoHtml = '';
+        if (currentTournamentMode === 'national') {
+            logoHtml = `<span style="font-size: 20px; line-height: 1; width: 22px; text-align: center;">${row.team}</span>`;
+        } else {
+            logoHtml = `<img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">`;
+        }
 
         let medal = '';
         if (index === 0) medal = '🥇';
