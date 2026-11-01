@@ -4027,18 +4027,13 @@ localStorage.removeItem('khl_active_tournament'); // Очищаем сохран
 
 function prepareTournament() {
     const statusEl = document.getElementById('tournamentStatus');
-    
+    const startBtn = document.getElementById('tournamentPlayBtn') || document.getElementById('startTournamentBtn');
+
     const titleEl = document.getElementById('tournamentMainTitle');
     if (titleEl) {
         titleEl.innerText = currentTournamentMode === 'national' ? 'ТУРНИР СБОРНЫХ' : 'ТУРНИР КЛУБОВ';
     }
 
-    // ... (дальше идет остальной код)
-    const statusEl = document.getElementById('tournamentStatus');
-    // Ищем нижнюю кнопку. Если её нет, ищем кнопку на экране сборки (для страховки)
-    const startBtn = document.getElementById('tournamentPlayBtn') || document.getElementById('startTournamentBtn');
-    const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
-    
     sortTournamentTable();
     renderTournamentTable(playerTeamName);
     switchTournamentTab('standings');
