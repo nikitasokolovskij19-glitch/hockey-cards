@@ -3605,35 +3605,32 @@ return { events, shootoutEvents, scoreA, scoreB, regScoreA, regScoreB, stats };
 }
 
 function simulateVisualMatch(teamA, teamB, onComplete) {
-    
     const teamAObj = PLAYERS.find(p => p.club === teamA);
-const teamBObj = PLAYERS.find(p => p.club === teamB);
+    const teamBObj = PLAYERS.find(p => p.club === teamB);
+    
+    const logoA = document.getElementById('match-a-logo');
+    const nameA = document.getElementById('match-a-name');
+    const logoB = document.getElementById('match-b-logo');
+    const nameB = document.getElementById('match-b-name');
 
-if (currentTournamentMode === 'national') {
-    // РЕЖИМ СБОРНЫХ: Скрываем картинки, показываем большие флаги вместо имен
-    document.getElementById('match-a-logo').style.display = 'none';
-    document.getElementById('match-a-name').innerText = teamA;
-    document.getElementById('match-a-name').style.fontSize = '40px';
-    document.getElementById('match-a-name').style.marginBottom = '10px';
+    if (currentTournamentMode === 'national') {
+        if (logoA) logoA.style.display = 'none';
+        if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '40px'; nameA.style.marginBottom = '10px'; }
+        if (logoB) logoB.style.display = 'none';
+        if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '40px'; nameB.style.marginBottom = '10px'; }
+    } else {
+        if (logoA) { logoA.style.display = 'block'; logoA.src = teamAObj ? teamAObj.logo : ''; }
+        if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '12px'; nameA.style.marginBottom = '0px'; }
+        if (logoB) { logoB.style.display = 'block'; logoB.src = teamBObj ? teamBObj.logo : ''; }
+        if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; }
+    }
 
-    document.getElementById('match-b-logo').style.display = 'none';
-    document.getElementById('match-b-name').innerText = teamB;
-    document.getElementById('match-b-name').style.fontSize = '40px';
-    document.getElementById('match-b-name').style.marginBottom = '10px';
-} else {
-    // РЕЖИМ КЛУБОВ: Показываем логотипы как обычно
-    document.getElementById('match-a-logo').style.display = 'block';
-    document.getElementById('match-a-name').innerText = teamA;
-    document.getElementById('match-a-name').style.fontSize = '12px';
-    document.getElementById('match-a-name').style.marginBottom = '0px';
-    document.getElementById('match-a-logo').src = teamAObj ? teamAObj.logo : '';
-
-    document.getElementById('match-b-logo').style.display = 'block';
-    document.getElementById('match-b-name').innerText = teamB;
-    document.getElementById('match-b-name').style.fontSize = '12px';
-    document.getElementById('match-b-name').style.marginBottom = '0px';
-    document.getElementById('match-b-logo').src = teamBObj ? teamBObj.logo : '';
-}
+    document.getElementById('match-score').innerText = '0 : 0';
+    document.getElementById('match-time').innerText = "1' (1 период)";
+    document.getElementById('match-log').innerHTML = '';
+    document.getElementById('match-continue-btn').style.display = 'none';
+    document.getElementById('btn-view-stats').style.display = 'none';
+    document.getElementById('matchSimView').style.display = 'flex';
 
     const matchData = generateMatchData(teamA, teamB);
     let allEvents = [...matchData.events];
@@ -3819,17 +3816,28 @@ evs.forEach(ev => {
     let playerMatch = currentRoundMatches.find(m => m.teamA === playerTeam || m.teamB === playerTeam);
     
     isTournamentRunning = true;
-    const playBtn = document.getElementById('tournamentPlayBtn'); 
-if(playBtn) playBtn.style.display = 'none';
-     
+const playBtn = document.getElementById('tournamentPlayBtn');
+if (playBtn) playBtn.style.display = 'none';
+
+try {
     if (!playerMatch) {
-        // Если у команды выходной в этом раунде
         processRoundResults(currentRoundMatches, playerTeam, null, 0, 0);
     } else {
         let opponent = playerMatch.teamA === playerTeam ? playerMatch.teamB : playerMatch.teamA;
         simulateVisualMatch(playerTeam, opponent, (scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) => {
-    processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp);
-});
+            processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp);
+        });
+    }
+} catch (error) {
+    // Если произошла ошибка - кнопка возвращается, турнир не зависает, а экран матча закрывается
+    isTournamentRunning = false;
+    if (playBtn) playBtn.style.display = 'block';
+    
+    // ВОТ ЭТА СТРОКА ЗАКРЫВАЕТ ЗАВИСШИЙ ЭКРАН МАТЧА
+    document.getElementById('matchSimView').style.display = 'none'; 
+    
+    showAlert("Произошла ошибка при запуске матча. Попробуйте еще раз.\n" + error.message);
+    console.error(error);
     }
  }
 
@@ -4527,24 +4535,42 @@ function refreshUserData() {
         updateUI();
         updateProfile();
         
-        // Восстановление турнира при старте
         const savedTourney = localStorage.getItem('khl_active_tournament');
-        if (savedTourney) {
-            try {
-                const t = JSON.parse(savedTourney);
-                if (t.schedule && t.roundIndex < t.schedule.length) {
-                    tournamentSchedule = t.schedule;
-                    tournamentData = t.data;
-                    tournamentPlayerStats = t.playerStats;
-                    currentRoundIndex = t.roundIndex;
-                    tournamentSquad = t.squad;
-                    tournamentBench = t.bench;
-currentTournamentMode = t.mode || 'khl'; // <--- ДОБАВИТЬ ЭТУ СТРОКУ
-                } else {
-                    localStorage.removeItem('khl_active_tournament');
-                }
-            } catch(e) { console.error("Ошибка загрузки турнира:", e); }
+if (savedTourney) {
+    try {
+        const t = JSON.parse(savedTourney);
+        
+        // ПРОВЕРКА НА СТАРЫЙ ТУРНИР (без поля mode)
+        if (!t.mode) {
+            // Возвращаем деньги игроку, так как сбрасываем турнир
+            let refund = 50 * ((t.roundIndex || 0) + 1); 
+            userCoins += refund;
+            localStorage.setItem('khl_coins', userCoins);
+            
+            // Удаляем старый турнир
+            localStorage.removeItem('khl_active_tournament');
+            
+            setTimeout(() => {
+                showAlert(`⚠️ ВНИМАНИЕ!\nТурнирная система была обновлена, и ваш старый турнир пришлось сбросить. Мы вернули вам ${refund} 💵 за вход. Пожалуйста, начните новый турнир!`);
+            }, 1500);
+            
+        } else if (t.schedule && t.roundIndex < t.schedule.length) {
+            // Если турнир новый и не доигран - восстанавливаем
+            tournamentSchedule = t.schedule;
+            tournamentData = t.data;
+            tournamentPlayerStats = t.playerStats;
+            currentRoundIndex = t.roundIndex;
+            tournamentSquad = t.squad;
+            tournamentBench = t.bench;
+            currentTournamentMode = t.mode || 'khl';
+        } else {
+            localStorage.removeItem('khl_active_tournament');
         }
+    } catch(e) { 
+        console.error("Ошибка загрузки турнира:", e); 
+        localStorage.removeItem('khl_active_tournament');
+    }
+}
 
         // Засчитываем вход и логин
         addQuestProgress('play');
