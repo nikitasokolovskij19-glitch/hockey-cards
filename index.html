@@ -4243,12 +4243,22 @@ function renderTournamentTable(playerTeam) {
         let shortName = currentTournamentMode === 'national' ? getCountryName(row.team) : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
 let logoHtml = '';
 
-if (currentTournamentMode === 'national') {
-    // Если сборные, выводим только название (без второго флага)
-    logoHtml = ''; 
-} else {
-    logoHtml = `<img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">`;
-}
+tournamentData.forEach((row, index) => {
+    const isPlayer = row.team === playerTeam;
+    const bg = isPlayer ? 'rgba(255, 255, 255, 0.1)' : 'transparent';
+    const color = isPlayer ? '#ffffff' : '#cbd5e1';
+    const fontWeight = isPlayer ? 'bold' : 'normal';
+
+    // ВОТ ЭТА СТРОКА ОБЪЯВЛЯЕТ ПЕРЕМЕННУЮ (скорее всего, у тебя тут было shortName = ...)
+    let displayName = currentTournamentMode === 'national' ? getCountryName(row.team) : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
+    
+    let logoHtml = '';
+    
+    if (currentTournamentMode === 'national') {
+        logoHtml = `<span style="font-size: 20px; line-height: 1; width: 22px; text-align: center;">${row.team}</span>`;
+    } else {
+        logoHtml = `<img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">`;
+    }
 
         let medal = '';
         if (index === 0) medal = '🥇';
