@@ -4097,64 +4097,6 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
     });
     }
 
-    function renderTournamentCalendar() {
-    const list = document.getElementById('tournamentCalendarList');
-    if (!list) return;
-    list.innerHTML = '';
-
-    if (!tournamentSchedule || tournamentSchedule.length === 0) {
-        list.innerHTML = '<div style="text-align: center; color: #64748b; margin-top: 20px;">Календарь пуст</div>';
-        return;
-    }
-
-    let html = '';
-    
-    tournamentSchedule.forEach((round, roundIndex) => {
-        // Заголовок дня (темно-серый, без желтого)
-        html += `<div style="background: #18181b; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; color: #e4e4e7; font-size: 13px; border: 1px solid #27272a;">Игровой день ${roundIndex + 1}</div>`;
-        html += `<div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">`;
-
-        round.forEach(match => {
-    const hasScore = match.scoreA !== undefined && match.scoreB !== undefined;
-    
-    const teamAObj = tournamentData.find(t => t.team === match.teamA);
-    const teamBObj = tournamentData.find(t => t.team === match.teamB);
-    const logoA = teamAObj ? teamAObj.logo : '';
-    const logoB = teamBObj ? teamBObj.logo : '';
-
-    const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
-const isPlayerA = match.teamA === playerTeamName;
-const isPlayerB = match.teamB === playerTeamName;
-    
-    // Фон для команд (без синего, просто серый)
-    const bgA = isPlayerA ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
-    const bgB = isPlayerB ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
-    
-    // Цвета названий команд
-    const colorA = isPlayerA ? '#ffffff' : '#a1a1aa';
-    const colorB = isPlayerB ? '#ffffff' : '#a1a1aa';
-
-    // НОВАЯ ЛОГИКА: Определяем цвета для счета
-    let scoreColorA = '#ffffff';
-    let scoreColorB = '#ffffff';
-    if (hasScore) {
-        if (match.scoreA > match.scoreB) {
-            scoreColorA = '#10b981'; // Зеленый (победитель)
-            scoreColorB = '#ef4444'; // Красный (проигравший)
-        } else if (match.scoreB > match.scoreA) {
-            scoreColorA = '#ef4444'; 
-            scoreColorB = '#10b981';
-        } else {
-            scoreColorA = '#fbbf24'; // Желтый (ничья/буллиты)
-            scoreColorB = '#fbbf24';
-        }
-    }
-
-            let logoA_Html = '';
-let logoB_Html = '';
-let nameA = match.teamA;
-let nameB = match.teamB;
-
 function renderTournamentCalendar() {
     const list = document.getElementById('tournamentCalendarList');
     if (!list) return;
