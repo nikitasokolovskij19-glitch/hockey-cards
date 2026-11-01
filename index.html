@@ -3626,7 +3626,7 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
         if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; nameB.style.color = '#ffffff'; }
     }
 
-    document.getElementById('match-score').innerText = '0 : 0';
+    document.getElementById('match-score').innerHTML = `<span style="color:${cA}">${ev.scoreA}</span> <span style="color:#64748b">:</span> <span style="color:${cB}">${ev.scoreB}</span>`;
     document.getElementById('match-time').innerText = "1' (1 период)";
     document.getElementById('match-log').innerHTML = '';
     document.getElementById('match-continue-btn').style.display = 'none';
