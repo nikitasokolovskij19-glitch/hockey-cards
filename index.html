@@ -1891,16 +1891,6 @@ function claimMainQuestReward() {
         return Math.round(((player.sc || 0) + (player.br || 0) + (player.ps || 0) + (player.si || 0) + (player.end || 0) + (player.skate || 0)) / 6);
     }
     }
-
-    // Словарь для названий стран
-function getCountryName(flag) {
-    const countries = {
-        "🇷🇺": "Россия", "🇨🇦": "Канада", "🇫🇮": "Финляндия", "🇨🇿": "Чехия",
-        "🇸🇪": "Швеция", "🇰🇿": "Казахстан", "🇧🇾": "Беларусь", "🇸🇰": "Словакия",
-        "🇸🇮": "Словения", "🇺🇦": "Украина", "🇺🇸": "США", "🇱🇻": "Латвия"
-    };
-    return countries[flag] || flag;
-}
     
   function getRarityInfo(overall) {
     if (overall >= 90) return { color: "#be123c", name: "Эпическая", num: 5 }; // Бордовый
@@ -3622,15 +3612,18 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     const nameB = document.getElementById('match-b-name');
 
     if (currentTournamentMode === 'national') {
-        if (logoA) logoA.style.display = 'none';
-        if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '40px'; nameA.style.marginBottom = '10px'; }
-        if (logoB) logoB.style.display = 'none';
-        if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '40px'; nameB.style.marginBottom = '10px'; }
+        // СКРЫВАЕМ САМ КОНТЕЙНЕР С БЕЛЫМ ФОНОМ
+        if (logoA) logoA.parentElement.style.display = 'none';
+        if (logoB) logoB.parentElement.style.display = 'none';
+        
+        if (nameA) { nameA.innerText = `${getCountryName(teamA)} ${teamA}`; nameA.style.fontSize = '24px'; nameA.style.marginBottom = '10px'; nameA.style.color = '#ffffff'; }
+        if (nameB) { nameB.innerText = `${getCountryName(teamB)} ${teamB}`; nameB.style.fontSize = '24px'; nameB.style.marginBottom = '10px'; nameB.style.color = '#ffffff'; }
     } else {
-        if (logoA) { logoA.style.display = 'block'; logoA.src = teamAObj ? teamAObj.logo : ''; }
-        if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '12px'; nameA.style.marginBottom = '0px'; }
-        if (logoB) { logoB.style.display = 'block'; logoB.src = teamBObj ? teamBObj.logo : ''; }
-        if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; }
+        if (logoA) { logoA.parentElement.style.display = 'flex'; logoA.src = teamAObj ? teamAObj.logo : ''; }
+        if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '12px'; nameA.style.marginBottom = '0px'; nameA.style.color = '#ffffff'; }
+        
+        if (logoB) { logoB.parentElement.style.display = 'flex'; logoB.src = teamBObj ? teamBObj.logo : ''; }
+        if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; nameB.style.color = '#ffffff'; }
     }
 
     document.getElementById('match-score').innerText = '0 : 0';
@@ -4034,6 +4027,14 @@ localStorage.removeItem('khl_active_tournament'); // Очищаем сохран
 
 function prepareTournament() {
     const statusEl = document.getElementById('tournamentStatus');
+    
+    const titleEl = document.getElementById('tournamentMainTitle');
+    if (titleEl) {
+        titleEl.innerText = currentTournamentMode === 'national' ? 'ТУРНИР СБОРНЫХ' : 'ТУРНИР КЛУБОВ';
+    }
+
+    // ... (дальше идет остальной код)
+    const statusEl = document.getElementById('tournamentStatus');
     // Ищем нижнюю кнопку. Если её нет, ищем кнопку на экране сборки (для страховки)
     const startBtn = document.getElementById('tournamentPlayBtn') || document.getElementById('startTournamentBtn');
     const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
@@ -4126,8 +4127,9 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
     const logoA = teamAObj ? teamAObj.logo : '';
     const logoB = teamBObj ? teamBObj.logo : '';
 
-    const isPlayerA = match.teamA === tournamentSquad[0].club;
-    const isPlayerB = match.teamB === tournamentSquad[0].club;
+    const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
+const isPlayerA = match.teamA === playerTeamName;
+const isPlayerB = match.teamB === playerTeamName;
     
     // Фон для команд (без синего, просто серый)
     const bgA = isPlayerA ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
@@ -4153,24 +4155,39 @@ let currentTournamentStatsTab = 'points'; // По умолчанию вклад�
         }
     }
 
+            let logoA_Html = '';
+let logoB_Html = '';
+let nameA = match.teamA;
+let nameB = match.teamB;
+
+if (currentTournamentMode === 'national') {
+    logoA_Html = `<span style="font-size: 16px; line-height: 1; width: 20px; text-align: center;">${logoA}</span>`;
+    logoB_Html = `<span style="font-size: 16px; line-height: 1; width: 20px; text-align: center;">${logoB}</span>`;
+    nameA = getCountryName(match.teamA);
+    nameB = getCountryName(match.teamB);
+} else {
+    logoA_Html = `<img src="${logoA}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">`;
+    logoB_Html = `<img src="${logoB}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">`;
+}
+
     html += `
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a;">
-            
-            <div style="display: flex; align-items: center; gap: 6px; width: 40%; background: ${bgA}; padding: 4px; border-radius: 4px;">
-                <img src="${logoA}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
-                <span style="font-size: 11px; font-weight: ${isPlayerA ? '900' : 'normal'}; color: ${colorA}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${match.teamA}</span>
-            </div>
-            
-            <div style="width: 20%; text-align: center; font-weight: bold; font-size: 14px;">
-                ${hasScore ? `<span style="color: ${scoreColorA};">${match.scoreA}</span> <span style="color:#64748b">:</span> <span style="color: ${scoreColorB};">${match.scoreB}</span>` : '<span style="color: #71717a;">vs</span>'}
-            </div>
-            
-            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 40%; background: ${bgB}; padding: 4px; border-radius: 4px;">
-                <span style="font-size: 11px; font-weight: ${isPlayerB ? '900' : 'normal'}; color: ${colorB}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">${match.teamB}</span>
-                <img src="${logoB}" style="width: 20px; height: 20px; min-width: 20px; border-radius: 50%; object-fit: cover;">
-            </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a;">
+        
+        <div style="display: flex; align-items: center; gap: 6px; width: 40%; background: ${bgA}; padding: 4px; border-radius: 4px;">
+            ${logoA_Html}
+            <span style="font-size: 11px; font-weight: ${isPlayerA ? '900' : 'normal'}; color: ${colorA}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nameA}</span>
         </div>
-    `;
+        
+        <div style="width: 20%; text-align: center; font-weight: bold; font-size: 14px;">
+            ${hasScore ? `<span style="color: ${scoreColorA};">${match.scoreA}</span> <span style="color:#64748b">:</span> <span style="color: ${scoreColorB};">${match.scoreB}</span>` : '<span style="color: #71717a;">vs</span>'}
+        </div>
+        
+        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; width: 40%; background: ${bgB}; padding: 4px; border-radius: 4px;">
+            <span style="font-size: 11px; font-weight: ${isPlayerB ? '900' : 'normal'}; color: ${colorB}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right;">${nameB}</span>
+            ${logoB_Html}
+        </div>
+    </div>
+`;
 });
         
         html += `</div>`;
@@ -4191,6 +4208,16 @@ const teamShortNames = {
     "Спартак": "СПА", "Торпедо": "ТОР", "Трактор": "ТРА", "Витязь": "ВИТ", "Югра": "ЮГРА"
 };
 
+// Словарь для названий стран
+function getCountryName(flag) {
+    const countries = {
+        "🇷🇺": "Россия", "🇨🇦": "Канада", "🇫🇮": "Финляндия", "🇨🇿": "Чехия",
+        "🇸🇪": "Швеция", "🇰🇿": "Казахстан", "🇧🇾": "Беларусь", "🇸🇰": "Словакия",
+        "🇸🇮": "Словения", "🇺🇦": "Украина", "🇺🇸": "США", "🇱🇻": "Латвия"
+    };
+    return countries[flag] || flag;
+}
+
 function renderTournamentTable(playerTeam) {
     const tableContainer = document.getElementById('tournamentTableContainer');
 
@@ -4199,8 +4226,8 @@ function renderTournamentTable(playerTeam) {
             <thead>
                 <tr style="border-bottom: 2px solid #334155; color: #94a3b8; font-size: 10px; text-transform: uppercase;">
                     <th style="padding: 8px 2px; text-align: center; width: 8%;">#</th>
-<th style="padding: 8px 2px; text-align: left; width: 34%;">${currentTournamentMode === 'national' ? 'Страна' : 'Клуб'}</th>
-<th style="padding: 8px 2px; text-align: center; width: 8%;" title="Сыгранные матчи">М</th>
+                    <th style="padding: 8px 2px; text-align: left; width: 34%;">${currentTournamentMode === 'national' ? 'Страна' : 'Клуб'}</th>
+                    <th style="padding: 8px 2px; text-align: center; width: 8%;" title="Сыгранные матчи">М</th>
                     <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Победы">В</th>
                     <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Поражения">П</th>
                     <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Голы забитые">ГЗ</th>
@@ -4217,14 +4244,16 @@ function renderTournamentTable(playerTeam) {
         const color = isPlayer ? '#ffffff' : '#cbd5e1';
         const fontWeight = isPlayer ? 'bold' : 'normal';
 
-let shortName = currentTournamentMode === 'national' ? getCountryName(row.team) : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
-        let logoHtml = '';
+        // ИСПРАВЛЕНИЕ: Если сборные, берем название страны, а не флаг
+        let shortName = currentTournamentMode === 'national' ? getCountryName(row.team) : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
+let logoHtml = '';
 
-        if (currentTournamentMode === 'national') {
-            logoHtml = `<span style="font-size: 20px; line-height: 1; width: 22px; text-align: center;">${row.logo}</span>`;
-        } else {
-            logoHtml = `<img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">`;
-        }
+if (currentTournamentMode === 'national') {
+    // Если сборные, выводим только название (без второго флага)
+    logoHtml = ''; 
+} else {
+    logoHtml = `<img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">`;
+}
 
         let medal = '';
         if (index === 0) medal = '🥇';
@@ -4232,15 +4261,14 @@ let shortName = currentTournamentMode === 'national' ? getCountryName(row.team) 
         else if (index === 2) medal = '🥉';
 
         html += `
-    <tr style="background: ${bg}; border-bottom: 1px solid #27272a;">
-        <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
-        <td style="padding: 8px 2px;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-                ${logoHtml}
-                <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal} ${shortName}</span>
-            </div>
-        </td>
-        
+            <tr style="background: ${bg}; border-bottom: 1px solid #27272a;">
+                <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
+                <td style="padding: 8px 2px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        ${logoHtml}
+                        <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal} ${displayName}</span>
+                    </div>
+                </td>
                 <td style="padding: 8px 2px; text-align: center; color: #a1a1aa;">${row.games || 0}</td>
                 <td style="padding: 8px 2px; text-align: center; color: #ffffff; font-weight: bold;">${row.wins}</td>
                 <td style="padding: 8px 2px; text-align: center; color: #71717a;">${row.losses}</td>
@@ -4345,7 +4373,7 @@ const formatName = (p) => {
     const firstName = parts[0] || '';
     const initial = firstName.length > 0 ? firstName[0] + '.' : '';
     
-    return `${num} ${initial} ${lastName} ${flg}`.trim();
+    return `${p.number || ''} ${initial} ${lastName}`.trim();
 };
 
     // === ВКЛАДКА ВРАТАРЕЙ ===
