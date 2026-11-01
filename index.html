@@ -3034,17 +3034,30 @@ function renderTournamentSquadSlots() {
 });
     const isValid = (filledCount === 6 && hasCorrectPositions && sameClub);
 
-    // Сбор запасных (выполняется всегда)
+    // Сбор запасных (лимит: 9 НАП, 6 ЗАЩ, 1 ВРТ)
 let benchHtml = '';
 if (firstClub) {
     const benchCandidates = collection.filter(p => {
-    const isSameTeam = (currentTournamentMode === 'national') ? (p.flag === firstClub) : (p.club === firstClub);
-    const notInSquad = !tournamentSquad.some(s => s && s.name === p.name && s.season === p.season);
-    return isSameTeam && notInSquad;
-});
+        const isSameTeam = (currentTournamentMode === 'national') ? (p.flag === firstClub) : (p.club === firstClub);
+        const notInSquad = !tournamentSquad.some(s => s && s.name === p.name && s.season === p.season);
+        return isSameTeam && notInSquad;
+    });
+
+    // Убираем дубликаты
     const uniqueBench = {};
     benchCandidates.forEach(p => { uniqueBench[`${p.name}_${p.season}`] = p; });
-    tournamentBench = Object.values(uniqueBench);
+    let benchArray = Object.values(uniqueBench);
+
+    // Сортируем по силе (OVR) от большего к меньшему
+    benchArray.sort((a, b) => getPlayerOVR(b) - getPlayerOVR(a));
+
+    // Применяем лимиты
+    let limitFwds = benchArray.filter(p => p.pos === "Нападающий").slice(0, 9);
+    let limitDefs = benchArray.filter(p => p.pos === "Защитник").slice(0, 6);
+    let limitGks = benchArray.filter(p => p.pos === "Вратарь").slice(0, 1);
+
+    // Итоговый запас (сначала напы, потом защ, потом врт)
+    tournamentBench = [...limitFwds, ...limitDefs, ...limitGks];
 
     benchHtml = tournamentBench.length > 0 ? '' : '<span style="color:#64748b;">Нет запасных</span>';
     tournamentBench.forEach(p => {
@@ -3355,7 +3368,12 @@ if (teamA === playerTeamName) {
         rawA = PLAYERS.filter(p => p.club === teamA).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
     }
     squadA = [...rawA.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawA.filter(p=>p.pos==="Защитник").slice(0,2), ...rawA.filter(p=>p.pos==="Вратарь").slice(0,1)];
-    goalsA = rawA.filter(p => p.pos === "Вратарь");
+benchA = [
+    ...rawA.filter(p=>p.pos==="Нападающий").slice(3, 12),
+    ...rawA.filter(p=>p.pos==="Защитник").slice(2, 8),
+    ...rawA.filter(p=>p.pos==="Вратарь").slice(1, 2)
+];
+goalsA = rawA.filter(p => p.pos === "Вратарь");
 }
 if (teamB === playerTeamName) {
     squadB = tournamentSquad; 
@@ -3373,7 +3391,12 @@ if (teamB === playerTeamName) {
         rawB = PLAYERS.filter(p => p.club === teamB).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
     }
     squadB = [...rawB.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawB.filter(p=>p.pos==="Защитник").slice(0,2), ...rawB.filter(p=>p.pos==="Вратарь").slice(0,1)];
-    goalsB = rawB.filter(p => p.pos === "Вратарь");
+benchB = [
+    ...rawB.filter(p=>p.pos==="Нападающий").slice(3, 12),
+    ...rawB.filter(p=>p.pos==="Защитник").slice(2, 8),
+    ...rawB.filter(p=>p.pos==="Вратарь").slice(1, 2)
+];
+goalsB = rawB.filter(p => p.pos === "Вратарь");
 }
 
     const strA = squadA.reduce((sum, p) => sum + getPlayerOVR(p), 0) / 6;
@@ -3607,23 +3630,25 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     const teamBObj = PLAYERS.find(p => p.club === teamB);
     
     const logoA = document.getElementById('match-a-logo');
-    const nameA = document.getElementById('match-a-name');
-    const logoB = document.getElementById('match-b-logo');
-    const nameB = document.getElementById('match-b-name');
+const nameA = document.getElementById('match-a-name');
+const logoB = document.getElementById('match-b-logo');
+const nameB = document.getElementById('match-b-name');
 
-    if (currentTournamentMode === 'national') {
-        if (logoA) logoA.parentElement.style.display = 'none';
-        if (logoB) logoB.parentElement.style.display = 'none';
-        
-        if (nameA) { nameA.innerText = `${getCountryName(teamA)} ${teamA}`; nameA.style.fontSize = '24px'; nameA.style.marginBottom = '10px'; nameA.style.color = '#ffffff'; }
-        if (nameB) { nameB.innerText = `${getCountryName(teamB)} ${teamB}`; nameB.style.fontSize = '24px'; nameB.style.marginBottom = '10px'; nameB.style.color = '#ffffff'; }
-    } else {
-        if (logoA) { logoA.parentElement.style.display = 'flex'; logoA.src = teamAObj ? teamAObj.logo : ''; }
-        if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '12px'; nameA.style.marginBottom = '0px'; nameA.style.color = '#ffffff'; }
-        
-        if (logoB) { logoB.parentElement.style.display = 'flex'; logoB.src = teamBObj ? teamBObj.logo : ''; }
-        if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; nameB.style.color = '#ffffff'; }
-    }
+if (currentTournamentMode === 'national') {
+    // СКРЫВАЕМ ТОЛЬКО КАРТИНКУ, А НЕ ВЕСЬ КОНТЕЙНЕР
+    if (logoA) logoA.style.display = 'none';
+    if (logoB) logoB.style.display = 'none';
+    
+    if (nameA) { nameA.innerText = `${getCountryName(teamA)} ${teamA}`; nameA.style.fontSize = '20px'; nameA.style.marginBottom = '10px'; nameA.style.color = '#ffffff'; }
+    if (nameB) { nameB.innerText = `${getCountryName(teamB)} ${teamB}`; nameB.style.fontSize = '20px'; nameB.style.marginBottom = '10px'; nameB.style.color = '#ffffff'; }
+} else {
+    // РЕЖИМ КЛУБОВ: ВОЗВРАЩАЕМ КАРТИНКИ И СТАРЫЕ РАЗМЕРЫ
+    if (logoA) { logoA.style.display = 'block'; logoA.src = teamAObj ? teamAObj.logo : ''; }
+    if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '12px'; nameA.style.marginBottom = '0px'; nameA.style.color = '#3b82f6'; }
+    
+    if (logoB) { logoB.style.display = 'block'; logoB.src = teamBObj ? teamBObj.logo : ''; }
+    if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; nameB.style.color = '#ef4444'; }
+}
 
     document.getElementById('match-score').innerText = '0 : 0';
     document.getElementById('match-time').innerText = "1' (1 период)";
