@@ -4028,7 +4028,7 @@ localStorage.removeItem('khl_active_tournament'); // Очищаем сохран
 function prepareTournament() {
     const statusEl = document.getElementById('tournamentStatus');
     const startBtn = document.getElementById('tournamentPlayBtn') || document.getElementById('startTournamentBtn');
-
+    const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
     const titleEl = document.getElementById('tournamentMainTitle');
     if (titleEl) {
         titleEl.innerText = currentTournamentMode === 'national' ? 'ТУРНИР СБОРНЫХ' : 'ТУРНИР КЛУБОВ';
