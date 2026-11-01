@@ -3082,13 +3082,15 @@ if (startBtn) {
     
     // Если клуб зафиксирован первым игроком, скрываем кнопку фильтра
     const filterBtn = document.getElementById('tournamentFilterBtn');
-    if (lockedClub) {
-        filterBtn.style.display = 'none';
-        document.getElementById('tournamentSelectTitle').innerText = `Выбор: ${requiredPos} (${lockedClub})`;
-    } else {
-        filterBtn.style.display = 'block';
-        document.getElementById('tournamentSelectTitle').innerText = tournamentClubFilter ? `Выбор: ${requiredPos} (${tournamentClubFilter})` : `Выбор: ${requiredPos}`;
-    }
+const titleEl = document.getElementById('tournamentSelectTitle');
+
+if (lockedClub) {
+    if (filterBtn) filterBtn.style.display = 'none';
+    if (titleEl) titleEl.innerText = `Выбор: ${requiredPos} (${lockedClub})`;
+} else {
+    if (filterBtn) filterBtn.style.display = 'block';
+    if (titleEl) titleEl.innerText = tournamentClubFilter ? `Выбор: ${requiredPos} (${tournamentClubFilter})` : `Выбор: ${requiredPos}`;
+}
 
     let availablePlayers = collection.filter(p => p.pos === requiredPos);
 
