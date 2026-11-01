@@ -3820,26 +3820,24 @@ function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, sc
                 m.scoreB = scoreOpp;
                 roundResults.push({ teamA: playerTeam, scoreA: scorePlayer, teamB: opponent, scoreB: scoreOpp });
                 updateStandings(playerTeam, scorePlayer, opponent, scoreOpp, regScorePlayer, regScoreOpp);
-
-               if (scorePlayer > scoreOpp) {
-    addExp(200); // Опыт за победу в матче
-               }
                 
+                if (scorePlayer > scoreOpp) {
+                    addExp(200); // Опыт за победу в матче
+                }
             } else {
                 m.scoreA = scoreOpp;
                 m.scoreB = scorePlayer;
                 roundResults.push({ teamA: opponent, scoreA: scoreOpp, teamB: playerTeam, scoreB: scorePlayer });
                 updateStandings(opponent, scoreOpp, playerTeam, scorePlayer, regScoreOpp, regScorePlayer);
-            
-            if (scorePlayer > scoreOpp) {
-    addExp(200); // Опыт за победу в матче
-            }
-            
+                
+                if (scorePlayer > scoreOpp) {
+                    addExp(200); // Опыт за победу в матче
+                }
             }
         } else {
-            // Матч между ботами
+            // Если это матч между ботами, симулируем его в фоне
             const matchData = generateMatchData(m.teamA, m.teamB);
-            m.scoreA = matchData.scoreA; // Записываем счет в календарь
+            m.scoreA = matchData.scoreA;
             m.scoreB = matchData.scoreB;
             roundResults.push({ teamA: m.teamA, scoreA: matchData.scoreA, teamB: m.teamB, scoreB: matchData.scoreB });
             updateStandings(m.teamA, matchData.scoreA, m.teamB, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
@@ -4155,7 +4153,7 @@ const teamShortNames = {
 
 function renderTournamentTable(playerTeam) {
     const tableContainer = document.getElementById('tournamentTableContainer');
-    
+
     let html = `
         <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #cbd5e1; table-layout: fixed;">
             <thead>
@@ -4174,44 +4172,47 @@ function renderTournamentTable(playerTeam) {
     `;
 
     tournamentData.forEach((row, index) => {
-    const isPlayer = row.team === playerTeam;
-    const bg = isPlayer ? 'rgba(255, 255, 255, 0.1)' : 'transparent'; 
-    const color = isPlayer ? '#ffffff' : '#cbd5e1';
-    const fontWeight = isPlayer ? 'bold' : 'normal';
-    
-    // Если сборные - берем эмодзи, если клубы - сокращение
-    let shortName = currentTournamentMode === 'national' ? row.team : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
-    let logoHtml = '';
+        const isPlayer = row.team === playerTeam;
+        const bg = isPlayer ? 'rgba(255, 255, 255, 0.1)' : 'transparent';
+        const color = isPlayer ? '#ffffff' : '#cbd5e1';
+        const fontWeight = isPlayer ? 'bold' : 'normal';
 
-    if (currentTournamentMode === 'national') {
-        logoHtml = `<span style="font-size: 20px; line-height: 1; width: 22px; text-align: center;">${row.logo}</span>`;
-    } else {
-        logoHtml = `<img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">`;
-    }
+        let shortName = currentTournamentMode === 'national' ? row.team : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
+        let logoHtml = '';
 
-    let medal = '';
-    if (index === 0) medal = '🥇';
-    else if (index === 1) medal = '🥈';
-    else if (index === 2) medal = '🥉';
+        if (currentTournamentMode === 'national') {
+            logoHtml = `<span style="font-size: 20px; line-height: 1; width: 22px; text-align: center;">${row.logo}</span>`;
+        } else {
+            logoHtml = `<img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">`;
+        }
 
-    html += `
-        <tr style="background: ${bg}; border-bottom: 1px solid #27272a;">
-            <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
-            <td style="padding: 8px 2px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    ${logoHtml}
-                    <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal} ${shortName}</span>
-                </div>
-            </td>
-            <td style="padding: 8px 2px; text-align: center; color: #a1a1aa;">${row.games || 0}</td>
-            <td style="padding: 8px 2px; text-align: center; color: #ffffff; font-weight: bold;">${row.wins}</td>
-            <td style="padding: 8px 2px; text-align: center; color: #71717a;">${row.losses}</td>
-            <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsFor}</td>
-            <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsAgainst}</td>
-            <td style="padding: 8px 2px; text-align: center; font-weight: 900; color: #ffffff; font-size: 14px;">${row.points}</td>
-        </tr>
-    `;
-});
+        let medal = '';
+        if (index === 0) medal = '🥇';
+        else if (index === 1) medal = '🥈';
+        else if (index === 2) medal = '🥉';
+
+        html += `
+            <tr style="background: ${bg}; border-bottom: 1px solid #27272a;">
+                <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
+                <td style="padding: 8px 2px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        ${logoHtml}
+                        <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal} ${shortName}</span>
+                    </div>
+                </td>
+                <td style="padding: 8px 2px; text-align: center; color: #a1a1aa;">${row.games || 0}</td>
+                <td style="padding: 8px 2px; text-align: center; color: #ffffff; font-weight: bold;">${row.wins}</td>
+                <td style="padding: 8px 2px; text-align: center; color: #71717a;">${row.losses}</td>
+                <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsFor}</td>
+                <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsAgainst}</td>
+                <td style="padding: 8px 2px; text-align: center; font-weight: 900; color: #ffffff; font-size: 14px;">${row.points}</td>
+            </tr>
+        `;
+    });
+
+    html += `</tbody></table>`;
+    tableContainer.innerHTML = html;
+}
 
 function switchTournamentTab(tab) {
     const standView = document.getElementById('tournamentStandingsView');
