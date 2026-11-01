@@ -879,11 +879,31 @@ button[onclick="closeDayResults()"] {
 
 <b style="color: #fbbf24; font-size: 15px; display: block; margin-bottom: 15px;">Готовы собрать состав?</b>
         
-        <button onclick="document.getElementById('tournamentRulesView').style.display='none'; openTournamentSquadBuilder();" style="width: 100%; box-sizing: border-box; padding: 14px; background: #fbbf24; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-    🏆 СОБРАТЬ СОСТАВ
+        <button onclick="document.getElementById('tournamentRulesView').style.display='none'; document.getElementById('tournamentTypeModal').style.display='flex';" style="width: 100%; padding: 14px; background: #fbbf24; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+    🏆 ВЫБРАТЬ ТУРНИР
         </button>
         
         <button onclick="document.getElementById('tournamentRulesView').style.display='none'; document.getElementById('shopView').style.display='flex'; document.getElementById('globalHomeBtn').style.display='none';" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Закрыть</button>
+    </div>
+</div>
+
+    <!-- ОКНО ВЫБОРА ТИПА ТУРНИРА -->
+<div id="tournamentTypeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0, 0, 0, 0.9); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);">
+    <div style="background: #000000; border: 1px solid #27272a; border-radius: 20px; padding: 25px 20px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h3 style="margin-top: 0; color: #ffffff; font-size: 22px; margin-bottom: 10px; text-transform: uppercase;">Выберите тип</h3>
+        <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 25px;">В каком турнире вы хотите принять участие?</p>
+        
+        <button onclick="startTournamentMode('khl')" style="width: 100%; padding: 15px; margin-bottom: 15px; background: #1e293b; color: white; border: 1px solid #3f3f46; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s;">
+            🏒 Турнир Клубов
+        </button>
+        
+        <button onclick="startTournamentMode('national')" style="width: 100%; padding: 15px; margin-bottom: 20px; background: #1e293b; color: white; border: 1px solid #3f3f46; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s;">
+            🌍 Турнир Сборных
+        </button>
+        
+        <button onclick="document.getElementById('tournamentTypeModal').style.display='none'; document.getElementById('tournamentRulesView').style.display='flex';" style="width: 100%; padding: 12px; background: transparent; color: #a1a1aa; border: none; font-size: 14px; cursor: pointer;">
+            Отмена
+        </button>
     </div>
 </div>
 
@@ -2866,13 +2886,20 @@ let tournamentSquad = [null, null, null, null, null, null];
 let tournamentClubFilter = null;
 let tournamentBench = [];
 let currentSelectSlotIndex = -1;
+let currentTournamentMode = 'khl'; // 'khl' или 'national'
 
-// Универсальная проверка: можно ли из клуба собрать правильное звено?
-function canFormValidSquad(clubName) {
-    const clubPlayers = PLAYERS.filter(p => p.club === clubName);
-    const fwds = clubPlayers.filter(p => p.pos === "Нападающий").length;
-    const defs = clubPlayers.filter(p => p.pos === "Защитник").length;
-    const gks = clubPlayers.filter(p => p.pos === "Вратарь").length;
+function canFormValidSquad(teamIdentifier) {
+    let teamPlayers;
+    if (currentTournamentMode === 'national') {
+        teamPlayers = PLAYERS.filter(p => p.flag === teamIdentifier);
+    } else {
+        teamPlayers = PLAYERS.filter(p => p.club === teamIdentifier);
+    }
+    
+    const fwds = teamPlayers.filter(p => p.pos === "Нападающий").length;
+    const defs = teamPlayers.filter(p => p.pos === "Защитник").length;
+    const gks = teamPlayers.filter(p => p.pos === "Вратарь").length;
+    
     return fwds >= 3 && defs >= 2 && gks >= 1;
 }
 
@@ -2915,6 +2942,12 @@ function handleTournamentBtnClick() {
     document.getElementById('globalHomeBtn').style.display = 'flex';
     }
 
+    function startTournamentMode(mode) {
+    currentTournamentMode = mode;
+    document.getElementById('tournamentTypeModal').style.display = 'none';
+    openTournamentSquadBuilder();
+    }
+
 // 2. Открытие сборщика
 function openTournamentSquadBuilder() {
 
@@ -2953,7 +2986,7 @@ function renderTournamentSquadSlots() {
         const player = tournamentSquad[i];
         if (player) {
             filledCount++;
-            if (!firstClub) firstClub = player.club;
+            if (!firstClub) firstClub = (currentTournamentMode === 'national') ? player.flag : player.club;
         }
         
         const slot = document.createElement('div');
@@ -2981,13 +3014,20 @@ function renderTournamentSquadSlots() {
         tournamentSquad[3]?.pos === "Защитник" && tournamentSquad[4]?.pos === "Защитник" &&
         tournamentSquad[5]?.pos === "Вратарь";
 
-    const sameClub = tournamentSquad.every(p => p && p.club === firstClub);
+    const sameClub = tournamentSquad.every(p => {
+    if (!p) return true;
+    return (currentTournamentMode === 'national') ? (p.flag === firstClub) : (p.club === firstClub);
+});
     const isValid = (filledCount === 6 && hasCorrectPositions && sameClub);
 
     // Сбор запасных (выполняется всегда)
 let benchHtml = '';
 if (firstClub) {
-    const benchCandidates = collection.filter(p => p.club === firstClub && !tournamentSquad.some(s => s && s.name === p.name && s.season === p.season));
+    const benchCandidates = collection.filter(p => {
+    const isSameTeam = (currentTournamentMode === 'national') ? (p.flag === firstClub) : (p.club === firstClub);
+    const notInSquad = !tournamentSquad.some(s => s && s.name === p.name && s.season === p.season);
+    return isSameTeam && notInSquad;
+});
     const uniqueBench = {};
     benchCandidates.forEach(p => { uniqueBench[`${p.name}_${p.season}`] = p; });
     tournamentBench = Object.values(uniqueBench);
@@ -3196,10 +3236,19 @@ function generateSchedule(teams) {
 
 // Запуск турнира (вызывается из сборщика звена)
 function startTournament() {
-    const playerTeam = tournamentSquad[0].club;
     
-    // Ищем команды, у которых можно собрать звено, исключая нашу
-    const botTeams = [...new Set(PLAYERS.map(p => p.club))].filter(club => club !== playerTeam && canFormValidSquad(club));
+    // Определяем, за кого играет игрок (клуб или флаг)
+const playerTeam = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
+
+// Собираем всех возможных соперников
+let allIdentifiers;
+if (currentTournamentMode === 'national') {
+    allIdentifiers = [...new Set(PLAYERS.map(p => p.flag))];
+} else {
+    allIdentifiers = [...new Set(PLAYERS.map(p => p.club))];
+}
+
+const botTeams = allIdentifiers.filter(team => team !== playerTeam && canFormValidSquad(team));
     
     if (botTeams.length < 1) {
         alert("В базе недостаточно команд для турнира!");
@@ -3229,16 +3278,26 @@ updateUI();
     
     // Создаем расписание и таблицу
     tournamentSchedule = generateSchedule(allTeams);
-    tournamentData = allTeams.map(team => ({
+    tournamentData = allTeams.map(team => {
+    // Если это сборная - логотипом будет сам флаг. Если клуб - логотип клуба.
+    let teamLogo = '';
+    if (currentTournamentMode === 'national') {
+        teamLogo = team; // Тут хранится эмодзи флага (🇷🇺)
+    } else {
+        teamLogo = PLAYERS.find(p => p.club === team)?.logo;
+    }
+    
+    return {
         team: team,
-        logo: PLAYERS.find(p => p.club === team)?.logo,
+        logo: teamLogo,
         games: 0,
         wins: 0,
         losses: 0,
         goalsFor: 0,
         goalsAgainst: 0,
         points: 0
-    }));
+    };
+});
     tournamentPlayerStats = {};
     currentRoundIndex = 0;
     isTournamentRunning = false;
@@ -3255,23 +3314,28 @@ updateUI();
 function generateMatchData(teamA, teamB) {
     let squadA, squadB, benchA = [], benchB = [], goalsA = [], goalsB = [];
 
-    if (teamA === tournamentSquad[0].club) {
-    squadA = tournamentSquad; 
-    benchA = tournamentBench; 
+    const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
+
+if (teamA === playerTeamName) {
+    squadA = tournamentSquad; benchA = tournamentBench; goalsA = PLAYERS.filter(p => (currentTournamentMode === 'national' ? p.flag === teamA : p.club === teamA) && p.pos === "Вратарь");
     
     // Для игрока: берем стартового вратаря из звена + тех, кто реально на скамейке
     let startG_A = squadA.find(p => p && p.pos === "Вратарь");
     let benchG_A = benchA.filter(p => p && p.pos === "Вратарь");
     goalsA = startG_A ? [startG_A, ...benchG_A] : [...benchG_A];
 } else {
-    let rawA = PLAYERS.filter(p => p.club === teamA).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
-    squadA = [...rawA.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawA.filter(p=>p.pos==="Защитник").slice(0,2), ...rawA.filter(p=>p.pos==="Вратарь").slice(0,1)];
+    let rawA;
+    if (currentTournamentMode === 'national') {
+        rawA = PLAYERS.filter(p => p.flag === teamA).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
+    } else {
+        rawA = PLAYERS.filter(p => p.club === teamA).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
+    }
     
     // Для бота: берем ВСЕХ вратарей из базы
     goalsA = rawA.filter(p => p.pos === "Вратарь");
 }
 
-if (teamB === tournamentSquad[0].club) {
+if (teamB === playerTeamName) {
     squadB = tournamentSquad; 
     benchB = tournamentBench; 
     
@@ -3280,9 +3344,12 @@ if (teamB === tournamentSquad[0].club) {
     let benchG_B = benchB.filter(p => p && p.pos === "Вратарь");
     goalsB = startG_B ? [startG_B, ...benchG_B] : [...benchG_B];
 } else {
-    let rawB = PLAYERS.filter(p => p.club === teamB).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
-    squadB = [...rawB.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawB.filter(p=>p.pos==="Защитник").slice(0,2), ...rawB.filter(p=>p.pos==="Вратарь").slice(0,1)];
-    
+    let rawB;
+    if (currentTournamentMode === 'national') {
+        rawB = PLAYERS.filter(p => p.flag === teamB).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
+    } else {
+        rawB = PLAYERS.filter(p => p.club === teamB).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
+    }
     // Для бота: берем ВСЕХ вратарей из базы
     goalsB = rawB.filter(p => p.pos === "Вратарь");
 }
@@ -3515,16 +3582,34 @@ return { events, shootoutEvents, scoreA, scoreB, regScoreA, regScoreB, stats };
 
 function simulateVisualMatch(teamA, teamB, onComplete) {
     
+    const teamAObj = PLAYERS.find(p => p.club === teamA);
+const teamBObj = PLAYERS.find(p => p.club === teamB);
+
+if (currentTournamentMode === 'national') {
+    // РЕЖИМ СБОРНЫХ: Скрываем картинки, показываем большие флаги вместо имен
+    document.getElementById('match-a-logo').style.display = 'none';
     document.getElementById('match-a-name').innerText = teamA;
-    document.getElementById('match-a-logo').src = PLAYERS.find(p => p.club === teamA)?.logo || '';
+    document.getElementById('match-a-name').style.fontSize = '40px';
+    document.getElementById('match-a-name').style.marginBottom = '10px';
+
+    document.getElementById('match-b-logo').style.display = 'none';
     document.getElementById('match-b-name').innerText = teamB;
-    document.getElementById('match-b-logo').src = PLAYERS.find(p => p.club === teamB)?.logo || '';
-    document.getElementById('match-score').innerText = '0 : 0';
-    document.getElementById('match-time').innerText = "1' (1 период)";
-    document.getElementById('match-log').innerHTML = '';
-    document.getElementById('match-continue-btn').style.display = 'none';
-    document.getElementById('btn-view-stats').style.display = 'none';
-    document.getElementById('matchSimView').style.display = 'flex';
+    document.getElementById('match-b-name').style.fontSize = '40px';
+    document.getElementById('match-b-name').style.marginBottom = '10px';
+} else {
+    // РЕЖИМ КЛУБОВ: Показываем логотипы как обычно
+    document.getElementById('match-a-logo').style.display = 'block';
+    document.getElementById('match-a-name').innerText = teamA;
+    document.getElementById('match-a-name').style.fontSize = '12px';
+    document.getElementById('match-a-name').style.marginBottom = '0px';
+    document.getElementById('match-a-logo').src = teamAObj ? teamAObj.logo : '';
+
+    document.getElementById('match-b-logo').style.display = 'block';
+    document.getElementById('match-b-name').innerText = teamB;
+    document.getElementById('match-b-name').style.fontSize = '12px';
+    document.getElementById('match-b-name').style.marginBottom = '0px';
+    document.getElementById('match-b-logo').src = teamBObj ? teamBObj.logo : '';
+}
 
     const matchData = generateMatchData(teamA, teamB);
     let allEvents = [...matchData.events];
@@ -3697,7 +3782,7 @@ evs.forEach(ev => {
         return; 
     }
 
-    const playerTeam = tournamentSquad[0].club;
+    const playerTeam = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
     let currentRoundMatches = tournamentSchedule[currentRoundIndex];
 
     // Защита от пустого массива матчей
@@ -3856,7 +3941,7 @@ function closeDayResults() {
     // ОБЯЗАТЕЛЬНО сортируем перед определением места, иначе награда будет неверной!
     tournamentData.sort((a, b) => b.points - a.points || b.wins - a.wins);
     
-    const playerTeam = tournamentSquad[0].club;
+    const playerTeam = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
     const playerPos = tournamentData.findIndex(t => t.team === playerTeam) + 1;
     
     if (playerPos === 1) {
@@ -3913,9 +3998,10 @@ function prepareTournament() {
     const statusEl = document.getElementById('tournamentStatus');
     // Ищем нижнюю кнопку. Если её нет, ищем кнопку на экране сборки (для страховки)
     const startBtn = document.getElementById('tournamentPlayBtn') || document.getElementById('startTournamentBtn');
-
+    const playerTeamName = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
+    
     sortTournamentTable();
-    renderTournamentTable(tournamentSquad[0].club);
+    renderTournamentTable(playerTeamName);
     switchTournamentTab('standings');
 
     // Если все дни сыграны
@@ -3929,7 +4015,7 @@ function prepareTournament() {
             startBtn.onclick = finishTournament;
         }
     } else {
-        statusEl.innerHTML = `Турнир начат!<br>Ваша команда: <b style="color:#3b82f6;">${tournamentSquad[0].club}</b>`;
+        statusEl.innerHTML = `Турнир начат!<br>Ваша команда: <b style="color:#3b82f6;">${playerTeamName}</b>`;
         if (startBtn) {
             startBtn.style.display = 'block';
             startBtn.innerText = `▶ ИГРАТЬ ДЕНЬ ${currentRoundIndex + 1}`;
@@ -3941,14 +4027,15 @@ function prepareTournament() {
 
     // --- СОХРАНЕНИЕ ТУРНИРА В ПАМЯТЬ ---
     if (tournamentSchedule && tournamentSchedule.length > 0) {
-        localStorage.setItem('khl_active_tournament', JSON.stringify({
-            schedule: tournamentSchedule,
-            data: tournamentData,
-            playerStats: tournamentPlayerStats,
-            roundIndex: currentRoundIndex,
-            squad: tournamentSquad,
-            bench: tournamentBench
-        }));
+    localStorage.setItem('khl_active_tournament', JSON.stringify({
+        schedule: tournamentSchedule,
+        data: tournamentData,
+        playerStats: tournamentPlayerStats,
+        roundIndex: currentRoundIndex,
+        squad: tournamentSquad,
+        bench: tournamentBench,
+        mode: currentTournamentMode
+    }));
     }
 }
 
@@ -4087,40 +4174,44 @@ function renderTournamentTable(playerTeam) {
     `;
 
     tournamentData.forEach((row, index) => {
-        const isPlayer = row.team === playerTeam;
-        const bg = isPlayer ? 'rgba(255, 255, 255, 0.1)' : 'transparent'; 
-        const color = isPlayer ? '#ffffff' : '#cbd5e1';
-        const fontWeight = isPlayer ? 'bold' : 'normal';
-        
-        const shortName = teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase();
+    const isPlayer = row.team === playerTeam;
+    const bg = isPlayer ? 'rgba(255, 255, 255, 0.1)' : 'transparent'; 
+    const color = isPlayer ? '#ffffff' : '#cbd5e1';
+    const fontWeight = isPlayer ? 'bold' : 'normal';
+    
+    // Если сборные - берем эмодзи, если клубы - сокращение
+    let shortName = currentTournamentMode === 'national' ? row.team : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
+    let logoHtml = '';
 
-        let medal = '';
-        if (index === 0) medal = '🥇';
-        else if (index === 1) medal = '🥈';
-        else if (index === 2) medal = '🥉';
+    if (currentTournamentMode === 'national') {
+        logoHtml = `<span style="font-size: 20px; line-height: 1; width: 22px; text-align: center;">${row.logo}</span>`;
+    } else {
+        logoHtml = `<img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">`;
+    }
 
-        html += `
-            <tr style="background: ${bg}; border-bottom: 1px solid #27272a;">
-                <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
-                <td style="padding: 8px 2px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <img src="${row.logo}" style="width: 22px; height: 22px; min-width: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #3f3f46; background: #18181b;">
-                        <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal} ${shortName}</span>
-                    </div>
-                </td>
-                <td style="padding: 8px 2px; text-align: center; color: #a1a1aa;">${row.games || 0}</td>
-                <td style="padding: 8px 2px; text-align: center; color: #ffffff; font-weight: bold;">${row.wins}</td>
-                <td style="padding: 8px 2px; text-align: center; color: #71717a;">${row.losses}</td>
-                <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsFor}</td>
-                <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsAgainst}</td>
-                <td style="padding: 8px 2px; text-align: center; font-weight: 900; color: #ffffff; font-size: 14px;">${row.points}</td>
-            </tr>
-        `;
-    });
+    let medal = '';
+    if (index === 0) medal = '🥇';
+    else if (index === 1) medal = '🥈';
+    else if (index === 2) medal = '🥉';
 
-    html += `</tbody></table>`;
-    tableContainer.innerHTML = html;
-}
+    html += `
+        <tr style="background: ${bg}; border-bottom: 1px solid #27272a;">
+            <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
+            <td style="padding: 8px 2px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    ${logoHtml}
+                    <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal} ${shortName}</span>
+                </div>
+            </td>
+            <td style="padding: 8px 2px; text-align: center; color: #a1a1aa;">${row.games || 0}</td>
+            <td style="padding: 8px 2px; text-align: center; color: #ffffff; font-weight: bold;">${row.wins}</td>
+            <td style="padding: 8px 2px; text-align: center; color: #71717a;">${row.losses}</td>
+            <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsFor}</td>
+            <td style="padding: 8px 2px; text-align: center; color: #cbd5e1;">${row.goalsAgainst}</td>
+            <td style="padding: 8px 2px; text-align: center; font-weight: 900; color: #ffffff; font-size: 14px;">${row.points}</td>
+        </tr>
+    `;
+});
 
 function switchTournamentTab(tab) {
     const standView = document.getElementById('tournamentStandingsView');
@@ -4423,6 +4514,7 @@ function refreshUserData() {
                     currentRoundIndex = t.roundIndex;
                     tournamentSquad = t.squad;
                     tournamentBench = t.bench;
+currentTournamentMode = t.mode || 'khl'; // <--- ДОБАВИТЬ ЭТУ СТРОКУ
                 } else {
                     localStorage.removeItem('khl_active_tournament');
                 }
