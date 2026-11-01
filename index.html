@@ -3630,33 +3630,23 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     const teamBObj = PLAYERS.find(p => p.club === teamB);
     
     const logoA = document.getElementById('match-a-logo');
-const nameA = document.getElementById('match-a-name');
-const logoB = document.getElementById('match-b-logo');
-const nameB = document.getElementById('match-b-name');
+    const nameA = document.getElementById('match-a-name');
+    const logoB = document.getElementById('match-b-logo');
+    const nameB = document.getElementById('match-b-name');
 
-if (currentTournamentMode === 'national') {
-    // СКРЫВАЕМ ТОЛЬКО КАРТИНКУ, ПЕРЕБИВАЯ CSS !important
-    if (logoA) logoA.style.setProperty('display', 'none', 'important');
-    if (logoB) logoB.style.setProperty('display', 'none', 'important');
-    
-    // Выводим флаг сверху, а название страны снизу
-if (nameA) { 
-    nameA.innerHTML = `<div style="font-size: 32px; line-height: 1; margin-bottom: 5px;">${teamA}</div><div style="font-size: 14px; color: #cbd5e1; font-weight: bold;">${getCountryName(teamA)}</div>`; 
-    nameA.style.marginTop = '20px'; 
-    nameA.style.color = '#ffffff'; 
-}
-if (nameB) { 
-    nameB.innerHTML = `<div style="font-size: 32px; line-height: 1; margin-bottom: 5px;">${teamB}</div><div style="font-size: 14px; color: #cbd5e1; font-weight: bold;">${getCountryName(teamB)}</div>`; 
-    nameB.style.marginTop = '20px'; 
-    nameB.style.color = '#ffffff'; 
-} else {
-    // РЕЖИМ КЛУБОВ: ВОЗВРАЩАЕМ КАРТИНКИ
-    if (logoA) { logoA.style.removeProperty('display'); logoA.src = teamAObj ? teamAObj.logo : ''; }
-    if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '12px'; nameA.style.marginBottom = '0px'; nameA.style.marginTop = '8px'; nameA.style.color = '#3b82f6'; }
-    
-    if (logoB) { logoB.style.removeProperty('display'); logoB.src = teamBObj ? teamBObj.logo : ''; }
-    if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; nameB.style.marginTop = '8px'; nameB.style.color = '#ef4444'; }
-}
+    if (currentTournamentMode === 'national') {
+        if (logoA) logoA.parentElement.style.display = 'none';
+        if (logoB) logoB.parentElement.style.display = 'none';
+        
+        if (nameA) { nameA.innerText = `${getCountryName(teamA)} ${teamA}`; nameA.style.fontSize = '24px'; nameA.style.marginBottom = '10px'; nameA.style.color = '#ffffff'; }
+        if (nameB) { nameB.innerText = `${getCountryName(teamB)} ${teamB}`; nameB.style.fontSize = '24px'; nameB.style.marginBottom = '10px'; nameB.style.color = '#ffffff'; }
+    } else {
+        if (logoA) { logoA.parentElement.style.display = 'flex'; logoA.src = teamAObj ? teamAObj.logo : ''; }
+        if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '12px'; nameA.style.marginBottom = '0px'; nameA.style.color = '#ffffff'; }
+        
+        if (logoB) { logoB.parentElement.style.display = 'flex'; logoB.src = teamBObj ? teamBObj.logo : ''; }
+        if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; nameB.style.color = '#ffffff'; }
+    }
 
     document.getElementById('match-score').innerText = '0 : 0';
     document.getElementById('match-time').innerText = "1' (1 период)";
