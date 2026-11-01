@@ -1891,6 +1891,16 @@ function claimMainQuestReward() {
         return Math.round(((player.sc || 0) + (player.br || 0) + (player.ps || 0) + (player.si || 0) + (player.end || 0) + (player.skate || 0)) / 6);
     }
     }
+
+    // Словарь для названий стран
+function getCountryName(flag) {
+    const countries = {
+        "🇷🇺": "Россия", "🇨🇦": "Канада", "🇫🇮": "Финляндия", "🇨🇿": "Чехия",
+        "🇸🇪": "Швеция", "🇰🇿": "Казахстан", "🇧🇾": "Беларусь", "🇸🇰": "Словакия",
+        "🇸🇮": "Словения", "🇺🇦": "Украина", "🇺🇸": "США", "🇱🇻": "Латвия"
+    };
+    return countries[flag] || flag;
+}
     
   function getRarityInfo(overall) {
     if (overall >= 90) return { color: "#be123c", name: "Эпическая", num: 5 }; // Бордовый
@@ -4189,8 +4199,8 @@ function renderTournamentTable(playerTeam) {
             <thead>
                 <tr style="border-bottom: 2px solid #334155; color: #94a3b8; font-size: 10px; text-transform: uppercase;">
                     <th style="padding: 8px 2px; text-align: center; width: 8%;">#</th>
-                    <th style="padding: 8px 2px; text-align: left; width: 34%;">Клуб</th>
-                    <th style="padding: 8px 2px; text-align: center; width: 8%;" title="Сыгранные матчи">М</th>
+<th style="padding: 8px 2px; text-align: left; width: 34%;">${currentTournamentMode === 'national' ? 'Страна' : 'Клуб'}</th>
+<th style="padding: 8px 2px; text-align: center; width: 8%;" title="Сыгранные матчи">М</th>
                     <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Победы">В</th>
                     <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Поражения">П</th>
                     <th style="padding: 8px 2px; text-align: center; width: 10%;" title="Голы забитые">ГЗ</th>
@@ -4207,7 +4217,7 @@ function renderTournamentTable(playerTeam) {
         const color = isPlayer ? '#ffffff' : '#cbd5e1';
         const fontWeight = isPlayer ? 'bold' : 'normal';
 
-        let shortName = currentTournamentMode === 'national' ? row.team : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
+let shortName = currentTournamentMode === 'national' ? getCountryName(row.team) : (teamShortNames[row.team] || row.team.substring(0, 3).toUpperCase());
         let logoHtml = '';
 
         if (currentTournamentMode === 'national') {
@@ -4222,14 +4232,15 @@ function renderTournamentTable(playerTeam) {
         else if (index === 2) medal = '🥉';
 
         html += `
-            <tr style="background: ${bg}; border-bottom: 1px solid #27272a;">
-                <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
-                <td style="padding: 8px 2px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        ${logoHtml}
-                        <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal} ${shortName}</span>
-                    </div>
-                </td>
+    <tr style="background: ${bg}; border-bottom: 1px solid #27272a;">
+        <td style="padding: 8px 2px; font-weight: bold; color: ${color}; text-align: center;">${index + 1}</td>
+        <td style="padding: 8px 2px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                ${logoHtml}
+                <span style="font-weight: ${fontWeight}; color: ${color}; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${medal} ${shortName}</span>
+            </div>
+        </td>
+        
                 <td style="padding: 8px 2px; text-align: center; color: #a1a1aa;">${row.games || 0}</td>
                 <td style="padding: 8px 2px; text-align: center; color: #ffffff; font-weight: bold;">${row.wins}</td>
                 <td style="padding: 8px 2px; text-align: center; color: #71717a;">${row.losses}</td>
