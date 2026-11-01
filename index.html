@@ -3354,11 +3354,9 @@ if (teamA === playerTeamName) {
     } else {
         rawA = PLAYERS.filter(p => p.club === teamA).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
     }
-    
-    // Для бота: берем ВСЕХ вратарей из базы
+    squadA = [...rawA.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawA.filter(p=>p.pos==="Защитник").slice(0,2), ...rawA.filter(p=>p.pos==="Вратарь").slice(0,1)];
     goalsA = rawA.filter(p => p.pos === "Вратарь");
 }
-
 if (teamB === playerTeamName) {
     squadB = tournamentSquad; 
     benchB = tournamentBench; 
@@ -3374,7 +3372,7 @@ if (teamB === playerTeamName) {
     } else {
         rawB = PLAYERS.filter(p => p.club === teamB).sort((a,b)=>getPlayerOVR(b)-getPlayerOVR(a));
     }
-    // Для бота: берем ВСЕХ вратарей из базы
+    squadB = [...rawB.filter(p=>p.pos==="Нападающий").slice(0,3), ...rawB.filter(p=>p.pos==="Защитник").slice(0,2), ...rawB.filter(p=>p.pos==="Вратарь").slice(0,1)];
     goalsB = rawB.filter(p => p.pos === "Вратарь");
 }
 
