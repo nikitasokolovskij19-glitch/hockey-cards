@@ -1130,9 +1130,9 @@ window.alert = function(message) {
         5: 5000  // Эпическая
     },
     tournamentRewards: {
-        1: 5000,
-        2: 2500,
-        3: 1000
+    1: 10000, // было 5000
+    2: 5000,  // было 2500
+    3: 2500   // было 1000
     }
 };
 
@@ -4040,16 +4040,16 @@ function closeDayResults() {
     const playerPos = tournamentData.findIndex(t => t.team === playerTeam) + 1;
     
     if (playerPos === 1) {
-    alert(`🏆 ПОБЕДА В ТУРНИРЕ!\nВаша команда заняла 1 место. Награда: 5000 💵`);
-    userCoins += 5000;
+    alert(`🏆 ПОБЕДА В ТУРНИРЕ!\nВаша команда заняла 1 место. Награда: 10000 💵`);
+    userCoins += 10000;
     addExp(5000);
 } else if (playerPos === 2) {
-    alert(`🥈 Вы на 2 месте! Награда: 2500 💵`);
-    userCoins += 2500;
+    alert(`🥈 Вы на 2 месте! Награда: 5000 💵`);
+    userCoins += 5000;
     addExp(3000);
 } else if (playerPos === 3) {
-    alert(`🥉 Вы на 3 месте! Награда: 1000 💵`);
-    userCoins += 1000;
+    alert(`🥉 Вы на 3 месте! Награда: 2500 💵`);
+    userCoins += 2500;
     addExp(1500);
 } else {
     alert(`😔 Ваша команда на ${playerPos} месте. Попробуйте усилить состав!`);
