@@ -3416,13 +3416,22 @@ let goalieB_conceded = 0;
     let stats = { shotsA: 0, shotsB: 0, pimA: Math.floor(Math.random() * 10), pimB: Math.floor(Math.random() * 10), hitsA: Math.floor(Math.random() * 15) + 10, hitsB: Math.floor(Math.random() * 15) + 10, faceoffA: 50, faceoffB: 50 };
     if (strA > strB) { stats.faceoffA = 55; stats.faceoffB = 45; } else if (strB > strA) { stats.faceoffA = 45; stats.faceoffB = 55; }
 
-    const initGoalieStats = (g) => {
-        if (!g) return;
-        const key = `${g.name}_${g.club}`;
-        if (!tournamentPlayerStats[key]) tournamentPlayerStats[key] = { name: g.name, team: g.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
-    };
-    initGoalieStats(activeGoalieA);
-    initGoalieStats(activeGoalieB);
+    const initGoalieStats = (g, teamName) => {
+    if (!g) return;
+    const key = `${g.name}_${teamName}`;
+    if (!tournamentPlayerStats[key]) {
+        tournamentPlayerStats[key] = { 
+            name: g.name, 
+            team: teamName, 
+            pos: 'Вратарь', 
+            flag: g.flag || '', 
+            number: g.number || '', 
+            shotsAgainst: 0, saves: 0, goalsAgainst: 0 
+        };
+    }
+};
+initGoalieStats(activeGoalieA, teamA);
+initGoalieStats(activeGoalieB, teamB);
 
     const recordStat = (player, team, type) => {
     const key = `${player.name}_${team}`;
@@ -3481,9 +3490,11 @@ for (let shot of rawShots) {
 
     // СЧИТАЕМ БРОСОК В СТВОР
     if (goalie) {
-        let gkey = `${goalie.name}_${goalie.club}`;
-        if (!tournamentPlayerStats[gkey]) tournamentPlayerStats[gkey] = { name: goalie.name, team: goalie.club, pos: 'Вратарь', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
-        tournamentPlayerStats[gkey].shotsAgainst++;
+    let gkey = `${goalie.name}_${teamName}`;
+    if (!tournamentPlayerStats[gkey]) {
+        tournamentPlayerStats[gkey] = { name: goalie.name, team: teamName, pos: 'Вратарь', flag: goalie.flag || '', number: goalie.number || '', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
+    }
+    tournamentPlayerStats[gkey].shotsAgainst++;
     }
 
     // Берем полевых игроков из основы И из запаса
@@ -3516,8 +3527,8 @@ let shooter = pool[Math.floor(Math.random() * pool.length)];
         if (isA) { scoreA++; goalieB_conceded++; } else { scoreB++; goalieA_conceded++; }
         
         if (goalie) {
-            let gkey = `${goalie.name}_${goalie.club}`;
-            tournamentPlayerStats[gkey].goalsAgainst++;
+    let gkey = `${goalie.name}_${teamName}`;
+    tournamentPlayerStats[gkey].goalsAgainst++;
         }
 
         let assists = [];
@@ -3550,8 +3561,8 @@ let aPool = allField.filter(p => p !== shooter);
     } else {
         // СЕЙВ
         if (goalie) {
-            let gkey = `${goalie.name}_${goalie.club}`;
-            tournamentPlayerStats[gkey].saves++;
+    let gkey = `${goalie.name}_${teamName}`;
+    tournamentPlayerStats[gkey].saves++;
         }
     }
 }
@@ -3562,6 +3573,29 @@ let aPool = allField.filter(p => p !== shooter);
     // Запоминаем счет после 3-го периода
     let regScoreA = scoreA;
     let regScoreB = scoreB;
+
+    if (scoreA === scoreB) {
+    events.push({ period: 'OT', minute: 1, scoreA, scoreB, text: `<br><b style="color:#fbbf24;">--- ОВЕРТАЙМ ---</b>` });
+    
+    if (Math.random() < 0.5) { 
+        let isA = Math.random() < probA;
+        if (isA) { scoreA++; } else { scoreB++; }
+        let squad = isA ? squadA : squadB;
+        let field = squad.filter(p => p.pos !== "Вратарь");
+        let shooter = field[Math.floor(Math.random() * field.length)];
+        recordStat(shooter, isA ? teamA : teamB, 'goal');
+        
+        let goalie = isA ? activeGoalieB : activeGoalieA;
+        let otTeamName = isA ? teamB : teamA;
+        if (goalie) {
+            let gkey = `${goalie.name}_${otTeamName}`;
+            if (tournamentPlayerStats[gkey]) { tournamentPlayerStats[gkey].shotsAgainst++; tournamentPlayerStats[gkey].goalsAgainst++; }
+        }
+        events.push({ period: 'OT', minute: 3, minuteStr: "63'00\"", scoreA, scoreB, type: 'goal', isTeamA: isA, scorer: shooter, assists: [], strength: 'РАВ' });
+    } else {
+        events.push({ period: 'OT', minute: 5, scoreA, scoreB, text: `Овертайм завершен вничью.` });
+    }
+    }
 
     if (scoreA === scoreB) {
     // 1. Центрируем заголовок
@@ -4363,7 +4397,7 @@ const formatName = (p) => {
     if (!p.name) return '';
     
     // Ищем полные данные игрока в базе, чтобы взять номер и флаг
-    const fullPlayer = PLAYERS.find(player => player.name === p.name && player.club === p.team);
+const fullPlayer = PLAYERS.find(player => player.name === p.name && (currentTournamentMode === 'national' ? player.flag === p.team : player.club === p.team));
     
     const num = fullPlayer ? fullPlayer.number : (p.number || '');
     const flg = fullPlayer ? fullPlayer.flag : (p.flag || '');
@@ -4411,7 +4445,7 @@ const formatName = (p) => {
                     <div style="color: #64748b; font-weight: bold;">${index + 1}</div>
                     <div>
                         <div style="font-weight: bold; color: white; font-size: 13px;">${formatName(p)}</div>
-                        <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
+                        <div style="font-size: 10px; color: #94a3b8;">${currentTournamentMode === 'national' ? getCountryName(p.team) + ' ' + p.team : p.team}</div>
                     </div>
                     <div style="text-align: right;">
                         <div style="font-size: 15px; font-weight: 900; color: #ffffff;">${svpStr}</div>
@@ -4454,8 +4488,8 @@ const formatName = (p) => {
                     <div style="color: #64748b; font-weight: bold;">${index + 1}</div>
                     <div>
                         <div style="font-weight: bold; color: white; font-size: 13px;">${formatName(p)}</div>
-                        <div style="font-size: 10px; color: #94a3b8;">${p.team}</div>
-                    </div>
+<div style="font-size: 10px; color: #94a3b8;">${currentTournamentMode === 'national' ? getCountryName(p.team) + ' ' + p.team : p.team}</div>
+</div>
                     <div style="text-align: right; font-size: 16px; font-weight: 900; color: #fbbf24;">
                         ${p[currentTournamentStatsTab]}
                     </div>
