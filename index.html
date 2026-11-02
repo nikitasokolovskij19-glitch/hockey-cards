@@ -3483,16 +3483,17 @@ const getFatigueMultiplier = (minute, benchCount) => {
 
 for (let shot of rawShots) {
     let isA = shot.isTeamA;
-    let squad = isA ? squadA : squadB;
-    let goalie = isA ? activeGoalieB : activeGoalieA;
-    let teamName = isA ? teamA : teamB;
-    let currentMinute = (shot.period - 1) * 20 + shot.minute;
+let squad = isA ? squadA : squadB;
+let goalie = isA ? activeGoalieB : activeGoalieA;
+let teamName = isA ? teamA : teamB; // Команда бросающего
+let goalieTeamName = isA ? teamB : teamA; // Команда вратаря
+let currentMinute = (shot.period - 1) * 20 + shot.minute;
 
     // СЧИТАЕМ БРОСОК В СТВОР
     if (goalie) {
-    let gkey = `${goalie.name}_${teamName}`;
+    let gkey = `${goalie.name}_${goalieTeamName}`;
     if (!tournamentPlayerStats[gkey]) {
-        tournamentPlayerStats[gkey] = { name: goalie.name, team: teamName, pos: 'Вратарь', flag: goalie.flag || '', number: goalie.number || '', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
+        tournamentPlayerStats[gkey] = { name: goalie.name, team: goalieTeamName, pos: 'Вратарь', flag: goalie.flag || '', number: goalie.number || '', shotsAgainst: 0, saves: 0, goalsAgainst: 0 };
     }
     tournamentPlayerStats[gkey].shotsAgainst++;
     }
@@ -3527,7 +3528,7 @@ let shooter = pool[Math.floor(Math.random() * pool.length)];
         if (isA) { scoreA++; goalieB_conceded++; } else { scoreB++; goalieA_conceded++; }
         
         if (goalie) {
-    let gkey = `${goalie.name}_${teamName}`;
+    let gkey = `${goalie.name}_${goalieTeamName}`;
     tournamentPlayerStats[gkey].goalsAgainst++;
         }
 
@@ -3561,7 +3562,7 @@ let aPool = allField.filter(p => p !== shooter);
     } else {
         // СЕЙВ
         if (goalie) {
-    let gkey = `${goalie.name}_${teamName}`;
+    let gkey = `${goalie.name}_${goalieTeamName}`;
     tournamentPlayerStats[gkey].saves++;
         }
     }
