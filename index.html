@@ -3635,17 +3635,20 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     const nameB = document.getElementById('match-b-name');
 
     if (currentTournamentMode === 'national') {
-        if (logoA) logoA.parentElement.style.display = 'none';
-        if (logoB) logoB.parentElement.style.display = 'none';
-        
-        if (nameA) { nameA.innerText = `${getCountryName(teamA)} ${teamA}`; nameA.style.fontSize = '24px'; nameA.style.marginBottom = '10px'; nameA.style.color = '#ffffff'; }
-        if (nameB) { nameB.innerText = `${getCountryName(teamB)} ${teamB}`; nameB.style.fontSize = '24px'; nameB.style.marginBottom = '10px'; nameB.style.color = '#ffffff'; }
-    } else {
-        if (logoA) { logoA.parentElement.style.display = 'flex'; logoA.src = teamAObj ? teamAObj.logo : ''; }
-        if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '12px'; nameA.style.marginBottom = '0px'; nameA.style.color = '#ffffff'; }
-        
-        if (logoB) { logoB.parentElement.style.display = 'flex'; logoB.src = teamBObj ? teamBObj.logo : ''; }
-        if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginBottom = '0px'; nameB.style.color = '#ffffff'; }
+    // Скрываем ТОЛЬКО картинку логотипа, а не весь блок
+    if (logoA) logoA.style.display = 'none'; 
+    if (logoB) logoB.style.display = 'none';
+    
+    // Выводим название страны и флаг
+    if (nameA) { nameA.innerText = `${getCountryName(teamA)} ${teamA}`; nameA.style.fontSize = '14px'; nameA.style.marginTop = '0px'; }
+    if (nameB) { nameB.innerText = `${getCountryName(teamB)} ${teamB}`; nameB.style.fontSize = '14px'; nameB.style.marginTop = '0px'; }
+} else {
+    // Для клубов возвращаем картинки на место
+    if (logoA) { logoA.style.display = 'block'; logoA.src = teamAObj ? teamAObj.logo : ''; }
+    if (logoB) { logoB.style.display = 'block'; logoB.src = teamBObj ? teamBObj.logo : ''; }
+    
+    if (nameA) { nameA.innerText = teamA; nameA.style.fontSize = '12px'; nameA.style.marginTop = '8px'; }
+    if (nameB) { nameB.innerText = teamB; nameB.style.fontSize = '12px'; nameB.style.marginTop = '8px'; }
     }
 
     document.getElementById('match-score').innerText = '0 : 0';
