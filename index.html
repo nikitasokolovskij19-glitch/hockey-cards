@@ -3612,36 +3612,52 @@ let aPool = allField.filter(p => p !== shooter);
     };
 
     let soA = 0, soB = 0, shotsA = 0, shotsB = 0;
+
+        let shotA_names = []; 
+        let shotB_names = []; 
     
     let round = 1;
 while (true) {
     // --- Бьет команда А ---
     let fwdA = squadA.filter(p => p.pos === "Нападающий");
-    let shA = fwdA.length > 0 ? fwdA[Math.floor(Math.random() * fwdA.length)] : squadA[0];
+    // Если раунд 1, 2 или 3 — ищем только тех, кто еще НЕ бросал
+    let availableA = round <= 3 ? fwdA.filter(p => !shotA_names.includes(p.name)) : fwdA;
+    if (availableA.length === 0) availableA = fwdA.length > 0 ? fwdA : squadA; // Защита, если нападающих мало
+
+    let shA = availableA[Math.floor(Math.random() * availableA.length)];
+    if (!shA) shA = squadA[0]; // Страховка
+    shotA_names.push(shA.name);
+
     let isGoalA = Math.random() < 0.35;
     if (isGoalA) { soA++; recordStat(shA, teamA, 'goal'); }
     
-    shootoutEvents.push({ 
-        text: `${isGoalA ? '✅' : '❌'} <b>${formatShooter(shA)}</b> (${teamA}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` 
+    shootoutEvents.push({
+        text: `${isGoalA ? '✅' : '❌'} <b>${formatShooter(shA)}</b> (${teamA}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>`
     });
 
-    // Досрочная победа А (только в первых 3 раундах)
+    // Досрочная победа А
     if (round <= 3 && soA > soB + (4 - round)) break;
 
     // --- Бьет команда Б ---
     let fwdB = squadB.filter(p => p.pos === "Нападающий");
-    let shB = fwdB.length > 0 ? fwdB[Math.floor(Math.random() * fwdB.length)] : squadB[0];
+    let availableB = round <= 3 ? fwdB.filter(p => !shotB_names.includes(p.name)) : fwdB;
+    if (availableB.length === 0) availableB = fwdB.length > 0 ? fwdB : squadB;
+
+    let shB = availableB[Math.floor(Math.random() * availableB.length)];
+    if (!shB) shB = squadB[0];
+    shotB_names.push(shB.name);
+
     let isGoalB = Math.random() < 0.35;
     if (isGoalB) { soB++; recordStat(shB, teamB, 'goal'); }
     
-    shootoutEvents.push({ 
-        text: `${isGoalB ? '✅' : '❌'} <b>${formatShooter(shB)}</b> (${teamB}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>` 
+    shootoutEvents.push({
+        text: `${isGoalB ? '✅' : '❌'} <b>${formatShooter(shB)}</b> (${teamB}) - <span style="color:#fbbf24;">${soA} : ${soB}</span>`
     });
 
-    // Досрочная победа Б (только в первых 3 раундах)
+    // Досрочная победа Б
     if (round <= 3 && soB > soA + (3 - round)) break;
-
-    // Если прошло 3+ раунда и счет разный (обе команды били) - конец
+    
+    // Если прошло 3+ раунда и счет разный — конец
     if (round >= 3 && soA !== soB) break;
     
     round++;
