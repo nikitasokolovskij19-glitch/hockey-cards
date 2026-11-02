@@ -1016,7 +1016,7 @@ button[onclick="closeDayResults()"] {
     </div>
 
 <!-- ЭКРАН СИМУЛЯЦИИ МАТЧА -->
-<div id="matchSimView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #000000; z-index: 9999999; flex-direction: column; overflow: hidden;">
+<div id="matchSimView" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000000; z-index: 9999999; flex-direction: column; overflow: hidden;">
     
     <!-- ТАБЛО -->
 <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; max-width: 340px; margin: 0 auto; padding: 15px 0; box-sizing: border-box; border-bottom: 1px solid #1e293b;">
@@ -1042,8 +1042,8 @@ button[onclick="closeDayResults()"] {
 </div>
     
     <!-- Лента событий -->
-    <div id="match-log" style="width: 92%; max-width: 450px; flex: 1; background: rgba(30, 41, 59, 0.6); border-radius: 12px; padding: 15px; overflow-y: auto; margin: 15px auto; box-sizing: border-box; display: flex; flex-direction: column;">
-        <div style="text-align: center; color: #64748b; margin-top: 50%; transform: translateY(-50%);">Матч начнется сейчас...</div>
+<div id="match-log" style="width: 92%; max-width: 450px; flex: 1; min-height: 0; background: rgba(30, 41, 59, 0.6); border-radius: 12px; padding: 15px; overflow-y: auto; margin: 15px auto; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="text-align: center; color: #64748b; margin-top: 50%; transform: translateY(-50%);">Матч начнется сейчас...</div>
     </div>
 
     <!-- Кнопки внизу -->
