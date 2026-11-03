@@ -3883,135 +3883,89 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
         setTimeout(nextBullet, 1000);
     }
 
-    function endMatch() {
-        document.getElementById('match-time').innerText = "Матч окончен";
-        document.getElementById('match-log').innerHTML += `<div style="text-align: center; font-size: 18px; font-weight: bold; color: #fbbf24; margin-top: 10px;">Матч завершен!</div>`;
-        document.getElementById('match-continue-btn').style.display = 'block';
-        document.getElementById('btn-view-stats').style.display = 'block';
+function endMatch() {
+    document.getElementById('match-time').innerText = "Матч окончен";
+    document.getElementById('match-log').innerHTML += `<div style="text-align: center; font-weight: bold; color: #fbbf24; margin-top: 10px;">Матч завершен!</div>`;
+    document.getElementById('match-continue-btn').style.display = 'block';
+    document.getElementById('btn-view-stats').style.display = 'block';
 
-        document.getElementById('btn-view-stats').onclick = () => {
-    const statsDiv = document.getElementById('matchStatsContent');
-    
-    // Форматируем время
-    const attackTimeA = `${matchData.stats.timeA}:${matchData.stats.timeASec.toString().padStart(2, '0')}`;
-    const attackTimeB = `${matchData.stats.timeB}:${matchData.stats.timeBSec.toString().padStart(2, '0')}`;
-    
-    // Форматируем штраф
-    const pimA_str = matchData.stats.pimA >= 60 ? `${Math.floor(matchData.stats.pimA/60)}:${(matchData.stats.pimA%60).toString().padStart(2,'0')}` : `${matchData.stats.pimA}:00`;
-    const pimB_str = matchData.stats.pimB >= 60 ? `${Math.floor(matchData.stats.pimB/60)}:${(matchData.stats.pimB%60).toString().padStart(2,'0')}` : `${matchData.stats.pimB}:00`;
+    document.getElementById('btn-view-stats').onclick = () => {
+        const statsDiv = document.getElementById('matchStatsContent');
+        
+        // Время и штраф
+        const attackTimeA = `${matchData.stats.timeA}:${matchData.stats.timeASec.toString().padStart(2, '0')}`;
+        const attackTimeB = `${matchData.stats.timeB}:${matchData.stats.timeBSec.toString().padStart(2, '0')}`;
+        const pimA_str = `${matchData.stats.pimA}:00`;
+        const pimB_str = `${matchData.stats.pimB}:00`;
+        const ppA = `${matchData.stats.ppGoalsA} / ${matchData.stats.pensB}`;
+        const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensA}`;
 
-    const ppA = `${matchData.stats.ppGoalsA} / ${matchData.stats.pensB}`;
-    const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensA}`;
-
-    // Настраиваем шапку с логотипами/флагами
-    let headerA, headerB;
-if (currentTournamentMode === 'national') {
-    headerA = `<span style="font-size: 48px; line-height: 1;">${teamA}</span>`;
-    headerB = `<span style="font-size: 48px; line-height: 1;">${teamB}</span>`;
-} else {
-    const tA = PLAYERS.find(p => p.club === teamA);
-    const tB = PLAYERS.find(p => p.club === teamB);
-    headerA = `<img src="${tA ? tA.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
-    headerB = `<img src="${tB ? tB.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
-}
-
-    // Функция для строк статистики
-    const row = (name, valA, valB) => `
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <div style="width: 25%; text-align: left; font-weight: 900; color: white; font-size: 20px;">${valA}</div>
-            <div style="width: 50%; text-align: center; color: #e2e8f0; font-size: 13px; font-weight: 700; text-transform: uppercase;">${name}</div>
-            <div style="width: 25%; text-align: right; font-weight: 900; color: white; font-size: 20px;">${valB}</div>
-        </div>
-    `;
-
-    // Собираем голы
-    let goalsHtml = '';
-    matchData.events.forEach(ev => {
-        if (ev.type === 'goal') {
-            goalsHtml += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
-                <span style="color: #64748b; width: 40px;">${ev.minuteStr}</span>
-                <span style="flex: 1; color: #fff; font-size: 13px;"><b>${ev.scorer.name}</b></span>
-            </div>`;
-        }
-    });
-
-    // Вставляем всё в HTML
-        statsDiv.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px; width: 100%;">
-            <div style="width: 30%; display: flex; justify-content: center;">
-                ${headerA}
-            </div>
-            <div style="width: 40%; display: flex; justify-content: center; align-items: center; font-size: 42px; color: #fff; font-weight: 900;">
-                ${matchData.scoreA} <span style="color: #64748b; margin: 0 10px; font-size: 28px;">-</span> ${matchData.scoreB}
-            </div>
-            <div style="width: 30%; display: flex; justify-content: center;">
-                ${headerB}
-            </div>
-        </div>
-
-        ${row('БРОСКИ', matchData.stats.shotsA, matchData.stats.shotsB)}
-        ${row('СИЛОВЫЕ ПРИЕМЫ', matchData.stats.hitsA, matchData.stats.hitsB)}
-        ${row('ВБРАСЫВАНИЯ', matchData.stats.faceoffA + ' %', matchData.stats.faceoffB + ' %')}
-        ${row('ВРЕМЯ В АТАКЕ', attackTimeA, attackTimeB)}
-        ${row('ШТРАФНОЕ ВРЕМЯ', pimA_str, pimB_str)}
-        ${row('РЕАЛИЗАЦИЯ Б-ВА', ppA, ppB)}
-
-        <div style="font-size: 14px; color: #fbbf24; text-align: center; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">ЗАБРОШЕННЫЕ ШАЙБЫ</div>
-        <div style="max-height: 150px; overflow-y: auto; text-align: left; font-size: 13px; padding: 0 10px;">
-            ${goalsHtml || '<div style="text-align: center; color: #64748b; padding: 10px;">Нет голов</div>'}
-        </div>
-    `;
-    document.getElementById('matchStatsView').style.display = 'flex';
-};
-
-        document.getElementById('match-continue-btn').onclick = () => {
-            document.getElementById('matchSimView').style.display = 'none';
-            onComplete(matchData.scoreA, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
-        };
-    } // <--- ЗАКРЫВАЕТСЯ endMatch
-
-    setTimeout(tick, 1000);
-} // <--- ЗАКРЫВАЕТСЯ simulateVisualMatch
-
-    function runTournament() {
-    if (isTournamentRunning) return;
-
-    if (!tournamentSchedule || currentRoundIndex >= tournamentSchedule.length) {
-        return;
-    }
-
-    const playerTeam = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
-    let currentRoundMatches = tournamentSchedule[currentRoundIndex];
-
-    if (!currentRoundMatches) {
-        isTournamentRunning = false;
-        prepareTournament();
-        return;
-    }
-
-    let playerMatch = currentRoundMatches.find(m => m.teamA === playerTeam || m.teamB === playerTeam);
-
-    isTournamentRunning = true;
-    const playBtn = document.getElementById('tournamentPlayBtn');
-    if (playBtn) playBtn.style.display = 'none';
-
-    try {
-        if (!playerMatch) {
-            processRoundResults(currentRoundMatches, playerTeam, null, 0, 0);
+        // Флаги / Логотипы
+        let headerA, headerB;
+        if (currentTournamentMode === 'national') {
+            headerA = `<span style="font-size: 50px; line-height: 1;">${teamA}</span>`;
+            headerB = `<span style="font-size: 50px; line-height: 1;">${teamB}</span>`;
         } else {
-            let opponent = playerMatch.teamA === playerTeam ? playerMatch.teamB : playerMatch.teamA;
-            simulateVisualMatch(playerTeam, opponent, (scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) => {
-                processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp);
-            });
+            const tA = PLAYERS.find(p => p.club === teamA);
+            const tB = PLAYERS.find(p => p.club === teamB);
+            headerA = `<img src="${tA ? tA.logo : ''}" style="width: 90px; height: 90px; object-fit: contain;">`;
+            headerB = `<img src="${tB ? tB.logo : ''}" style="width: 90px; height: 90px; object-fit: contain;">`;
         }
-    } catch (error) {
-        isTournamentRunning = false;
-        if (playBtn) playBtn.style.display = 'block';
+
+        // Строки статистики
+        const row = (name, valA, valB) => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <div style="width: 25%; text-align: left; font-weight: 900; color: white; font-size: 20px;">${valA}</div>
+                <div style="width: 50%; text-align: center; color: #e2e8f0; font-size: 13px; font-weight: 700; text-transform: uppercase;">${name}</div>
+                <div style="width: 25%; text-align: right; font-weight: 900; color: white; font-size: 20px;">${valB}</div>
+            </div>
+        `;
+
+        // Голы
+        let goalsHtml = '';
+        matchData.events.forEach(ev => {
+            if (ev.type === 'goal') {
+                goalsHtml += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
+                    <span style="color: #64748b; width: 40px;">${ev.minuteStr}</span>
+                    <span style="flex: 1; color: #fff; font-size: 13px;"><b>${ev.scorer.name}</b></span>
+                </div>`;
+            }
+        });
+
+        // Рендер шапки и таблицы
+        statsDiv.innerHTML = `
+            <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 25px; width: 100%;">
+                <div style="flex: 1; display: flex; justify-content: flex-start;">
+                    ${headerA}
+                </div>
+                <div style="flex: 2; display: flex; justify-content: center; align-items: center; font-size: 42px; font-weight: 900; color: white; white-space: nowrap;">
+                    ${matchData.scoreA} <span style="color: #64748b; margin: 0 10px;">-</span> ${matchData.scoreB}
+                </div>
+                <div style="flex: 1; display: flex; justify-content: flex-end;">
+                    ${headerB}
+                </div>
+            </div>
+
+            ${row('БРОСКИ', matchData.stats.shotsA, matchData.stats.shotsB)}
+            ${row('СИЛОВЫЕ ПРИЕМЫ', matchData.stats.hitsA, matchData.stats.hitsB)}
+            ${row('ВБРАСЫВАНИЯ', matchData.stats.faceoffA + ' %', matchData.stats.faceoffB + ' %')}
+            ${row('ВРЕМЯ В АТАКЕ', attackTimeA, attackTimeB)}
+            ${row('ШТРАФНОЕ ВРЕМЯ', pimA_str, pimB_str)}
+            ${row('РЕАЛИЗАЦИЯ Б-ВА', ppA, ppB)}
+
+            <div style="font-size: 14px; color: #fbbf24; text-align: center; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">ЗАБРОШЕННЫЕ ШАЙБЫ</div>
+            <div style="max-height: 150px; overflow-y: auto; text-align: left; font-size: 13px; padding: 0 10px;">
+                ${goalsHtml || '<div style="text-align: center; color: #64748b; padding: 10px;">Нет голов</div>'}
+            </div>
+        `;
+        document.getElementById('matchStatsView').style.display = 'flex';
+    };
+
+    document.getElementById('match-continue-btn').onclick = () => {
         document.getElementById('matchSimView').style.display = 'none';
-        showAlert("Произошла ошибка при запуске матча. Попробуйте еще раз.\n" + error.message);
-        console.error(error);
-    }
-    }
+        onComplete(matchData.scoreA, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
+    };
+}
 
 function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) {
     let roundResults = [];
