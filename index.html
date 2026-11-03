@@ -3413,9 +3413,39 @@ let activeGoalieB = goalsB.length > 0 ? goalsB[0] : null;
     let goalieA_conceded = 0;
 let goalieB_conceded = 0;
 
-    let stats = { shotsA: 0, shotsB: 0, pimA: Math.floor(Math.random() * 10), pimB: Math.floor(Math.random() * 10), hitsA: Math.floor(Math.random() * 15) + 10, hitsB: Math.floor(Math.random() * 15) + 10, faceoffA: 50, faceoffB: 50 };
-    if (strA > strB) { stats.faceoffA = 55; stats.faceoffB = 45; } else if (strB > strA) { stats.faceoffA = 45; stats.faceoffB = 55; }
+    // 1. Удаления (обычно 2-5 за матч, редко 6-7)
+let pensA = Math.floor(Math.random() * 4) + 2; 
+let pensB = Math.floor(Math.random() * 4) + 2;
+if (Math.random() < 0.05) pensA += 2; 
+if (Math.random() < 0.05) pensB += 2;
 
+// 2. Штрафное время (в основном малые по 2 мин, иногда 5 мин)
+let pimA_val = (pensA * 2) + (Math.random() < 0.1 ? 3 : 0); 
+let pimB_val = (pensB * 2) + (Math.random() < 0.1 ? 3 : 0);
+
+// 3. Реализация большинства (голы в большинстве не могут превышать количество удалений)
+let ppGoalsA = Math.floor(Math.random() * Math.min(pensA + 1, 4)); 
+let ppGoalsB = Math.floor(Math.random() * Math.min(pensB + 1, 4));
+
+// 4. Силовые (зависят от силы команд strA и strB)
+let hitsA = Math.max(5, Math.floor(Math.random() * 15) + 15 + Math.round((strA - strB) * 0.5));
+let hitsB = Math.max(5, Math.floor(Math.random() * 15) + 15 + Math.round((strB - strA) * 0.5));
+
+// 5. Блокированные броски (независимая статистика)
+let blockedA = Math.floor(Math.random() * 15) + 10;
+let blockedB = Math.floor(Math.random() * 15) + 10;
+
+let stats = { 
+    shotsA: 0, shotsB: 0, 
+    pensA: pensA, pensB: pensB,
+    pimA: pimA_val, pimB: pimB_val, 
+    ppGoalsA: ppGoalsA, ppGoalsB: ppGoalsB,
+    hitsA: hitsA, hitsB: hitsB, 
+    blockedA: blockedA, blockedB: blockedB,
+    faceoffA: 50, faceoffB: 50 
+};
+if (strA > strB) { stats.faceoffA = 55; stats.faceoffB = 45; } else if (strB > strA) { stats.faceoffA = 45; stats.faceoffB = 55; }
+    
     const initGoalieStats = (g, teamName) => {
     if (!g) return;
     const key = `${g.name}_${teamName}`;
@@ -3673,6 +3703,17 @@ while (true) {
     }
 }
 
+    // Расчет времени в атаке (от 60 минут)
+let ratioA = stats.shotsA / (stats.shotsA + stats.shotsB || 1);
+// Добавляем разброс +/- 5%, чтобы не было жесткой привязки
+ratioA = Math.max(0.2, Math.min(0.8, ratioA + (Math.random() * 0.1 - 0.05))); 
+let ratioB = 1 - ratioA;
+
+stats.timeA = Math.floor(60 * ratioA);
+stats.timeASec = Math.floor(Math.random() * 60);
+stats.timeB = Math.floor(60 * ratioB);
+stats.timeBSec = Math.floor(Math.random() * 60);
+
 return { events, shootoutEvents, scoreA, scoreB, regScoreA, regScoreB, stats };
 }
 
@@ -3816,46 +3857,75 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
         document.getElementById('btn-view-stats').style.display = 'block';
 
         document.getElementById('btn-view-stats').onclick = () => {
-            const statsDiv = document.getElementById('matchStatsContent');
-            let goalsHtml = '';
-            matchData.events.forEach(ev => {
-                if (ev.type === 'goal') { 
-                    let cleanText = `<b>${ev.scorer.name}</b>`;
-                    goalsHtml += `<div style="display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid #2a2a3a;">
-                        <span style="color: #64748b; width: 30px;">${ev.minuteStr}</span>
-                        <span style="flex: 1; color: #fff;">${cleanText}</span>
-                    </div>`;
-                }
-            });
+    const statsDiv = document.getElementById('matchStatsContent');
+    
+    // Форматируем время
+    const attackTimeA = `${matchData.stats.timeA}:${matchData.stats.timeASec.toString().padStart(2, '0')}`;
+    const attackTimeB = `${matchData.stats.timeB}:${matchData.stats.timeBSec.toString().padStart(2, '0')}`;
+    
+    // Форматируем штраф (переводим минуты в часы:минуты, если больше 60)
+    const pimA_str = matchData.stats.pimA >= 60 ? `${Math.floor(matchData.stats.pimA/60)}:${(matchData.stats.pimA%60).toString().padStart(2,'0')}` : `${matchData.stats.pimA}:00`;
+    const pimB_str = matchData.stats.pimB >= 60 ? `${Math.floor(matchData.stats.pimB/60)}:${(matchData.stats.pimB%60).toString().padStart(2,'0')}` : `${matchData.stats.pimB}:00`;
 
-            const row = (name, valA, valB) => `
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding: 6px 0;">
-                    <div style="width: 30%; text-align: left; font-weight: bold; color: white;">${valA}</div>
-                    <div style="width: 40%; text-align: center; color: #94a3b8; font-size: 11px; text-transform: uppercase;">${name}</div>
-                    <div style="width: 30%; text-align: right; font-weight: bold; color: white;">${valB}</div>
-                </div>
-            `;
+    const ppA = `${matchData.stats.ppGoalsA} / ${matchData.stats.pensA}`;
+    const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensB}`;
 
-            statsDiv.innerHTML = `
-                <div style="text-align: center; font-weight: bold; color: #fbbf24; margin-bottom: 10px;">СТАТИСТИКА МАТЧА</div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px;">
-                    <div style="color: #3b82f6; font-weight: bold;">${teamA}</div>
-                    <div style="color: #3b82f6; font-weight: bold;">${teamB}</div>
-                </div>
-                ${row('Голы', matchData.scoreA, matchData.scoreB)}
-                ${row('Броски', matchData.stats.shotsA, matchData.stats.shotsB)}
-                ${row('Броски в створ', matchData.stats.shotsOnTargetA, matchData.stats.shotsOnTargetB)}
-                ${row('Вбрасывания', matchData.stats.faceoffA + '%', matchData.stats.faceoffB + '%')}
-                ${row('Блокированные', matchData.stats.blockedA, matchData.stats.blockedB)}
-                ${row('Силовые приёмы', matchData.stats.hitsA, matchData.stats.hitsB)}
-                ${row('Штраф', matchData.stats.penaltyA, matchData.stats.penaltyB)}
-                <div style="font-size: 12px; color: #fbbf24; text-align: center; margin-top: 15px; border-top: 1px solid #334155; padding-top: 10px;">Голы:</div>
-                <div style="max-height: 100px; overflow-y: auto; text-align: left; font-size: 11px;">
-                    ${goalsHtml || '<div style="text-align: center; color: #64748b; padding: 10px 0;">Голов не было</div>'}
-                </div>
-            `;
-            document.getElementById('matchStatsView').style.display = 'flex';
-        };
+    let headerA, headerB;
+    if (currentTournamentMode === 'national') {
+        headerA = `<span style="font-size: 24px;">${teamA}</span>`;
+        headerB = `<span style="font-size: 24px;">${teamB}</span>`;
+    } else {
+        const tA = PLAYERS.find(p => p.club === teamA);
+        const tB = PLAYERS.find(p => p.club === teamB);
+        headerA = `<img src="${tA ? tA.logo : ''}" style="width: 45px; height: 45px; object-fit: contain;">`;
+        headerB = `<img src="${tB ? tB.logo : ''}" style="width: 45px; height: 45px; object-fit: contain;">`;
+    }
+
+    const row = (name, valA, valB) => `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <div style="width: 25%; text-align: left; font-weight: 900; color: white; font-size: 20px;">${valA}</div>
+            <div style="width: 50%; text-align: center; color: #e2e8f0; font-size: 13px; font-weight: 700; text-transform: uppercase;">${name}</div>
+            <div style="width: 25%; text-align: right; font-weight: 900; color: white; font-size: 20px;">${valB}</div>
+        </div>
+    `;
+
+    let goalsHtml = '';
+    matchData.events.forEach(ev => {
+        if (ev.type === 'goal') {
+            goalsHtml += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
+                <span style="color: #64748b; width: 40px;">${ev.minuteStr}</span>
+                <span style="flex: 1; color: #fff; font-size: 13px;"><b>${ev.scorer.name}</b></span>
+            </div>`;
+        }
+    });
+
+    statsDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px;">
+            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
+                ${headerA}
+                <div style="margin-top: 5px; font-size: 18px; color: #fff; font-weight: 900;">${matchData.scoreA}</div>
+            </div>
+            <div style="color: #64748b; font-size: 24px; font-weight: 900;">—</div>
+            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
+                ${headerB}
+                <div style="margin-top: 5px; font-size: 18px; color: #fff; font-weight: 900;">${matchData.scoreB}</div>
+            </div>
+        </div>
+
+        ${row('БРОСКИ', matchData.stats.shotsA, matchData.stats.shotsB)}
+        ${row('СИЛОВЫЕ ПРИЕМЫ', matchData.stats.hitsA, matchData.stats.hitsB)}
+        ${row('ВБРАСЫВАНИЯ', matchData.stats.faceoffA + ' %', matchData.stats.faceoffB + ' %')}
+        ${row('ВРЕМЯ В АТАКЕ', attackTimeA, attackTimeB)}
+        ${row('ШТРАФНОЕ ВРЕМЯ', pimA_str, pimB_str)}
+        ${row('РЕАЛИЗАЦИЯ Б-ВА', ppA, ppB)}
+
+        <div style="font-size: 14px; color: #fbbf24; text-align: center; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">ЗАБРОШЕННЫЕ ШАЙБЫ</div>
+        <div style="max-height: 120px; overflow-y: auto; text-align: left; font-size: 13px; padding: 0 10px;">
+            ${goalsHtml || '<div style="text-align: center; color: #64748b; padding: 10px;">Нет голов</div>'}
+        </div>
+    `;
+    document.getElementById('matchStatsView').style.display = 'flex';
+};
 
         document.getElementById('match-continue-btn').onclick = () => {
             document.getElementById('matchSimView').style.display = 'none';
