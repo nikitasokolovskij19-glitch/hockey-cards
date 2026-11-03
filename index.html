@@ -3905,15 +3905,15 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
 
     // Настраиваем шапку с логотипами/флагами
     let headerA, headerB;
-    if (currentTournamentMode === 'national') {
-        headerA = `<span style="font-size: 48px; line-height: 1;">${teamA}</span>`;
-        headerB = `<span style="font-size: 48px; line-height: 1;">${teamB}</span>`;
-    } else {
-        const tA = PLAYERS.find(p => p.club === teamA);
-        const tB = PLAYERS.find(p => p.club === teamB);
-        headerA = `<img src="${tA ? tA.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
-        headerB = `<img src="${tB ? tB.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
-    }
+if (currentTournamentMode === 'national') {
+    headerA = `<span style="font-size: 48px; line-height: 1;">${teamA}</span>`;
+    headerB = `<span style="font-size: 48px; line-height: 1;">${teamB}</span>`;
+} else {
+    const tA = PLAYERS.find(p => p.club === teamA);
+    const tB = PLAYERS.find(p => p.club === teamB);
+    headerA = `<img src="${tA ? tA.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
+    headerB = `<img src="${tB ? tB.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
+}
 
     // Функция для строк статистики
     const row = (name, valA, valB) => `
@@ -3936,7 +3936,7 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     });
 
     // Вставляем всё в HTML
-    statsDiv.innerHTML = `
+        statsDiv.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px; width: 100%;">
             <div style="width: 30%; display: flex; justify-content: center;">
                 ${headerA}
