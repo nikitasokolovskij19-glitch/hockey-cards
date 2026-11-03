@@ -1061,9 +1061,9 @@ button[onclick="closeDayResults()"] {
 </div>
 
 <!-- ОКНО СТАТИСТИКИ МАТЧА -->
-<div id="matchStatsView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 9999999; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
-    <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #3b82f6; border-radius: 24px; padding: 20px; width: 320px;">
-        <h3 style="text-align: center; margin-top: 0; color: white; margin-bottom: 20px;">Статистика матча</h3>
+<div id="matchStatsView" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 99999999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+<div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid #3b82f6; border-radius: 12px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; padding: 20px; box-sizing: border-box;">
+    <h3 style="text-align: center; margin-top: 0; color: white; margin-bottom: 20px;">Статистика матча</h3>
         <div id="matchStatsContent" style="font-size: 13px; color: #cbd5e1; display: flex; flex-direction: column; gap: 10px;"></div>
         <button onclick="document.getElementById('matchStatsView').style.display='none';" style="width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer;">Закрыть</button>
     </div>
@@ -3906,46 +3906,49 @@ const ppA = `${matchData.stats.ppGoalsA} / ${matchData.stats.pensB}`;
 const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensA}`;
 
     let headerA, headerB;
-    if (currentTournamentMode === 'national') {
-        headerA = `<span style="font-size: 24px;">${teamA}</span>`;
-        headerB = `<span style="font-size: 24px;">${teamB}</span>`;
-    } else {
-        const tA = PLAYERS.find(p => p.club === teamA);
-        const tB = PLAYERS.find(p => p.club === teamB);
-        headerA = `<img src="${tA ? tA.logo : ''}" style="width: 45px; height: 45px; object-fit: contain;">`;
-        headerB = `<img src="${tB ? tB.logo : ''}" style="width: 45px; height: 45px; object-fit: contain;">`;
+if (currentTournamentMode === 'national') {
+    // Увеличиваем эмодзи флагов в 2 раза (было 24px)
+    headerA = `<span style="font-size: 48px; line-height: 1;">${teamA}</span>`;
+    headerB = `<span style="font-size: 48px; line-height: 1;">${teamB}</span>`;
+} else {
+    const tA = PLAYERS.find(p => p.club === teamA);
+    const tB = PLAYERS.find(p => p.club === teamB);
+    // Увеличиваем логотипы клубов (было 45px)
+    headerA = `<img src="${tA ? tA.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
+    headerB = `<img src="${tB ? tB.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
+}
+
+const row = (name, valA, valB) => `
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div style="width: 25%; text-align: left; font-weight: 900; color: white; font-size: 20px;">${valA}</div>
+        <div style="width: 50%; text-align: center; color: #e2e8f0; font-size: 13px; font-weight: 700; text-transform: uppercase;">${name}</div>
+        <div style="width: 25%; text-align: right; font-weight: 900; color: white; font-size: 20px;">${valB}</div>
+    </div>
+`;
+
+let goalsHtml = '';
+matchData.events.forEach(ev => {
+    if (ev.type === 'goal') {
+        goalsHtml += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
+            <span style="color: #64748b; width: 40px;">${ev.minuteStr}</span>
+            <span style="flex: 1; color: #fff; font-size: 13px;"><b>${ev.scorer.name}</b></span>
+        </div>`;
     }
+});
 
-    const row = (name, valA, valB) => `
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <div style="width: 25%; text-align: left; font-weight: 900; color: white; font-size: 20px;">${valA}</div>
-            <div style="width: 50%; text-align: center; color: #e2e8f0; font-size: 13px; font-weight: 700; text-transform: uppercase;">${name}</div>
-            <div style="width: 25%; text-align: right; font-weight: 900; color: white; font-size: 20px;">${valB}</div>
+// Новая шапка: Флаг - Счет - Флаг
+statsDiv.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px; width: 100%;">
+        <div style="width: 30%; display: flex; justify-content: center;">
+            ${headerA}
         </div>
-    `;
-
-    let goalsHtml = '';
-    matchData.events.forEach(ev => {
-        if (ev.type === 'goal') {
-            goalsHtml += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
-                <span style="color: #64748b; width: 40px;">${ev.minuteStr}</span>
-                <span style="flex: 1; color: #fff; font-size: 13px;"><b>${ev.scorer.name}</b></span>
-            </div>`;
-        }
-    });
-
-    statsDiv.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px;">
-            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
-                ${headerA}
-                <div style="margin-top: 5px; font-size: 18px; color: #fff; font-weight: 900;">${matchData.scoreA}</div>
-            </div>
-            <div style="color: #64748b; font-size: 24px; font-weight: 900;">—</div>
-            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
-                ${headerB}
-                <div style="margin-top: 5px; font-size: 18px; color: #fff; font-weight: 900;">${matchData.scoreB}</div>
-            </div>
+        <div style="width: 40%; display: flex; justify-content: center; align-items: center; font-size: 42px; color: #fff; font-weight: 900;">
+            ${matchData.scoreA} <span style="color: #64748b; margin: 0 10px; font-size: 28px;">-</span> ${matchData.scoreB}
         </div>
+        <div style="width: 30%; display: flex; justify-content: center;">
+            ${headerB}
+        </div>
+    </div>
 
         ${row('БРОСКИ', matchData.stats.shotsA, matchData.stats.shotsB)}
         ${row('СИЛОВЫЕ ПРИЕМЫ', matchData.stats.hitsA, matchData.stats.hitsB)}
