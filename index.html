@@ -3413,38 +3413,36 @@ let activeGoalieB = goalsB.length > 0 ? goalsB[0] : null;
     let goalieA_conceded = 0;
 let goalieB_conceded = 0;
 
-    // 1. Удаления (обычно 2-5 за матч, редко 6-7)
-let pensA = Math.floor(Math.random() * 4) + 2; 
+    // 1. Удаления (обычно 2-5 за матч, редко больше)
+let pensA = Math.floor(Math.random() * 4) + 2;
 let pensB = Math.floor(Math.random() * 4) + 2;
-if (Math.random() < 0.05) pensA += 2; 
+if (Math.random() < 0.05) pensA += 2;
 if (Math.random() < 0.05) pensB += 2;
 
-// 2. Штрафное время (в основном малые по 2 мин, иногда 5 мин)
-let pimA_val = (pensA * 2) + (Math.random() < 0.1 ? 3 : 0); 
+// 2. Штрафное время (в основном по 2 мин, иногда 5)
+let pimA_val = (pensA * 2) + (Math.random() < 0.1 ? 3 : 0);
 let pimB_val = (pensB * 2) + (Math.random() < 0.1 ? 3 : 0);
 
-// 3. Реализация большинства (голы в большинстве не могут превышать количество удалений)
-let ppGoalsA = Math.floor(Math.random() * Math.min(pensA + 1, 4)); 
-let ppGoalsB = Math.floor(Math.random() * Math.min(pensB + 1, 4));
+// 3. Силовые приемы (уменьшены, зависят от силы)
+let hitsA = Math.max(4, Math.floor(Math.random() * 8) + 8 + Math.round((strA - strB) * 0.2));
+let hitsB = Math.max(4, Math.floor(Math.random() * 8) + 8 + Math.round((strB - strA) * 0.2));
 
-// 4. Силовые (зависят от силы команд strA и strB)
-let hitsA = Math.max(5, Math.floor(Math.random() * 15) + 15 + Math.round((strA - strB) * 0.5));
-let hitsB = Math.max(5, Math.floor(Math.random() * 15) + 15 + Math.round((strB - strA) * 0.5));
-
-// 5. Блокированные броски (независимая статистика)
-let blockedA = Math.floor(Math.random() * 15) + 10;
-let blockedB = Math.floor(Math.random() * 15) + 10;
+// 4. Блокированные броски
+let blockedA = Math.floor(Math.random() * 10) + 5;
+let blockedB = Math.floor(Math.random() * 10) + 5;
 
 let stats = { 
     shotsA: 0, shotsB: 0, 
     pensA: pensA, pensB: pensB,
     pimA: pimA_val, pimB: pimB_val, 
-    ppGoalsA: ppGoalsA, ppGoalsB: ppGoalsB,
+    ppGoalsA: 0, ppGoalsB: 0, // Заполнится в конце
     hitsA: hitsA, hitsB: hitsB, 
     blockedA: blockedA, blockedB: blockedB,
     faceoffA: 50, faceoffB: 50 
 };
-if (strA > strB) { stats.faceoffA = 55; stats.faceoffB = 45; } else if (strB > strA) { stats.faceoffA = 45; stats.faceoffB = 55; }
+
+if (strA > strB) { stats.faceoffA = 55; stats.faceoffB = 45; } 
+else if (strB > strA) { stats.faceoffA = 45; stats.faceoffB = 55; }
     
     const initGoalieStats = (g, teamName) => {
     if (!g) return;
@@ -3714,6 +3712,24 @@ stats.timeASec = Math.floor(Math.random() * 60);
 stats.timeB = Math.floor(60 * ratioB);
 stats.timeBSec = Math.floor(Math.random() * 60);
 
+    // Считаем РЕАЛЬНЫЕ голы в большинстве на основе ленты событий
+stats.ppGoalsA = events.filter(e => e.type === 'goal' && e.isTeamA === true && e.strength === 'БОЛ').length;
+stats.ppGoalsB = events.filter(e => e.type === 'goal' && e.isTeamA === false && e.strength === 'БОЛ').length;
+
+// Расчет времени в атаке (не привязываем к 60 минутам)
+// База: 8 минут + бонус за силу команды + бонус за игру в большинстве (0.4 мин за каждое удаление соперника)
+let baseTimeA = 8 + ((strA - 75) * 0.1) + (pensB * 0.4);
+let baseTimeB = 8 + ((strB - 75) * 0.1) + (pensA * 0.4);
+
+// Добавляем случайный разброс (от -2 до +2 минут), но не меньше 4 минут
+let timeA_mins = Math.max(4, baseTimeA + (Math.random() * 4 - 2));
+let timeB_mins = Math.max(4, baseTimeB + (Math.random() * 4 - 2));
+
+stats.timeA = Math.floor(timeA_mins);
+stats.timeASec = Math.floor(Math.random() * 60);
+stats.timeB = Math.floor(timeB_mins);
+stats.timeBSec = Math.floor(Math.random() * 60);
+
 return { events, shootoutEvents, scoreA, scoreB, regScoreA, regScoreB, stats };
 }
 
@@ -3868,7 +3884,7 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     const pimB_str = matchData.stats.pimB >= 60 ? `${Math.floor(matchData.stats.pimB/60)}:${(matchData.stats.pimB%60).toString().padStart(2,'0')}` : `${matchData.stats.pimB}:00`;
 
     const ppA = `${matchData.stats.ppGoalsA} / ${matchData.stats.pensA}`;
-    const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensB}`;
+const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensB}`;
 
     let headerA, headerB;
     if (currentTournamentMode === 'national') {
