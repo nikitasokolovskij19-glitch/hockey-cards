@@ -3441,8 +3441,25 @@ let stats = {
     faceoffA: 50, faceoffB: 50 
 };
 
-if (strA > strB) { stats.faceoffA = 55; stats.faceoffB = 45; } 
-else if (strB > strA) { stats.faceoffA = 45; stats.faceoffB = 55; }
+// Считаем вбрасывания по сильнейшему нападающему на льду
+let maxFwdA = 0, maxFwdB = 0;
+squadA.forEach(p => { if (p.pos === 'Нападающий') maxFwdA = Math.max(maxFwdA, getPlayerOVR(p)); });
+squadB.forEach(p => { if (p.pos === 'Нападающий') maxFwdB = Math.max(maxFwdB, getPlayerOVR(p)); });
+
+// Если вдруг нападающих нет (защита от ошибки), берем среднюю силу команды
+if (maxFwdA === 0) maxFwdA = strA;
+if (maxFwdB === 0) maxFwdB = strB;
+
+// Разница 10 OVR дает 5% преимущества (коэффициент 0.5)
+let faceoffDiff = maxFwdA - maxFwdB;
+let faceoffA = 50 + (faceoffDiff * 0.5);
+
+// Ограничиваем от 40% до 60%
+faceoffA = Math.max(40, Math.min(60, faceoffA));
+let faceoffB = 100 - faceoffA;
+
+stats.faceoffA = Math.round(faceoffA);
+stats.faceoffB = Math.round(faceoffB);
     
     const initGoalieStats = (g, teamName) => {
     if (!g) return;
@@ -3883,8 +3900,10 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     const pimA_str = matchData.stats.pimA >= 60 ? `${Math.floor(matchData.stats.pimA/60)}:${(matchData.stats.pimA%60).toString().padStart(2,'0')}` : `${matchData.stats.pimA}:00`;
     const pimB_str = matchData.stats.pimB >= 60 ? `${Math.floor(matchData.stats.pimB/60)}:${(matchData.stats.pimB%60).toString().padStart(2,'0')}` : `${matchData.stats.pimB}:00`;
 
-    const ppA = `${matchData.stats.ppGoalsA} / ${matchData.stats.pensA}`;
-const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensB}`;
+    // Команда А играет в большинстве, когда удаляется Б (pensB)
+const ppA = `${matchData.stats.ppGoalsA} / ${matchData.stats.pensB}`;
+// Команда Б играет в большинстве, когда удаляется А (pensA)
+const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensA}`;
 
     let headerA, headerB;
     if (currentTournamentMode === 'national') {
