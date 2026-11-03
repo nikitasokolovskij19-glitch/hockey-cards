@@ -3919,7 +3919,42 @@ function endMatch() {
                 <div style="width: 50%; text-align: center; color: #e2e8f0; font-size: 13px; font-weight: 700; text-transform: uppercase;">${name}</div>
                 <div style="width: 25%; text-align: right; font-weight: 900; color: white; font-size: 20px;">${valB}</div>
             </div>
-        `;
+            <div style="color: #64748b; font-size: 24px; font-weight: 900;">—</div>
+            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
+                ${headerB}
+                <div style="margin-top: 5px; font-size: 18px; color: #fff; font-weight: 900;">${matchData.scoreB}</div>
+            </div>
+        </div>
+
+        ${row('БРОСКИ', matchData.stats.shotsA, matchData.stats.shotsB)}
+        ${row('СИЛОВЫЕ ПРИЕМЫ', matchData.stats.hitsA, matchData.stats.hitsB)}
+        ${row('ВБРАСЫВАНИЯ', matchData.stats.faceoffA + ' %', matchData.stats.faceoffB + ' %')}
+        ${row('ВРЕМЯ В АТАКЕ', attackTimeA, attackTimeB)}
+        ${row('ШТРАФНОЕ ВРЕМЯ', pimA_str, pimB_str)}
+        ${row('РЕАЛИЗАЦИЯ Б-ВА', ppA, ppB)}
+
+        <div style="font-size: 14px; color: #fbbf24; text-align: center; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">ЗАБРОШЕННЫЕ ШАЙБЫ</div>
+        <div style="max-height: 120px; overflow-y: auto; text-align: left; font-size: 13px; padding: 0 10px;">
+            ${goalsHtml || '<div style="text-align: center; color: #64748b; padding: 10px;">Нет голов</div>'}
+        </div>
+    `;
+    document.getElementById('matchStatsView').style.display = 'flex';
+};
+
+        document.getElementById('match-continue-btn').onclick = () => {
+            document.getElementById('matchSimView').style.display = 'none';
+            onComplete(matchData.scoreA, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
+        };
+    } // <--- ЗАКРЫВАЕТСЯ endMatch
+    setTimeout(tick, 1000);
+} // <--- ЗАКРЫВАЕТСЯ simulateVisualMatch
+
+    function runTournament() {
+    if (isTournamentRunning) return;
+
+    if (!tournamentSchedule || currentRoundIndex >= tournamentSchedule.length) {
+        return;
+    }
 
         // Голы
         let goalsHtml = '';
