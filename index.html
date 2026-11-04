@@ -3912,13 +3912,13 @@ if (currentTournamentMode === 'national') {
 } else {
     const tA = PLAYERS.find(p => p.club === teamA);
     const tB = PLAYERS.find(p => p.club === teamB);
-    // Для клубов делаем круглый контейнер, который обрезает углы картинки
-    headerA = `<div style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 2px solid #3f3f46; background: #000; display: flex; align-items: center; justify-content: center;">
-        <img src="${tA ? tA.logo : ''}" style="width: 100%; height: 100%; object-fit: cover;">
-    </div>`;
-    headerB = `<div style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 2px solid #3f3f46; background: #000; display: flex; align-items: center; justify-content: center;">
-        <img src="${tB ? tB.logo : ''}" style="width: 100%; height: 100%; object-fit: cover;">
-    </div>`;
+    
+    // Используем background-image вместо тега img
+    const urlA = tA && tA.logo ? tA.logo : '';
+    const urlB = tB && tB.logo ? tB.logo : '';
+    
+    headerA = `<div style="width: 90px; height: 90px; border-radius: 50%; border: 2px solid #3f3f46; background-color: #000; background-image: url('${urlA}'); background-size: cover; background-position: center; box-sizing: border-box;"></div>`;
+    headerB = `<div style="width: 90px; height: 90px; border-radius: 50%; border: 2px solid #3f3f46; background-color: #000; background-image: url('${urlB}'); background-size: cover; background-position: center; box-sizing: border-box;"></div>`;
 }
 
     // Функция для строк статистики
