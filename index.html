@@ -3884,33 +3884,42 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     }
 
 function endMatch() {
-    document.getElementById('match-time').innerText = "Матч окончен";
-    document.getElementById('match-log').innerHTML += `<div style="text-align: center; font-weight: bold; color: #fbbf24; margin-top: 10px;">Матч завершен!</div>`;
-    document.getElementById('match-continue-btn').style.display = 'block';
-    document.getElementById('btn-view-stats').style.display = 'block';
+        document.getElementById('match-time').innerText = "Матч окончен";
+        document.getElementById('match-log').innerHTML += `<div style="text-align: center; font-size: 18px; font-weight: bold; color: #fbbf24; margin-top: 10px;">Матч завершен!</div>`;
+        document.getElementById('match-continue-btn').style.display = 'block';
+        document.getElementById('btn-view-stats').style.display = 'block';
 
-    document.getElementById('btn-view-stats').onclick = () => {
-        const statsDiv = document.getElementById('matchStatsContent');
-        
-        // Время и штраф
-        const attackTimeA = `${matchData.stats.timeA}:${matchData.stats.timeASec.toString().padStart(2, '0')}`;
-        const attackTimeB = `${matchData.stats.timeB}:${matchData.stats.timeBSec.toString().padStart(2, '0')}`;
-        const pimA_str = `${matchData.stats.pimA}:00`;
-        const pimB_str = `${matchData.stats.pimB}:00`;
-        const ppA = `${matchData.stats.ppGoalsA} / ${matchData.stats.pensB}`;
-        const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensA}`;
+        document.getElementById('btn-view-stats').onclick = () => {
+    const statsDiv = document.getElementById('matchStatsContent');
+    
+    // Форматируем время
+    const attackTimeA = `${matchData.stats.timeA}:${matchData.stats.timeASec.toString().padStart(2, '0')}`;
+    const attackTimeB = `${matchData.stats.timeB}:${matchData.stats.timeBSec.toString().padStart(2, '0')}`;
+    
+    // Форматируем штраф
+    const pimA_str = matchData.stats.pimA >= 60 ? `${Math.floor(matchData.stats.pimA/60)}:${(matchData.stats.pimA%60).toString().padStart(2,'0')}` : `${matchData.stats.pimA}:00`;
+    const pimB_str = matchData.stats.pimB >= 60 ? `${Math.floor(matchData.stats.pimB/60)}:${(matchData.stats.pimB%60).toString().padStart(2,'0')}` : `${matchData.stats.pimB}:00`;
 
-        // Флаги / Логотипы
-        let headerA, headerB;
-        if (currentTournamentMode === 'national') {
-            headerA = `<span style="font-size: 50px; line-height: 1;">${teamA}</span>`;
-            headerB = `<span style="font-size: 50px; line-height: 1;">${teamB}</span>`;
-        } else {
-            const tA = PLAYERS.find(p => p.club === teamA);
-            const tB = PLAYERS.find(p => p.club === teamB);
-            headerA = `<img src="${tA ? tA.logo : ''}" style="width: 90px; height: 90px; object-fit: contain;">`;
-            headerB = `<img src="${tB ? tB.logo : ''}" style="width: 90px; height: 90px; object-fit: contain;">`;
-        }
+    const ppA = `${matchData.stats.ppGoalsA} / ${matchData.stats.pensB}`;
+    const ppB = `${matchData.stats.ppGoalsB} / ${matchData.stats.pensA}`;
+
+    // Настраиваем шапку с логотипами/флагами
+    let headerA, headerB;
+if (currentTournamentMode === 'national') {
+    // Для сборных оставляем просто флаги
+    headerA = `<span style="font-size: 50px; line-height: 1;">${teamA}</span>`;
+    headerB = `<span style="font-size: 50px; line-height: 1;">${teamB}</span>`;
+} else {
+    const tA = PLAYERS.find(p => p.club === teamA);
+    const tB = PLAYERS.find(p => p.club === teamB);
+    
+    // Используем background-image вместо тега img
+    const urlA = tA && tA.logo ? tA.logo : '';
+    const urlB = tB && tB.logo ? tB.logo : '';
+    
+    headerA = `<div style="width: 90px; height: 90px; border-radius: 50%; border: 2px solid #3f3f46; background-color: #000; background-image: url('${urlA}'); background-size: cover; background-position: center; box-sizing: border-box;"></div>`;
+    headerB = `<div style="width: 90px; height: 90px; border-radius: 50%; border: 2px solid #3f3f46; background-color: #000; background-image: url('${urlB}'); background-size: cover; background-position: center; box-sizing: border-box;"></div>`;
+}
 
         // Строки статистики
         const row = (name, valA, valB) => `
@@ -3930,7 +3939,7 @@ function endMatch() {
                     <span style="flex: 1; color: #fff; font-size: 13px;"><b>${ev.scorer.name}</b></span>
                 </div>`;
             }
-        });
+        }); 
 
         // Рендер шапки и таблицы
         statsDiv.innerHTML = `
