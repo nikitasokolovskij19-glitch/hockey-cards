@@ -1101,6 +1101,8 @@ window.addEventListener('contextmenu', function(e) {
 
     let PLAYERS = []; 
 
+    const IMG_VERSION = '?v=2'; // При следующем обновлении фото поменяй на ?v=3
+
        // ПЕРЕХВАТ СТАНДАРТНОГО ALERT
 window.alert = function(message) {
     const alertBox = document.getElementById('customAlert');
@@ -1905,9 +1907,8 @@ function generatePlayerMiniCardHTML(player, showCount) {
     const rarityColor = getRarityInfo(overall).color;
     
     // Защита от пустых значений
-    const imgUrl = player.img ? player.img : '';
-    const logoUrl = player.logo ? player.logo : '';
-
+    const imgUrl = player.img ? player.img + IMG_VERSION : '';
+const logoUrl = player.logo ? player.logo : '';
     return `
     <div style="position: relative; width: 100%; height: 100%;">
         <img src="${imgUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; z-index: 1;" onerror="this.style.display='none'">
@@ -2547,8 +2548,9 @@ if (window.DeviceOrientationEvent) {
     document.getElementById('d-flag').innerText = player.flag || '🏳️'; 
     
     // Вставляем картинки с проверкой
-    document.getElementById('d-img').innerHTML = `<img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
-    document.getElementById('d-clubLogo').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
+        const imgUrlWithVersion = player.img ? player.img + IMG_VERSION : '';
+document.getElementById('d-img').innerHTML = `<img src="${imgUrl + IMG_VERSION}" style="width: 100%; height: 100%; object-fit: cover;">`;
+        document.getElementById('d-clubLogo').innerHTML = `<img src="${logoUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
         
     // ... (дальше идет код с кнопкой продажи, который у тебя уже есть) ...
     const rarity = getRarityInfo(overall);
