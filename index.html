@@ -3970,11 +3970,14 @@ if (currentTournamentMode === 'national') {
         document.getElementById('matchStatsView').style.display = 'flex';
     };
 
-    document.getElementById('match-continue-btn').onclick = () => {
-        document.getElementById('matchSimView').style.display = 'none';
-        onComplete(matchData.scoreA, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
-    };
-}
+            document.getElementById('match-continue-btn').onclick = () => {
+            document.getElementById('matchSimView').style.display = 'none';
+            onComplete(matchData.scoreA, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
+        };
+    } // <--- ЭТА СКОБКА ЗАКРЫВАЕТ endMatch
+
+    setTimeout(tick, 1000);
+} // <--- А ВОТ ЭТУ СКОБКУ ТЫ ПОТЕРЯЛ! ОНА ЗАКРЫВАЕТ ВСЮ simulateVisualMatch
 
 function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) {
     let roundResults = [];
