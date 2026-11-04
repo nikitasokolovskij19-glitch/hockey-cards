@@ -3943,6 +3943,87 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     }
 }
 
+    function runTournament() {
+    if (isTournamentRunning) return;
+    if (!tournamentSchedule || currentRoundIndex >= tournamentSchedule.length) return;
+
+    const playerTeam = (currentTournamentMode === 'national') ? tournamentSquad[0].flag : tournamentSquad[0].club;
+    let currentRoundMatches = tournamentSchedule[currentRoundIndex];
+
+    if (!currentRoundMatches) {
+        isTournamentRunning = false;
+        prepareTournament();
+        return;
+    }
+
+    let playerMatch = currentRoundMatches.find(m => m.teamA === playerTeam || m.teamB === playerTeam);
+    isTournamentRunning = true;
+    const playBtn = document.getElementById('tournamentPlayBtn');
+    if (playBtn) playBtn.style.display = 'none';
+
+    try {
+        if (!playerMatch) {
+            processRoundResults(currentRoundMatches, playerTeam, null, 0, 0, 0, 0);
+        } else {
+            let opponent = playerMatch.teamA === playerTeam ? playerMatch.teamB : playerMatch.teamA;
+            simulateVisualMatch(playerTeam, opponent, (scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) => {
+                processRoundResults(currentRoundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp);
+            });
+        }
+    } catch (error) {
+        isTournamentRunning = false;
+        if (playBtn) playBtn.style.display = 'block';
+        document.getElementById('matchSimView').style.display = 'none';
+        showAlert("Произошла ошибка при запуске матча. Попробуйте еще раз.\n" + error.message);
+        console.error(error);
+    }
+}
+
+function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) {
+    let roundResults = [];
+    roundMatches.forEach(m => {
+        if (m.teamA === playerTeam || m.teamB === playerTeam) {
+            if (m.teamA === playerTeam) {
+                m.scoreA = scorePlayer; m.scoreB = scoreOpp;
+                roundResults.push({ teamA: playerTeam, scoreA: scorePlayer, teamB: opponent, scoreB: scoreOpp });
+                updateStandings(playerTeam, scorePlayer, opponent, scoreOpp, regScorePlayer, regScoreOpp);
+                if (scorePlayer > scoreOpp) addExp(200);
+            } else {
+                m.scoreA = scoreOpp; m.scoreB = scorePlayer;
+                roundResults.push({ teamA: opponent, scoreA: scoreOpp, teamB: playerTeam, scoreB: scorePlayer });
+                updateStandings(opponent, scoreOpp, playerTeam, scorePlayer, regScoreOpp, regScorePlayer);
+                if (scorePlayer > scoreOpp) addExp(200);
+            }
+        } else {
+            const matchData = generateMatchData(m.teamA, m.teamB);
+            m.scoreA = matchData.scoreA; m.scoreB = matchData.scoreB;
+            roundResults.push({ teamA: m.teamA, scoreA: matchData.scoreA, teamB: m.teamB, scoreB: matchData.scoreB });
+            updateStandings(m.teamA, matchData.scoreA, m.teamB, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
+        }
+    });
+    showDayResults(roundResults, playerTeam);
+}
+
+    function updateStandings(teamA, scoreA, teamB, scoreB, regA, regB) {
+    let rA = tournamentData.find(t => t.team === teamA);
+    let rB = tournamentData.find(t => t.team === teamB);
+    if(!rA || !rB) return;
+
+    rA.games++; rB.games++;
+    rA.goalsFor += scoreA; rA.goalsAgainst += scoreB;
+    rB.goalsFor += scoreB; rB.goalsAgainst += scoreA;
+
+    let isOT = (regA !== undefined && regB !== undefined && regA === regB);
+
+    if (scoreA > scoreB) {
+        rA.wins++; rB.losses++;
+        if (isOT) { rA.points += 2; rB.points += 1; } else { rA.points += 3; rB.points += 0; }
+    } else if (scoreB > scoreA) {
+        rB.wins++; rA.losses++;
+        if (isOT) { rB.points += 2; rA.points += 1; } else { rB.points += 3; rA.points += 0; }
+    }
+    }
+
     function showDayResults(results, playerTeam) {
     const content = document.getElementById('dayResultsContent');
     content.innerHTML = '';
