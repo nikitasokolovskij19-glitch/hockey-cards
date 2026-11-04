@@ -3911,8 +3911,8 @@ if (currentTournamentMode === 'national') {
 } else {
     const tA = PLAYERS.find(p => p.club === teamA);
     const tB = PLAYERS.find(p => p.club === teamB);
-    headerA = `<img src="${tA ? tA.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
-    headerB = `<img src="${tB ? tB.logo : ''}" style="width: 85px; height: 85px; object-fit: contain;">`;
+    headerA = `<img src="${tA ? tA.logo : ''}" style="width: 90px; height: 90px; object-fit: cover; border-radius: 50%; border: 2px solid #3f3f46; background: #000; box-sizing: border-box;">`;
+headerB = `<img src="${tB ? tB.logo : ''}" style="width: 90px; height: 90px; object-fit: cover; border-radius: 50%; border: 2px solid #3f3f46; background: #000; box-sizing: border-box;">`;
 }
 
     // Функция для строк статистики
