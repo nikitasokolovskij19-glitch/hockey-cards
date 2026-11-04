@@ -3906,13 +3906,19 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
     // Настраиваем шапку с логотипами/флагами
     let headerA, headerB;
 if (currentTournamentMode === 'national') {
-    headerA = `<span style="font-size: 48px; line-height: 1;">${teamA}</span>`;
-    headerB = `<span style="font-size: 48px; line-height: 1;">${teamB}</span>`;
+    // Для сборных оставляем просто флаги
+    headerA = `<span style="font-size: 50px; line-height: 1;">${teamA}</span>`;
+    headerB = `<span style="font-size: 50px; line-height: 1;">${teamB}</span>`;
 } else {
     const tA = PLAYERS.find(p => p.club === teamA);
     const tB = PLAYERS.find(p => p.club === teamB);
-    headerA = `<img src="${tA ? tA.logo : ''}" style="width: 90px; height: 90px; object-fit: cover; border-radius: 50%; border: 2px solid #3f3f46; background: #000; box-sizing: border-box;">`;
-headerB = `<img src="${tB ? tB.logo : ''}" style="width: 90px; height: 90px; object-fit: cover; border-radius: 50%; border: 2px solid #3f3f46; background: #000; box-sizing: border-box;">`;
+    // Для клубов делаем круглый контейнер, который обрезает углы картинки
+    headerA = `<div style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 2px solid #3f3f46; background: #000; display: flex; align-items: center; justify-content: center;">
+        <img src="${tA ? tA.logo : ''}" style="width: 100%; height: 100%; object-fit: cover;">
+    </div>`;
+    headerB = `<div style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 2px solid #3f3f46; background: #000; display: flex; align-items: center; justify-content: center;">
+        <img src="${tB ? tB.logo : ''}" style="width: 100%; height: 100%; object-fit: cover;">
+    </div>`;
 }
 
     // Функция для строк статистики
