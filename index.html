@@ -3515,12 +3515,6 @@ for (let i = 0; i < stats.shotsOnTargetB; i++) rawShots.push({ isTeamA: false, p
 rawShots.sort((a, b) => a.period !== b.period ? a.period - b.period : a.minute - b.minute);
     
     // Функция расчета усталости (30% макс, при 3+ запасных падение 9%)
-const getFatigueMultiplier = (minute, benchCount) => {
-    let maxDrop = 0.30; 
-    let timeRatio = Math.min(minute, 60) / 60; 
-    let reduction = Math.min(benchCount * 0.3, 0.7); 
-    return 1 - (maxDrop * timeRatio * (1 - reduction));
-};
 
 for (let shot of rawShots) {
     let isA = shot.isTeamA;
@@ -3555,13 +3549,51 @@ if (pool.length === 0) pool = fieldStarters;
 
 let shooter = pool[Math.floor(Math.random() * pool.length)];
     
-    // УЧЕТ УСТАЛОСТИ
-    let benchCountA = benchA.length;
-    let benchCountB = benchB.length;
-    let currentStrA = strA * getFatigueMultiplier(currentMinute, benchCountA);
-    let currentStrB = strB * getFatigueMultiplier(currentMinute, benchCountB);
+    // --- РАСЧЕТ УСТАЛОСТИ ДЛЯ КОМАНДЫ А ---
+// Считаем нападающих и защитников на льду и в запасе
+let startFwdA = squadA.filter(p => p.pos === "Нападающий").length;
+let benchFwdA = benchA.filter(p => p.pos === "Нападающий").length;
+let startDefA = squadA.filter(p => p.pos === "Защитник").length;
+let benchDefA = benchA.filter(p => p.pos === "Защитник").length;
+
+// Коэффициенты времени на льду (сколько от текущей минуты отыграл каждый тип игрока)
+let timeShareFwdA = Math.min(1, 3 / (startFwdA + benchFwdA || 3)); 
+let timeShareDefA = Math.min(1, 2 / (startDefA + benchDefA || 2));
+
+let currentStrA = 0;
+squadA.forEach(p => {
+    let minutesPlayed = currentMinute; // По умолчанию (для вратаря)
+    if (p.pos === "Нападающий") minutesPlayed = currentMinute * timeShareFwdA;
+    if (p.pos === "Защитник") minutesPlayed = currentMinute * timeShareDefA;
     
-    let currentProbA = currentStrA / (currentStrA + currentStrB);
+    let fatigueDrop = minutesPlayed * 0.01; // 1% за минуту
+    currentStrA += getPlayerOVR(p) * (1 - fatigueDrop);
+});
+currentStrA = currentStrA / (squadA.length || 1);
+
+
+// --- РАСЧЕТ УСТАЛОСТИ ДЛЯ КОМАНДЫ Б ---
+let startFwdB = squadB.filter(p => p.pos === "Нападающий").length;
+let benchFwdB = benchB.filter(p => p.pos === "Нападающий").length;
+let startDefB = squadB.filter(p => p.pos === "Защитник").length;
+let benchDefB = benchB.filter(p => p.pos === "Защитник").length;
+
+let timeShareFwdB = Math.min(1, 3 / (startFwdB + benchFwdB || 3));
+let timeShareDefB = Math.min(1, 2 / (startDefB + benchDefB || 2));
+
+let currentStrB = 0;
+squadB.forEach(p => {
+    let minutesPlayed = currentMinute;
+    if (p.pos === "Нападающий") minutesPlayed = currentMinute * timeShareFwdB;
+    if (p.pos === "Защитник") minutesPlayed = currentMinute * timeShareDefB;
+    
+    let fatigueDrop = minutesPlayed * 0.01;
+    currentStrB += getPlayerOVR(p) * (1 - fatigueDrop);
+});
+currentStrB = currentStrB / (squadB.length || 1);
+
+// Вероятность гола на основе текущих (уставших) сил
+let currentProbA = currentStrA / (currentStrA + currentStrB);
     let baseProb = isA ? currentProbA : (1 - currentProbA);
 
     if (Math.random() < 0.12 * (baseProb * 2)) {
