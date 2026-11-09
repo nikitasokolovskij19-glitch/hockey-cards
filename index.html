@@ -231,54 +231,73 @@ html, body {
     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: rgba(0,0,0,0.95); z-index: 9999999;
     display: none; flex-direction: column; align-items: center; justify-content: center;
-    touch-action: none; /* Отключаем скролл страницы во время свайпа */
+    touch-action: none; 
 }
 
 .pack-container {
-    position: relative; width: 260px; height: 380px; 
-    /* Убираем красивые тени, так как картинка сама по себе красивая */
+    position: relative; 
+    width: 250px; /* Чуть уменьшили ширину */
+    height: 360px; /* Чуть уменьшили высоту */
 }
 
 .pack-image {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    object-fit: cover;
+    object-fit: fill; /* Растягиваем картинку ровно по контейнеру */
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
-    z-index: 2;
+    z-index: 2; /* Пак поверх карты */
 }
 
 /* Верхняя часть (крышка), которая отрывается */
 .pack-flap {
-    position: absolute; top: 0; left: 0; width: 100%; height: 30%;
+    position: absolute; top: 0; left: 0; width: 100%; height: 25%;
     background-size: cover; background-position: top center;
+    border-radius: 12px 12px 0 0;
     z-index: 3;
-    /* Красивый рваный край */
+    /* Рваный край */
     clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 90%, 90% 100%, 85% 90%, 80% 100%, 75% 90%, 70% 100%, 65% 90%, 60% 100%, 55% 90%, 50% 100%, 45% 90%, 40% 100%, 35% 90%, 30% 100%, 25% 90%, 20% 100%, 15% 90%, 10% 100%, 5% 90%, 0 100%);
-    transition: transform 0.6s ease-in-out, opacity 0.5s;
-    transform-origin: top left;
-    pointer-events: none; /* Клики идут сквозь крышку */
+    transition: all 0.8s ease-in-out;
+    /* Точка, за которую тянем (левый верхний угол) */
+    transform-origin: top left; 
+    pointer-events: none; 
 }
 
 /* Карточка, которая спрятана внутри */
 .inner-card {
-    position: absolute; top: 50px; left: 10px; width: 240px; height: 350px;
-    background: #1e293b; border-radius: 10px; z-index: 1;
-    /* Начальное положение - спрятана */
+    position: absolute; 
+    top: 20px; /* Спрятали ее чуть внутрь пака */
+    left: 15px; 
+    width: 220px; /* Сделали уже пака */
+    height: 320px; /* Сделали короче пака */
+    background: #1e293b; border-radius: 10px; 
+    z-index: 1; /* Она ПОД картинкой пака */
     transform: translateY(0); 
     transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
     display: flex; align-items: center; justify-content: center;
 }
 .inner-card::after { content: 'KHL'; color: #fbbf24; font-size: 40px; font-weight: 900; font-style: italic; }
 
-/* Классы, которые мы будем добавлять через JS при свайпах */
+/* Классы для анимации */
 .pack-flap.torn-off {
-    transform: translate(200px, -200px) rotate(45deg); /* Улетает вправо вверх */
+    /* Крышка отрывается и улетает влево-вверх с поворотом */
+    transform: translate(-100px, -150px) rotate(-60deg); 
     opacity: 0;
 }
 .inner-card.pulled-out {
-    transform: translateY(-120px); /* Карта выезжает вверх из пака */
-    z-index: 4; /* Поднимается над паком */
+    /* Карта выезжает вверх, выходя за пределы пака */
+    transform: translateY(-150px); 
+    z-index: 4; /* Поднимается НАД картинкой пака */
+}
+
+/* Текст подсказки */
+.hint-text {
+    color: #fbbf24; font-weight: bold; 
+    position: absolute; /* Жестко привязали к экрану */
+    bottom: 50px; /* Сдвинули вниз */
+    font-size: 18px;
+    animation: blink 1.5s infinite;
+    z-index: 10;
 }
         
         .btn-nav { background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
