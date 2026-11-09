@@ -226,80 +226,61 @@ html, body {
         .pack-count { font-size: 11px; color: #94a3b8; margin-bottom: 10px; font-weight: 600; }
         .pack-price { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 10px; font-size: 14px; font-weight: 800; color: #fbbf24; }
 
-    /* Стили для пака-пакетика */
+    /* Стили для пака-картинки */
 #packOpeningView {
     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
     background: rgba(0,0,0,0.95); z-index: 9999999;
     display: none; flex-direction: column; align-items: center; justify-content: center;
+    touch-action: none; /* Отключаем скролл страницы во время свайпа */
 }
 
-.pack-wrapper {
-    position: relative; width: 240px; height: 380px; cursor: pointer;
-    perspective: 1000px;
-    /* Золотой градиент в стиле КХЛ */
-    background: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #b45309 100%);
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.3);
-    overflow: hidden;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: transform 0.3s;
+.pack-container {
+    position: relative; width: 260px; height: 380px; 
+    /* Убираем красивые тени, так как картинка сама по себе красивая */
 }
 
-/* Верхняя часть, которая отрывается */
-.pack-top {
-    position: absolute; top: 0; left: 0; width: 100%; height: 25%;
-    background: linear-gradient(to bottom, #d97706, #b45309);
+.pack-image {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-size: cover; background-position: center;
+    border-radius: 12px;
+    /* Тень для объема */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+    z-index: 2;
+}
+
+/* Верхняя часть (крышка), которая отрывается */
+.pack-flap {
+    position: absolute; top: 0; left: 0; width: 100%; height: 30%;
+    background-size: cover; background-position: top center;
     z-index: 3;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 95%, 90% 100%, 85% 95%, 80% 100%, 75% 95%, 70% 100%, 65% 95%, 60% 100%, 55% 95%, 50% 100%, 45% 95%, 40% 100%, 35% 95%, 30% 100%, 25% 95%, 20% 100%, 15% 95%, 10% 100%, 5% 95%, 0 100%);
+    /* Красивый рваный край */
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 90%, 90% 100%, 85% 90%, 80% 100%, 75% 90%, 70% 100%, 65% 90%, 60% 100%, 55% 90%, 50% 100%, 45% 90%, 40% 100%, 35% 90%, 30% 100%, 25% 90%, 20% 100%, 15% 90%, 10% 100%, 5% 90%, 0 100%);
     transition: transform 0.6s ease-in-out, opacity 0.5s;
+    transform-origin: top left;
+    pointer-events: none; /* Клики идут сквозь крышку */
+}
+
+/* Карточка, которая спрятана внутри */
+.inner-card {
+    position: absolute; top: 50px; left: 10px; width: 240px; height: 350px;
+    background: #1e293b; border-radius: 10px; z-index: 1;
+    /* Начальное положение - спрятана */
+    transform: translateY(0); 
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
     display: flex; align-items: center; justify-content: center;
-    border-bottom: 2px solid #fef3c7;
 }
+.inner-card::after { content: 'KHL'; color: #fbbf24; font-size: 40px; font-weight: 900; font-style: italic; }
 
-/* Логотип и текст на паке */
-.pack-content {
-    text-align: center; z-index: 2; display: flex; flex-direction: column; align-items: center;
+/* Классы, которые мы будем добавлять через JS при свайпах */
+.pack-flap.torn-off {
+    transform: translate(200px, -200px) rotate(45deg); /* Улетает вправо вверх */
+    opacity: 0;
 }
-.pack-logo {
-    width: 100px; height: 100px; background: url('https://nikitasokolovskij19-glitch.github.io/hockey-cards/KHL_Logo.png') center/contain no-repeat;
-    border-radius: 50%; margin-bottom: 15px; border: 3px solid #fff;
-    background-color: #1e3a8a; /* Фон под логотип, если картинки нет */
+.inner-card.pulled-out {
+    transform: translateY(-120px); /* Карта выезжает вверх из пака */
+    z-index: 4; /* Поднимается над паком */
 }
-.pack-season-text {
-    font-size: 24px; font-weight: 900; color: #1e3a8a; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff;
-    background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 20px;
-    border: 2px solid #1e3a8a;
-}
-.pack-title {
-    font-size: 16px; font-weight: bold; color: #fff; margin-top: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-    letter-spacing: 2px; text-transform: uppercase;
-}
-
-/* Свечение карты, вылетающей из пака */
-.card-emerging {
-    position: absolute; bottom: 20px; width: 200px; height: 300px;
-    background: #fff; border-radius: 10px; z-index: 1;
-    opacity: 0; transform: translateY(100px);
-    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 0 20px #fff;
-}
-
-/* Анимация вскрытия */
-.pack-wrapper.opened .pack-top { 
-    transform: translateY(-300px) rotate(-15deg); opacity: 0; 
-}
-.pack-wrapper.opened .card-emerging {
-    opacity: 1; transform: translateY(-150px) scale(1.1); 
-}
-.pack-wrapper.opened {
-    transform: translateY(50px);
-}
-
-.hint-text {
-    color: #fbbf24; font-weight: bold; margin-top: 30px; font-size: 18px;
-    animation: blink 1.5s infinite;
-}
-@keyframes blink { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         
         .btn-nav { background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
 
@@ -832,24 +813,17 @@ button[onclick="closeDayResults()"] {
 
     <!-- ЭКРАН ОТКРЫТИЯ ПАКА -->
 <div id="packOpeningView">
-    <div class="pack-wrapper" id="packWrapper" onclick="startPackAnimation()">
-        <!-- Отрывающаяся верхушка -->
-        <div class="pack-top">
-            <span style="font-size: 12px; color: #fff; font-weight: bold; letter-spacing: 2px;">ОТРЫВ</span>
-        </div>
+    <div class="pack-container" id="packContainer">
+        <!-- Карта, которая выезжает (внутри пака) -->
+        <div class="inner-card" id="innerCard"></div>
         
-        <!-- Содержимое пака -->
-        <div class="pack-content">
-            <div class="pack-logo" id="packLogoImg"></div>
-            <div class="pack-season-text" id="packSeasonText">2013/14</div>
-            <div class="pack-title">KHL<br>CARDS</div>
-        </div>
-
-        <!-- Карта, которая будет выезжать из пака -->
-        <div class="card-emerging" id="emergingCard"></div>
+        <!-- Сам пак (фон) -->
+        <div class="pack-image" id="packImage"></div>
+        
+        <!-- Верхняя часть, которая отрывается -->
+        <div class="pack-flap" id="packFlap"></div>
     </div>
-    
-    <div class="hint-text" id="packHint">Нажми, чтобы вскрыть!</div>
+    <div class="hint-text" id="packHint">Свайп вправо, чтобы надорвать пак!</div>
 </div>
     
 <!-- ОКНО ВЫПАДЕНИЯ -->
@@ -1252,6 +1226,12 @@ window.alert = function(message) {
     2: 5000,  // было 2500
     3: 2500   // было 1000
     }
+};
+
+    const PACK_IMAGES = {
+    "2013/14": "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Puck13_14.webp"
+    // Сюда ты будешь добавлять другие сезоны, например:
+    // "2014/15": "https://.../Puck14_15.webp"
 };
 
     let tg = window.Telegram.WebApp;
@@ -2276,9 +2256,18 @@ addExp(expGained);
     // Сохраняем игрока и показываем пак
 window.currentRevealPlayer = player;
 packsView.style.display = 'none';
-document.getElementById('packSeasonText').innerText = player.season || season; 
+
+// ВСТАВЛЯЕМ КАРТИНКУ ПАКА ПО СЕЗОНУ:
+const packUrl = PACK_IMAGES[player.season] || PACK_IMAGES["2013/14"];
+document.getElementById('packImage').style.backgroundImage = `url('${packUrl}')`;
+document.getElementById('packFlap').style.backgroundImage = `url('${packUrl}')`;
+
 document.getElementById('packOpeningView').style.display = 'flex';
-document.getElementById('packWrapper').classList.remove('opened');
+
+// Сбрасываем классы и текст
+document.getElementById('packFlap').classList.remove('torn-off');
+document.getElementById('innerCard').classList.remove('pulled-out');
+document.getElementById('packHint').innerText = "Свайп вправо, чтобы надорвать пак!";
 
     // --- ЛОГИКА ДЛЯ ДУБЛИКАТОВ ---
 const dupContainer = document.getElementById('revealDuplicateContainer');
@@ -4871,20 +4860,6 @@ if (savedTourney) {
     }
     }
 
-    function startPackAnimation() {
-    if (!window.currentRevealPlayer) return;
-    const wrapper = document.getElementById('packWrapper');
-    if (wrapper.classList.contains('opened')) return;
-
-    wrapper.classList.add('opened');
-
-    // Через 1.5 секунды скрываем пак и показываем карту
-    setTimeout(() => {
-        document.getElementById('packOpeningView').style.display = 'none';
-        showRevealCard(window.currentRevealPlayer);
-    }, 1500);
-}
-
 function showRevealCard(player) {
     // 1. Объявляем все элементы (их не хватало)
     const revealCard = document.getElementById('revealCard');
@@ -4973,6 +4948,53 @@ function showRevealCard(player) {
         if (rarity.num >= 4) revealCard.classList.add('epic-reveal');
     }, 100);
 }
+
+    // Переменные для отслеживания свайпа
+let touchStartX = 0;
+let touchStartY = 0;
+let packStage = 0; // 0 - закрыт, 1 - надорван, 2 - карта вытянута
+
+const packContainer = document.getElementById('packContainer');
+
+packContainer.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+}, { passive: true });
+
+packContainer.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchEndY = e.changedTouches[0].screenY;
+    
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // Если пак закрыт (0) и свайп вправо (deltaX > 50)
+    if (packStage === 0 && deltaX > 50) {
+        packStage = 1;
+        document.getElementById('packFlap').classList.add('torn-off');
+        document.getElementById('packHint').innerText = "Свайп вверх, чтобы достать карту!";
+        
+        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+            Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+        }
+    } 
+    // Если пак надорван (1) и свайп вверх (deltaY < -50)
+    else if (packStage === 1 && deltaY < -50) {
+        packStage = 2;
+        document.getElementById('innerCard').classList.add('pulled-out');
+        document.getElementById('packHint').innerText = "";
+        
+        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+            Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+        }
+
+        // Через секунду (когда карта выехала) показываем настоящую карту
+        setTimeout(() => {
+            document.getElementById('packOpeningView').style.display = 'none';
+            showRevealCard(window.currentRevealPlayer);
+        }, 1000);
+    }
+});
     
  </script>
 
