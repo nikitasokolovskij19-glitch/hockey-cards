@@ -283,9 +283,7 @@ html, body {
 
         /* ДЫРКА В ПАКЕ (когда крышка оторвана) */
 .pack-container.opened .pack-image {
-    /* Обрезаем верхнюю часть пака ровно по линии отрыва */
     clip-path: polygon(0 25%, 5% 22.5%, 10% 25%, 15% 22.5%, 20% 25%, 25% 22.5%, 30% 25%, 35% 22.5%, 40% 25%, 45% 22.5%, 50% 25%, 55% 22.5%, 60% 25%, 65% 22.5%, 70% 25%, 75% 22.5%, 80% 25%, 85% 22.5%, 90% 25%, 95% 22.5%, 100% 25%, 100% 100%, 0 100%);
-    transition: clip-path 0.5s ease;
 }
 
 /* Анимация отрыва крышки */
@@ -2314,15 +2312,14 @@ const packUrl = PACK_IMAGES[player.season] || PACK_IMAGES["2013/14"];
 document.getElementById('packImage').src = packUrl;
 document.getElementById('packFlap').style.backgroundImage = `url('${packUrl}')`;
 
-document.getElementById('packOpeningView').style.display = 'flex';
-
-    // СБРОС ВСЕХ СОСТОЯНИЙ ПЕРЕД НОВЫМ ПАКОМ:
-document.getElementById('packContainer').className = 'pack-container'; // Очищаем контейнер
-document.getElementById('packFlap').className = 'pack-flap'; // Возвращаем крышку на место
-document.getElementById('innerCard').className = 'inner-card'; // Прячем карту обратно
+// СБРОС ВСЕХ СОСТОЯНИЙ ПЕРЕД НОВЫМ ПАКОМ:
+document.getElementById('packContainer').className = 'pack-container';
+document.getElementById('packFlap').className = 'pack-flap';
+document.getElementById('innerCard').className = 'inner-card';
 document.getElementById('packHint').innerText = "Свайп вправо, чтобы надорвать пак!";
+packStage = 0;
 
-packStage = 0; // Сбрасываем счетчик свайпов
+document.getElementById('packOpeningView').style.display = 'flex';
     
     // --- ПРОГРЕСС КВЕСТОВ ПРИ ОТКРЫТИИ ПАКА ---
     addQuestProgress('open1');
@@ -5019,9 +5016,11 @@ function handleEnd(e) {
     // ЭТАП 1: Отрыв крышки (свайп вправо или клик)
     if (packStage === 0 && (deltaX > 30 || (deltaX === 0 && deltaY === 0))) {
     packStage = 1;
-    document.getElementById('packContainer').classList.add('opened'); // <--- ВОТ ЭТА СТРОЧКА СОЗДАЕТ ДЫРКУ
+    document.getElementById('packContainer').classList.add('opened'); // <--- ЭТО СОЗДАЕТ ДЫРКУ
     document.getElementById('packFlap').classList.add('torn-off'); 
-    // ...
+    document.getElementById('packHint').innerText = "Свайп вверх, чтобы достать карту!";
+    // ... вибрация
+    }
         if (window.Telegram && Telegram.WebApp.HapticFeedback) {
             Telegram.WebApp.HapticFeedback.impactOccurred('medium');
         }
