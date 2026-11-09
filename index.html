@@ -2255,6 +2255,9 @@ if (rBadge && rBadgeLabel) {
     revealCard.style.borderColor = rarity.color;
     revealView.style.display = 'flex';
 
+    // Сброс кнопки перед новым показом
+document.getElementById('closeRevealBtn').innerText = 'Забрать в коллекцию';
+
 // Скрываем глобальные кнопки при выпадении карточки
 document.getElementById('globalHomeBtn').style.display = 'none';
 document.getElementById('globalBackBtn').style.display = 'none';
@@ -2287,22 +2290,25 @@ if (dupContainer) {
         `;
 
         document.getElementById('revealSellBtn').onclick = () => {
-            const idx = collection.findIndex(c => c.name === player.name && c.season === player.season);
-            if (idx !== -1) {
-                collection.splice(idx, 1);
-                userCoins += sellPrice;
-                localStorage.setItem('khl_collection', JSON.stringify(collection));
-                updateUI();
-                
-                document.getElementById('revealSellBtn').style.display = 'none';
-                dupContainer.innerHTML = `<div style="color: #10b981; font-size: 14px; font-weight: bold;">✅ Продано за ${sellPrice} 💵</div>`;
-                
-                // Вибрация при продаже
-                if (window.Telegram && Telegram.WebApp.HapticFeedback) {
-                    Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                }
-            }
-        };
+    const idx = collection.findIndex(c => c.name === player.name && c.season === player.season);
+    if (idx !== -1) {
+        collection.splice(idx, 1);
+        userCoins += sellPrice;
+        localStorage.setItem('khl_collection', JSON.stringify(collection));
+        updateUI();
+        
+        document.getElementById('revealSellBtn').style.display = 'none';
+        dupContainer.innerHTML = `<div style="color: #10b981; font-size: 14px; font-weight: bold;">✅ Продано за ${sellPrice} 💵</div>`;
+        
+        // ВОТ ЭТА СТРОЧКА МЕНЯЕТ ТЕКСТ НИЖНЕЙ КНОПКИ:
+        document.getElementById('closeRevealBtn').innerText = 'Продолжить';
+
+        // Вибрация при продаже
+        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+            Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+    }
+};
     }
     }
     
