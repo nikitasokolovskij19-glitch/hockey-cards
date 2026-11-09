@@ -2326,6 +2326,7 @@ if (dupContainer) {
     // --- ПРОГРЕСС КВЕСТОВ ПРИ ОТКРЫТИИ ПАКА ---
     addQuestProgress('open1');
     addQuestProgress('open3');
+    const overall = getPlayerOVR(player);
 if (overall >= 80 && overall < 90) addQuestProgress('legendDrop');
 if (overall >= 90) addQuestProgress('epicDrop');
 }
