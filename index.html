@@ -225,6 +225,81 @@ html, body {
         .pack-season { font-size: 16px; font-weight: 800; color: white; text-align: center; }
         .pack-count { font-size: 11px; color: #94a3b8; margin-bottom: 10px; font-weight: 600; }
         .pack-price { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 10px; font-size: 14px; font-weight: 800; color: #fbbf24; }
+
+    /* Стили для пака-пакетика */
+#packOpeningView {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+    background: rgba(0,0,0,0.95); z-index: 9999999;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+}
+
+.pack-wrapper {
+    position: relative; width: 240px; height: 380px; cursor: pointer;
+    perspective: 1000px;
+    /* Золотой градиент в стиле КХЛ */
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #b45309 100%);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.3);
+    overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: transform 0.3s;
+}
+
+/* Верхняя часть, которая отрывается */
+.pack-top {
+    position: absolute; top: 0; left: 0; width: 100%; height: 25%;
+    background: linear-gradient(to bottom, #d97706, #b45309);
+    z-index: 3;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 95%, 90% 100%, 85% 95%, 80% 100%, 75% 95%, 70% 100%, 65% 95%, 60% 100%, 55% 95%, 50% 100%, 45% 95%, 40% 100%, 35% 95%, 30% 100%, 25% 95%, 20% 100%, 15% 95%, 10% 100%, 5% 95%, 0 100%);
+    transition: transform 0.6s ease-in-out, opacity 0.5s;
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: 2px solid #fef3c7;
+}
+
+/* Логотип и текст на паке */
+.pack-content {
+    text-align: center; z-index: 2; display: flex; flex-direction: column; align-items: center;
+}
+.pack-logo {
+    width: 100px; height: 100px; background: url('https://nikitasokolovskij19-glitch.github.io/hockey-cards/KHL_Logo.png') center/contain no-repeat;
+    border-radius: 50%; margin-bottom: 15px; border: 3px solid #fff;
+    background-color: #1e3a8a; /* Фон под логотип, если картинки нет */
+}
+.pack-season-text {
+    font-size: 24px; font-weight: 900; color: #1e3a8a; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff;
+    background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 20px;
+    border: 2px solid #1e3a8a;
+}
+.pack-title {
+    font-size: 16px; font-weight: bold; color: #fff; margin-top: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    letter-spacing: 2px; text-transform: uppercase;
+}
+
+/* Свечение карты, вылетающей из пака */
+.card-emerging {
+    position: absolute; bottom: 20px; width: 200px; height: 300px;
+    background: #fff; border-radius: 10px; z-index: 1;
+    opacity: 0; transform: translateY(100px);
+    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 20px #fff;
+}
+
+/* Анимация вскрытия */
+.pack-wrapper.opened .pack-top { 
+    transform: translateY(-300px) rotate(-15deg); opacity: 0; 
+}
+.pack-wrapper.opened .card-emerging {
+    opacity: 1; transform: translateY(-150px) scale(1.1); 
+}
+.pack-wrapper.opened {
+    transform: translateY(50px);
+}
+
+.hint-text {
+    color: #fbbf24; font-weight: bold; margin-top: 30px; font-size: 18px;
+    animation: blink 1.5s infinite;
+}
+@keyframes blink { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         
         .btn-nav { background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
 
@@ -754,6 +829,29 @@ button[onclick="closeDayResults()"] {
         <button onclick="document.getElementById('sortModalView').style.display='none'" style="width: 100%; padding: 12px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 800; cursor: pointer;">Отмена</button>
     </div>
 </div>
+
+    <!-- ЭКРАН ОТКРЫТИЯ ПАКА -->
+<div id="packOpeningView">
+    <div class="pack-wrapper" id="packWrapper" onclick="startPackAnimation()">
+        <!-- Отрывающаяся верхушка -->
+        <div class="pack-top">
+            <span style="font-size: 12px; color: #fff; font-weight: bold; letter-spacing: 2px;">ОТРЫВ</span>
+        </div>
+        
+        <!-- Содержимое пака -->
+        <div class="pack-content">
+            <div class="pack-logo" id="packLogoImg"></div>
+            <div class="pack-season-text" id="packSeasonText">2013/14</div>
+            <div class="pack-title">KHL<br>CARDS</div>
+        </div>
+
+        <!-- Карта, которая будет выезжать из пака -->
+        <div class="card-emerging" id="emergingCard"></div>
+    </div>
+    
+    <div class="hint-text" id="packHint">Нажми, чтобы вскрыть!</div>
+</div>
+    
 <!-- ОКНО ВЫПАДЕНИЯ -->
 <div id="revealView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(10px); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
     <h2 id="revealText" style="color: #fbbf24; margin-bottom: 20px; transform: translateY(-50px); opacity: 0; transition: 0.5s;">Тебе выпал...</h2>
@@ -2175,99 +2273,12 @@ expGained += rarityExp[player.rarity_num] || 10;
 // Начисляем общий опыт
 addExp(expGained);
 
-    packsView.style.display = 'none';
-
-    document.getElementById('r-name').innerText = player.name;
-document.getElementById('r-season').innerText = player.season;
-document.getElementById('r-position').innerText = player.pos;
-
-let posColor = "#ef4444"; 
-if (player.pos === "Защитник") posColor = "#3b82f6"; 
-if (player.pos === "Вратарь") posColor = "#10b981"; 
-document.getElementById('r-position').style.color = posColor;
-
-const rNum = document.getElementById('r-number');
-if (rNum) rNum.innerText = player.number || "";
-const rFlag = document.getElementById('r-flag');
-if (rFlag) rFlag.innerText = player.flag || '🏳️';
-    
-    // Заполняем статы в зависимости от позиции
-if (player.pos === "Вратарь") {
-    document.getElementById('r-sc').innerText = player.rea || 0;      // Реакция
-    document.getElementById('r-br').innerText = player.lov || 0;      // Ловушка
-    document.getElementById('r-ps').innerText = player.bli || 0;      // Блин
-    document.getElementById('r-si').innerText = player.poz || 0;      // Позиция
-    document.getElementById('r-end').innerText = player.klsh || 0;    // Клюшка
-    document.getElementById('r-skate').innerText = player.end || 0;   // Выносливость
-    
-    // Меняем названия характеристик на карточке (через HTML-структуру)
-    document.querySelectorAll('#revealCard .stat')[0].childNodes[0].nodeValue = 'РЕА ';
-    document.querySelectorAll('#revealCard .stat')[1].childNodes[0].nodeValue = 'ЛОВ ';
-    document.querySelectorAll('#revealCard .stat')[2].childNodes[0].nodeValue = 'БЛИ ';
-    document.querySelectorAll('#revealCard .stat')[3].childNodes[0].nodeValue = 'ПОЗ ';
-    document.querySelectorAll('#revealCard .stat')[4].childNodes[0].nodeValue = 'КЛШ ';
-    document.querySelectorAll('#revealCard .stat')[5].childNodes[0].nodeValue = 'ВЫН ';
-} else {
-    document.getElementById('r-sc').innerText = player.sc || 0;
-    document.getElementById('r-br').innerText = player.br || 0;
-    document.getElementById('r-ps').innerText = player.ps || 0;
-    document.getElementById('r-si').innerText = player.si || 0;
-    document.getElementById('r-end').innerText = player.end || 0;
-    document.getElementById('r-skate').innerText = player.skate || 0;
-    
-    // Возвращаем стандартные названия
-    document.querySelectorAll('#revealCard .stat')[0].childNodes[0].nodeValue = 'СКО ';
-    document.querySelectorAll('#revealCard .stat')[1].childNodes[0].nodeValue = 'БРС ';
-    document.querySelectorAll('#revealCard .stat')[2].childNodes[0].nodeValue = 'ПАС ';
-    document.querySelectorAll('#revealCard .stat')[3].childNodes[0].nodeValue = 'СИЛ ';
-    document.querySelectorAll('#revealCard .stat')[4].childNodes[0].nodeValue = 'ВЫН ';
-    document.querySelectorAll('#revealCard .stat')[5].childNodes[0].nodeValue = 'КАТ ';
-}
-
-const overall = getPlayerOVR(player);
-document.getElementById('r-overall').innerText = overall;
-    
-    document.getElementById('r-img').innerHTML = `<img src="${player.img}" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" onerror="this.style.display='none'; this.parentNode.innerText='🏒';">`;
-    document.getElementById('r-clubLogo').innerHTML = `<img src="${player.logo}" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;" onerror="this.style.display='none'; this.parentNode.innerText='КХЛ';">`;
-
-    const rarity = getRarityInfo(overall);
-    // Красим плашку на экране выпадения
-const rBadge = document.querySelector('#revealCard .overall-badge');
-const rBadgeLabel = document.querySelector('#revealCard .overall-badge .label');
-if (rBadge && rBadgeLabel) {
-    rBadge.style.borderColor = rarity.color;
-    rBadge.style.boxShadow = `0 0 15px ${rarity.color}50`;
-    rBadgeLabel.style.color = rarity.color;
-}
-    
-    const rRarityEl = document.getElementById('r-rarity');
-    rRarityEl.innerText = rarity.name;
-    rRarityEl.style.color = rarity.color;
-    rRarityEl.style.borderColor = rarity.color;
-    rRarityEl.style.display = 'block';
-
-    const revealCard = document.getElementById('revealCard');
-    const revealText = document.getElementById('revealText');
-    const closeBtn = document.getElementById('closeRevealBtn');
-    const revealView = document.getElementById('revealView');
-
-    revealCard.style.setProperty('--card-border-color', rarity.color);
-    revealCard.style.borderColor = rarity.color;
-    revealView.style.display = 'flex';
-
-    // Сброс кнопки перед новым показом
-document.getElementById('closeRevealBtn').innerText = 'Забрать в коллекцию';
-
-// Скрываем глобальные кнопки при выпадении карточки
-document.getElementById('globalHomeBtn').style.display = 'none';
-document.getElementById('globalBackBtn').style.display = 'none';
-    
-    revealCard.style.transform = 'scale(0)';
-    revealText.style.opacity = '0';
-    revealText.style.transform = 'translateY(-50px)';
-    closeBtn.style.opacity = '0';
-    
-    revealCard.classList.remove('epic-reveal');
+    // Сохраняем игрока и показываем пак
+window.currentRevealPlayer = player;
+packsView.style.display = 'none';
+document.getElementById('packSeasonText').innerText = player.season || season; 
+document.getElementById('packOpeningView').style.display = 'flex';
+document.getElementById('packWrapper').classList.remove('opened');
 
     // --- ЛОГИКА ДЛЯ ДУБЛИКАТОВ ---
 const dupContainer = document.getElementById('revealDuplicateContainer');
@@ -4866,6 +4877,42 @@ if (savedTourney) {
         renderCollection();
     }
     }
+
+    function startPackAnimation() {
+    if (!window.currentRevealPlayer) return;
+    const wrapper = document.getElementById('packWrapper');
+    if (wrapper.classList.contains('opened')) return;
+
+    wrapper.classList.add('opened');
+
+    // Через 1.5 секунды скрываем пак и показываем карту
+    setTimeout(() => {
+        document.getElementById('packOpeningView').style.display = 'none';
+        showRevealCard(window.currentRevealPlayer);
+    }, 1500);
+}
+
+function showRevealCard(player) {
+    // ВСТАВЬ СЮДА ТОТ САМЫЙ КОД, КОТОРЫЙ ТЫ ВЫРЕЗАЛ ИЗ buyPack НА ШАГЕ 1.1
+    // (Там где document.getElementById('r-name') и до revealCard.classList.remove('epic-reveal');)
+    
+    // И добавь в конец этой функции setTimeout, который был в buyPack:
+    setTimeout(() => {
+        const revealCard = document.getElementById('revealCard');
+        const revealText = document.getElementById('revealText');
+        const closeBtn = document.getElementById('closeRevealBtn');
+        
+        revealCard.style.transform = 'scale(1)';
+        revealText.style.opacity = '1';
+        revealText.style.transform = 'translateY(0)';
+        closeBtn.style.opacity = '1';
+        
+        // Восстанавливаем свечение для редких карт
+        const overall = getPlayerOVR(player);
+        const rarity = getRarityInfo(overall);
+        if (rarity.num >= 4) revealCard.classList.add('epic-reveal');
+    }, 100);
+}
     
  </script>
 
