@@ -241,9 +241,8 @@ html, body {
 
 .pack-image {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background-size: cover; background-position: center;
+    object-fit: cover;
     border-radius: 12px;
-    /* Тень для объема */
     box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
     z-index: 2;
 }
@@ -817,8 +816,8 @@ button[onclick="closeDayResults()"] {
         <!-- Карта, которая выезжает (внутри пака) -->
         <div class="inner-card" id="innerCard"></div>
         
-        <!-- Сам пак (фон) -->
-        <div class="pack-image" id="packImage"></div>
+        <!-- Сам пак (теперь как картинка) -->
+        <img class="pack-image" id="packImage" src="" alt="Пак">
         
         <!-- Верхняя часть, которая отрывается -->
         <div class="pack-flap" id="packFlap"></div>
@@ -2259,7 +2258,7 @@ packsView.style.display = 'none';
 
 // ВСТАВЛЯЕМ КАРТИНКУ ПАКА ПО СЕЗОНУ:
 const packUrl = PACK_IMAGES[player.season] || PACK_IMAGES["2013/14"];
-document.getElementById('packImage').style.backgroundImage = `url('${packUrl}')`;
+document.getElementById('packImage').src = packUrl;
 document.getElementById('packFlap').style.backgroundImage = `url('${packUrl}')`;
 
 document.getElementById('packOpeningView').style.display = 'flex';
@@ -2268,6 +2267,8 @@ document.getElementById('packOpeningView').style.display = 'flex';
 document.getElementById('packFlap').classList.remove('torn-off');
 document.getElementById('innerCard').classList.remove('pulled-out');
 document.getElementById('packHint').innerText = "Свайп вправо, чтобы надорвать пак!";
+
+packStage = 0; // Сбрасываем стадию
     
     // --- ПРОГРЕСС КВЕСТОВ ПРИ ОТКРЫТИИ ПАКА ---
     addQuestProgress('open1');
@@ -4935,6 +4936,64 @@ function showRevealCard(player) {
         if (rarity.num >= 4) revealCard.classList.add('epic-reveal');
     }, 100);
 }
+
+    // Переменные для отслеживания свайпа
+let touchStartX = 0;
+let touchStartY = 0;
+let packStage = 0; // 0 - закрыт, 1 - надорван, 2 - карта вытянута
+
+const packContainer = document.getElementById('packContainer');
+
+function handleStart(e) {
+    const touch = e.touches ? e.touches[0] : e;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+}
+
+function handleEnd(e) {
+    if (!window.currentRevealPlayer) return;
+    
+    const touch = e.changedTouches ? e.changedTouches[0] : e;
+    const touchEndX = touch.clientX;
+    const touchEndY = touch.clientY;
+    
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // Этап 1: Свайп вправо (или просто клик) для отрыва крышки
+    // (deltaX > 30 — свайп, или deltaX === 0 && deltaY === 0 — клик)
+    if (packStage === 0 && (deltaX > 30 || (deltaX === 0 && deltaY === 0))) {
+        packStage = 1;
+        document.getElementById('packFlap').classList.add('torn-off');
+        document.getElementById('packHint').innerText = "Свайп вверх, чтобы достать карту!";
+        
+        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+            Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+        }
+    } 
+    // Этап 2: Свайп вверх (или просто клик) для вытягивания карты
+    else if (packStage === 1 && (deltaY < -30 || (deltaX === 0 && deltaY === 0))) {
+        packStage = 2;
+        document.getElementById('innerCard').classList.add('pulled-out');
+        document.getElementById('packHint').innerText = "";
+        
+        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+            Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+        }
+
+        // Через секунду показываем настоящую карту
+        setTimeout(() => {
+            document.getElementById('packOpeningView').style.display = 'none';
+            showRevealCard(window.currentRevealPlayer);
+        }, 1000);
+    }
+}
+
+// Добавляем слушатели и для мыши (ПК), и для пальца (телефон)
+packContainer.addEventListener('mousedown', handleStart);
+packContainer.addEventListener('mouseup', handleEnd);
+packContainer.addEventListener('touchstart', handleStart, { passive: true });
+packContainer.addEventListener('touchend', handleEnd, { passive: true });
     
  </script>
 
