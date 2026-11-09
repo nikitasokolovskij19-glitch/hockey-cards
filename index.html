@@ -2323,14 +2323,6 @@ if (dupContainer) {
     }
     }
     
-    setTimeout(() => {
-        revealCard.style.transform = 'scale(1)';
-        revealText.style.opacity = '1';
-        revealText.style.transform = 'translateY(0)';
-        closeBtn.style.opacity = '1';
-        if (rarity.num >= 4) revealCard.classList.add('epic-reveal');
-    }, 100);
-
     // --- ПРОГРЕСС КВЕСТОВ ПРИ ОТКРЫТИИ ПАКА ---
     addQuestProgress('open1');
     addQuestProgress('open3');
