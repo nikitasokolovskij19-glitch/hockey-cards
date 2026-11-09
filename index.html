@@ -2266,39 +2266,44 @@ document.getElementById('globalBackBtn').style.display = 'none';
     
     revealCard.classList.remove('epic-reveal');
 
-    // --- ЛОГИКА ДЛЯ ДУБЛИКАТОВ (РЕЖИМ ОТЛАДКИ) ---
+    // --- ЛОГИКА ДЛЯ ДУБЛИКАТОВ ---
 const dupContainer = document.getElementById('revealDuplicateContainer');
 
 if (dupContainer) {
     dupContainer.innerHTML = ''; 
     const sameCardsCount = collection.filter(c => c.name === player.name && c.season === player.season).length;
     
-    // ВРЕМЕННО УБИРАЕМ ПРОВЕРКУ > 1, ЧТОБЫ КНОПКА БЫЛА ВСЕГДА
-    const sellPrice = GAME_CONFIG.sellPrices[player.rarity_num] || 50;
-    
-    dupContainer.innerHTML = `
-        <div style="color: #fbbf24; font-size: 14px; font-weight: bold; margin-bottom: 8px;">
-            В коллекции: ${sameCardsCount} шт.
-        </div>
-        <button id="revealSellBtn" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">
-            💰 Продать за ${sellPrice} 💵
-        </button>
-    `;
+    // Показываем кнопку ТОЛЬКО если карта уже есть в коллекции (дубликат)
+    if (sameCardsCount > 1) {
+        const sellPrice = GAME_CONFIG.sellPrices[player.rarity_num] || 50;
+        
+        dupContainer.innerHTML = `
+            <div style="color: #fbbf24; font-size: 14px; font-weight: bold; margin-bottom: 8px;">
+                В коллекции: ${sameCardsCount} шт.
+            </div>
+            <button id="revealSellBtn" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">
+                💰 Продать за ${sellPrice} 💵
+            </button>
+        `;
 
-    document.getElementById('revealSellBtn').onclick = () => {
-        const idx = collection.findIndex(c => c.name === player.name && c.season === player.season);
-        if (idx !== -1) {
-            collection.splice(idx, 1);
-            userCoins += sellPrice;
-            localStorage.setItem('khl_collection', JSON.stringify(collection));
-            updateUI();
-            
-            document.getElementById('revealSellBtn').style.display = 'none';
-            dupContainer.innerHTML = `<div style="color: #10b981; font-size: 14px; font-weight: bold;">✅ Продано за ${sellPrice} 💵</div>`;
-        }
-    };
-} else {
-    console.error("ОШИБКА: Контейнер revealDuplicateContainer не найден в HTML!");
+        document.getElementById('revealSellBtn').onclick = () => {
+            const idx = collection.findIndex(c => c.name === player.name && c.season === player.season);
+            if (idx !== -1) {
+                collection.splice(idx, 1);
+                userCoins += sellPrice;
+                localStorage.setItem('khl_collection', JSON.stringify(collection));
+                updateUI();
+                
+                document.getElementById('revealSellBtn').style.display = 'none';
+                dupContainer.innerHTML = `<div style="color: #10b981; font-size: 14px; font-weight: bold;">✅ Продано за ${sellPrice} 💵</div>`;
+                
+                // Вибрация при продаже
+                if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+                    Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+            }
+        };
+    }
     }
     
     setTimeout(() => {
