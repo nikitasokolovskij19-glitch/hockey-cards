@@ -5014,45 +5014,46 @@ function handleEnd(e) {
     const deltaY = touchEndY - touchStartY;
 
     // ЭТАП 1: Отрыв крышки (свайп вправо или клик)
-    if (packStage === 0 && (deltaX > 30 || (deltaX === 0 && deltaY === 0))) {
+if (packStage === 0 && (deltaX > 30 || (deltaX === 0 && deltaY === 0))) {
     packStage = 1;
-    document.getElementById('packContainer').classList.add('opened'); // <--- ЭТО СОЗДАЕТ ДЫРКУ
-    document.getElementById('packFlap').classList.add('torn-off'); 
+    document.getElementById('packContainer').classList.add('opened'); 
+    document.getElementById('packFlap').classList.add('torn-off');
     document.getElementById('packHint').innerText = "Свайп вверх, чтобы достать карту!";
-    // ... вибрация
+    
+    // Вибрация для первого этапа
+    if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+        Telegram.WebApp.HapticFeedback.impactOccurred('medium');
     }
-        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
-            Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-        }
-    } 
-    // ЭТАП 2: Вытягиваем карту (свайп вверх или клик)
-    else if (packStage === 1 && (deltaY < -30 || (deltaX === 0 && deltaY === 0))) {
-        packStage = 2;
-        const innerCard = document.getElementById('innerCard');
-        innerCard.classList.add('pulled-out');
-        document.getElementById('packHint').innerText = "";
-        
-        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
-            Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-        }
+} 
+// ЭТАП 2: Вытягиваем карту (свайп вверх или клик)
+else if (packStage === 1 && (deltaY < -30 || (deltaX === 0 && deltaY === 0))) {
+    packStage = 2;
+    const innerCard = document.getElementById('innerCard');
+    innerCard.classList.add('pulled-out');
+    document.getElementById('packHint').innerText = "";
+    
+    // Вибрация для второго этапа
+    if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+        Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+    }
 
-        // Определяем редкость для скорости вращения
-        const overall = getPlayerOVR(window.currentRevealPlayer);
-        let spinTime = 1600; 
+    // Определяем редкость для скорости вращения
+    const overall = getPlayerOVR(window.currentRevealPlayer);
+    let spinTime = 1600; 
 
-        if (overall >= 90) { 
-            setTimeout(() => innerCard.classList.add('spin-epic'), 800);
-            spinTime = 2800;
-        } else if (overall >= 80) { 
-            setTimeout(() => innerCard.classList.add('spin-rare'), 800);
-            spinTime = 2000;
-        } else if (overall >= 70) { 
-            setTimeout(() => innerCard.classList.add('spin-rare'), 800);
-            spinTime = 1500;
-        } else { 
-            setTimeout(() => innerCard.classList.add('spin-normal'), 800);
-            spinTime = 1600;
-        }
+    if (overall >= 90) { 
+        setTimeout(() => innerCard.classList.add('spin-epic'), 800);
+        spinTime = 2800;
+    } else if (overall >= 80) { 
+        setTimeout(() => innerCard.classList.add('spin-rare'), 800);
+        spinTime = 2000;
+    } else if (overall >= 70) { 
+        setTimeout(() => innerCard.classList.add('spin-rare'), 800);
+        spinTime = 1500;
+    } else { 
+        setTimeout(() => innerCard.classList.add('spin-normal'), 800);
+        spinTime = 1600;
+    }
 
         // Ждем, пока карта выедет, покрутится и показываем настоящую карточку
         setTimeout(() => {
