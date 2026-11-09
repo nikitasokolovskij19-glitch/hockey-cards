@@ -236,40 +236,30 @@ html, body {
 
 .pack-container {
     position: relative; 
-    width: 250px; /* Чуть уменьшили ширину */
-    height: 360px; /* Чуть уменьшили высоту */
+    width: 250px; 
+    height: 360px;
+    perspective: 1000px; /* Для 3D-эффекта карточки */
 }
 
+/* Сам пак (фон) */
 .pack-image {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    object-fit: fill; /* Растягиваем картинку ровно по контейнеру */
+    object-fit: cover; 
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
-    z-index: 2; /* Пак поверх карты */
+    z-index: 2; /* Пак перекрывает карточку, пока она внутри */
 }
 
-/* Верхняя часть (крышка), которая отрывается */
-.pack-flap {
-    position: absolute; top: 0; left: 0; width: 100%; height: 25%;
-    background-size: cover; background-position: top center;
-    border-radius: 12px 12px 0 0;
-    z-index: 3;
-    /* Рваный край */
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 90%, 90% 100%, 85% 90%, 80% 100%, 75% 90%, 70% 100%, 65% 90%, 60% 100%, 55% 90%, 50% 100%, 45% 90%, 40% 100%, 35% 90%, 30% 100%, 25% 90%, 20% 100%, 15% 90%, 10% 100%, 5% 90%, 0 100%);
-    transition: all 0.8s ease-in-out;
-    /* Точка, за которую тянем (левый верхний угол) */
-    transform-origin: top left; 
-    pointer-events: none; 
-}
-
-/* Карточка, которая спрятана внутри */
+/* Карточка, которая спрятана ВНУТРИ пака (под ним) */
 .inner-card {
     position: absolute; 
-    top: 20px; /* Спрятали ее чуть внутрь пака */
+    top: 20px; 
     left: 15px; 
-    width: 220px; /* Сделали уже пака */
-    height: 320px; /* Сделали короче пака */
-    background: #1e293b; border-radius: 10px; 
+    width: 220px; 
+    height: 320px; 
+    background: linear-gradient(135deg, #1e293b, #0f172a); 
+    border: 2px solid #fbbf24;
+    border-radius: 10px; 
     z-index: 1; /* Она ПОД картинкой пака */
     transform: translateY(0); 
     transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -278,27 +268,64 @@ html, body {
 }
 .inner-card::after { content: 'KHL'; color: #fbbf24; font-size: 40px; font-weight: 900; font-style: italic; }
 
-/* Классы для анимации */
-.pack-flap.torn-off {
-    /* Крышка отрывается и улетает влево-вверх с поворотом */
-    transform: translate(-100px, -150px) rotate(-60deg); 
-    opacity: 0;
-}
-.inner-card.pulled-out {
-    /* Карта выезжает вверх, выходя за пределы пака */
-    transform: translateY(-150px); 
-    z-index: 4; /* Поднимается НАД картинкой пака */
+/* Крышка (верхняя часть) */
+.pack-flap {
+    position: absolute; top: 0; left: 0; width: 100%; height: 25%;
+    background-size: cover; background-position: top center;
+    border-radius: 12px 12px 0 0;
+    z-index: 3; /* Крышка выше всего */
+    /* Рваный край */
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 95% 90%, 90% 100%, 85% 90%, 80% 100%, 75% 90%, 70% 100%, 65% 90%, 60% 100%, 55% 90%, 50% 100%, 45% 90%, 40% 100%, 35% 90%, 30% 100%, 25% 90%, 20% 100%, 15% 90%, 10% 100%, 5% 90%, 0 100%);
+    transition: all 0.8s ease-in-out;
+    transform-origin: top left; 
+    pointer-events: none; 
 }
 
-/* Текст подсказки */
+/* Анимация отрыва крышки */
+.pack-flap.torn-off {
+    transform: translate(-100px, -150px) rotate(-45deg); 
+    opacity: 0;
+}
+
+/* Анимация выезда карты из пака */
+.inner-card.pulled-out {
+    transform: translateY(-180px); /* Выезжает вверх, выходя за пределы пака */
+}
+
+/* 3D-ВРАЩЕНИЕ КАРТОЧКИ */
+.inner-card.spin-normal {
+    animation: spinCardFast 0.8s ease-in-out forwards;
+}
+.inner-card.spin-rare {
+    animation: spinCardMedium 1.2s ease-in-out forwards;
+}
+.inner-card.spin-epic {
+    animation: spinCardSlow 2s ease-in-out forwards;
+    box-shadow: 0 0 50px #ef4444, 0 0 100px #ef4444; /* Красное свечение */
+}
+
+@keyframes spinCardFast {
+    0% { transform: translateY(-180px) rotateY(0deg); }
+    100% { transform: translateY(-180px) rotateY(360deg) scale(1.1); }
+}
+@keyframes spinCardMedium {
+    0% { transform: translateY(-180px) rotateY(0deg); }
+    100% { transform: translateY(-180px) rotateY(720deg) scale(1.2); }
+}
+@keyframes spinCardSlow {
+    0% { transform: translateY(-180px) rotateY(0deg); }
+    100% { transform: translateY(-180px) rotateY(1440deg) scale(1.3); }
+}
+
 .hint-text {
     color: #fbbf24; font-weight: bold; 
-    position: absolute; /* Жестко привязали к экрану */
-    bottom: 50px; /* Сдвинули вниз */
+    position: absolute; 
+    bottom: 50px; 
     font-size: 18px;
     animation: blink 1.5s infinite;
     z-index: 10;
 }
+@keyframes blink { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         
         .btn-nav { background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
 
@@ -4956,19 +4983,21 @@ function showRevealCard(player) {
     }, 100);
 }
 
-    // Переменные для отслеживания свайпа
+    // --- ЛОГИКА СВАЙПОВ ДЛЯ ПАКА ---
 let touchStartX = 0;
 let touchStartY = 0;
 let packStage = 0; // 0 - закрыт, 1 - надорван, 2 - карта вытянута
 
 const packContainer = document.getElementById('packContainer');
 
+// 1. Запоминаем, где палец коснулся экрана
 function handleStart(e) {
     const touch = e.touches ? e.touches[0] : e;
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
 }
 
+// 2. Отпускаем палец и проверяем, куда свайпнули
 function handleEnd(e) {
     if (!window.currentRevealPlayer) return;
     
@@ -4979,8 +5008,7 @@ function handleEnd(e) {
     const deltaX = touchEndX - touchStartX;
     const deltaY = touchEndY - touchStartY;
 
-    // Этап 1: Свайп вправо (или просто клик) для отрыва крышки
-    // (deltaX > 30 — свайп, или deltaX === 0 && deltaY === 0 — клик)
+    // ЭТАП 1: Отрыв крышки (свайп вправо или клик)
     if (packStage === 0 && (deltaX > 30 || (deltaX === 0 && deltaY === 0))) {
         packStage = 1;
         document.getElementById('packFlap').classList.add('torn-off');
@@ -4990,25 +5018,44 @@ function handleEnd(e) {
             Telegram.WebApp.HapticFeedback.impactOccurred('medium');
         }
     } 
-    // Этап 2: Свайп вверх (или просто клик) для вытягивания карты
+    // ЭТАП 2: Вытягиваем карту (свайп вверх или клик)
     else if (packStage === 1 && (deltaY < -30 || (deltaX === 0 && deltaY === 0))) {
         packStage = 2;
-        document.getElementById('innerCard').classList.add('pulled-out');
+        const innerCard = document.getElementById('innerCard');
+        innerCard.classList.add('pulled-out');
         document.getElementById('packHint').innerText = "";
         
         if (window.Telegram && Telegram.WebApp.HapticFeedback) {
             Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
         }
 
-        // Через секунду показываем настоящую карту
+        // Определяем редкость для скорости вращения
+        const overall = getPlayerOVR(window.currentRevealPlayer);
+        let spinTime = 1600; 
+
+        if (overall >= 90) { 
+            setTimeout(() => innerCard.classList.add('spin-epic'), 800);
+            spinTime = 2800;
+        } else if (overall >= 80) { 
+            setTimeout(() => innerCard.classList.add('spin-rare'), 800);
+            spinTime = 2000;
+        } else if (overall >= 70) { 
+            setTimeout(() => innerCard.classList.add('spin-rare'), 800);
+            spinTime = 1500;
+        } else { 
+            setTimeout(() => innerCard.classList.add('spin-normal'), 800);
+            spinTime = 1600;
+        }
+
+        // Ждем, пока карта выедет, покрутится и показываем настоящую карточку
         setTimeout(() => {
             document.getElementById('packOpeningView').style.display = 'none';
             showRevealCard(window.currentRevealPlayer);
-        }, 1000);
+        }, spinTime);
     }
 }
 
-// Добавляем слушатели и для мыши (ПК), и для пальца (телефон)
+// Привязываем события (мышь для ПК, тач для телефона)
 packContainer.addEventListener('mousedown', handleStart);
 packContainer.addEventListener('mouseup', handleEnd);
 packContainer.addEventListener('touchstart', handleStart, { passive: true });
