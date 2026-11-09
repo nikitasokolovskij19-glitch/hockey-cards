@@ -799,6 +799,7 @@ button[onclick="closeDayResults()"] {
         <div class="flip-hint">Нажми, чтобы перевернуть</div>
     </div>
     </div>
+    <div id="revealDuplicateContainer" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 15px; z-index: 10;"></div>
     <button class="btn-nav" id="closeRevealBtn" style="margin-top: 30px; opacity: 0; transition: 0.5s; background: rgba(51, 65, 85, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; width: 300px; font-weight: 700; cursor: pointer;">Забрать в коллекцию</button>
 </div>
 
@@ -2264,6 +2265,51 @@ document.getElementById('globalBackBtn').style.display = 'none';
     closeBtn.style.opacity = '0';
     
     revealCard.classList.remove('epic-reveal');
+
+    // --- ЛОГИКА ДЛЯ ДУБЛИКАТОВ ---
+const dupContainer = document.getElementById('revealDuplicateContainer');
+dupContainer.innerHTML = ''; // Очищаем от прошлых паков
+
+// Считаем, сколько таких карт теперь в коллекции (включая только что выпавшую)
+const sameCardsCount = collection.filter(c => c.name === player.name && c.season === player.season).length;
+
+if (sameCardsCount > 1) {
+    // Если это дубликат, показываем кнопку продажи
+    const sellPrice = GAME_CONFIG.sellPrices[player.rarity_num] || 50;
+    
+    dupContainer.innerHTML = `
+        <div style="color: #fbbf24; font-size: 14px; font-weight: bold; margin-bottom: 8px;">
+            У вас уже есть ${sameCardsCount} шт.
+        </div>
+        <button id="revealSellBtn" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);">
+            💰 Продать дубликат за ${sellPrice} 💵
+        </button>
+    `;
+
+    // Логика продажи по клику
+    document.getElementById('revealSellBtn').onclick = () => {
+        // Находим индекс этой карты в коллекции и удаляем ОДНУ штуку
+        const idx = collection.findIndex(c => c.name === player.name && c.season === player.season);
+        if (idx !== -1) {
+            collection.splice(idx, 1);
+            userCoins += sellPrice;
+            
+            // Сохраняем и обновляем интерфейс
+            localStorage.setItem('khl_collection', JSON.stringify(collection));
+            updateUI();
+            
+            // Меняем кнопку на текст "Продано"
+            document.getElementById('revealSellBtn').style.display = 'none';
+            dupContainer.innerHTML = `<div style="color: #10b981; font-size: 14px; font-weight: bold;">✅ Успешно продано за ${sellPrice} 💵</div>`;
+            
+            // Вибрация для телефона
+            if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+                Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+        }
+    };
+}
+// --- КОНЕЦ ЛОГИКИ ДУБЛИКАТОВ ---
 
     setTimeout(() => {
         revealCard.style.transform = 'scale(1)';
