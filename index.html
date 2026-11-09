@@ -597,6 +597,23 @@ button[onclick="closeDayResults()"] {
 <!-- ЭКРАН КОЛЛЕКЦИИ -->
 <div id="collectionView" style="display: none; width: 100%; height: 100dvh; overflow-y: auto; flex-direction: column; align-items: center; padding-top: 0px; padding-bottom: 50px; box-sizing: border-box;">
     <h2 style="font-size: 16px; margin-top: 40px; margin-bottom: 20px; letter-spacing: 1px;">Моя коллекция</h2>
+
+    <div id="collectionControls" style="display: flex; gap: 10px; margin-bottom: 15px; width: 100%; max-width: 600px; justify-content: center; flex-wrap: wrap;">
+    <!-- Фильтр по амплуа -->
+    <select id="filterPos" onchange="applyCollectionFilters()" style="padding: 8px; border-radius: 8px; background: #1e293b; color: white; border: 1px solid #3f3f46; font-weight: bold;">
+        <option value="all">Все игроки</option>
+        <option value="Нападающий">Нападающие</option>
+        <option value="Защитник">Защитники</option>
+        <option value="Вратарь">Вратари</option>
+    </select>
+
+    <!-- Сортировка -->
+    <select id="sortType" onchange="applyCollectionFilters()" style="padding: 8px; border-radius: 8px; background: #1e293b; color: white; border: 1px solid #3f3f46; font-weight: bold;">
+        <option value="ovr">По силе (OVR)</option>
+        <option value="rarity">По редкости</option>
+        <option value="name">По алфавиту</option>
+    </select>
+    </div>
     
     <div style="display: flex; gap: 10px; margin-bottom: 20px;">
         <button id="tabTeamsBtn" class="tab-btn active-tab" style="transition: all 0.3s; padding: 12px 24px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 700; cursor: pointer; color: #94a3b8; background: rgba(30, 41, 59, 0.4);">По командам</button>
@@ -1146,6 +1163,8 @@ window.alert = function(message) {
     let collection = JSON.parse(localStorage.getItem('khl_collection')) || [];
     let squad = JSON.parse(localStorage.getItem('khl_squad')) || [null, null, null, null, null, null];
     let currentViewPlayer = null;
+    let currentViewTeam = null;
+    let currentViewSeason = null;
 
     // --- ПЕРЕМЕННЫЕ КВЕСТОВ ---
     let questsData = JSON.parse(localStorage.getItem('khl_quests_data')) || {
@@ -2392,29 +2411,45 @@ document.getElementById('closeRevealBtn').addEventListener('click', function() {
             document.getElementById('innerCollectionView').style.display = 'block';
             document.getElementById('globalBackBtn').style.display = 'flex';
             document.getElementById('sortBtn').style.display = 'block'; 
+
+            currentViewTeam = teamName;
+            currentViewSeason = season;
             
             document.getElementById('innerCollectionTitle').innerText = teamName ? `${teamName} • ${season}` : `Сезон ${season}`;
             const list = document.getElementById('innerCollectionList');
             list.innerHTML = '';
 
-            let playersToShow = teamName ? collection.filter(p => p.club === teamName && p.season === season) : collection.filter(p => p.season === season);
-            const grouped = {};
-            
-            playersToShow.forEach(player => {
-                const key = `${player.name}_${player.season}`; // ИСПРАВЛЕННЫЙ БАГ С ГРУППИРОВКОЙ
-                if (!grouped[key]) grouped[key] = { ...player, count: 0 };
-                grouped[key].count += 1;
-            });
+            // 1. Собираем базовый список
+let basePlayers = teamName ? collection.filter(p => p.club === teamName && p.season === season) : collection.filter(p => p.season === season);
 
-            const groupedArray = Object.values(grouped);
-            
-            groupedArray.sort((a, b) => {
-    if (currentSortMode === 'rating') {
-        return getPlayerOVR(b) - getPlayerOVR(a); // <--- ТЕПЕРЬ ИСПОЛЬЗУЕМ НОВУЮ ФУНКЦИЮ
-    } else if (currentSortMode === 'firstName') {
-        return a.name.localeCompare(b.name);
-    } else if (currentSortMode === 'lastName') {
-        return a.name.trim().split(' ').pop().localeCompare(b.name.trim().split(' ').pop());
+// 2. ПРИМЕНЯЕМ ФИЛЬТР ПО АМПЛУА
+const filterPosEl = document.getElementById('filterPos');
+if (filterPosEl && filterPosEl.value !== 'all') {
+    basePlayers = basePlayers.filter(p => p.pos === filterPosEl.value);
+}
+
+let playersToShow = basePlayers;
+const grouped = {};
+
+playersToShow.forEach(player => {
+    const key = `${player.name}_${player.season}`;
+    if (!grouped[key]) grouped[key] = { ...player, count: 0 };
+    grouped[key].count += 1;
+});
+
+const groupedArray = Object.values(grouped);
+
+// 3. ПРИМЕНЯЕМ СОРТИРОВКУ ИЗ ВЫПАДАЮЩЕГО СПИСКА
+const sortTypeEl = document.getElementById('sortType');
+const sortType = sortTypeEl ? sortTypeEl.value : 'ovr';
+
+groupedArray.sort((a, b) => {
+    if (sortType === 'ovr') {
+        return getPlayerOVR(b) - getPlayerOVR(a); // Сначала сильные
+    } else if (sortType === 'rarity') {
+        return b.rarity_num - a.rarity_num; // Сначала редкие
+    } else if (sortType === 'name') {
+        return a.name.localeCompare(b.name); // По алфавиту
     }
     return 0;
 });
@@ -4774,6 +4809,16 @@ if (savedTourney) {
         alert("Ошибка загрузки базы: " + error.message);
         console.error(error);
     });
+
+    function applyCollectionFilters() {
+    if (currentViewTeam !== null || currentViewSeason !== null) {
+        // Если мы смотрим игроков конкретной команды/сезона — перерисовываем их
+        renderSeasonPlayers(currentViewTeam, currentViewSeason);
+    } else {
+        // Иначе перерисовываем главный экран (сезоны или команды)
+        renderCollection();
+    }
+    }
     
  </script>
 
