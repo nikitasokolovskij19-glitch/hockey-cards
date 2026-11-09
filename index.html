@@ -2268,49 +2268,6 @@ document.getElementById('packOpeningView').style.display = 'flex';
 document.getElementById('packFlap').classList.remove('torn-off');
 document.getElementById('innerCard').classList.remove('pulled-out');
 document.getElementById('packHint').innerText = "Свайп вправо, чтобы надорвать пак!";
-
-    // --- ЛОГИКА ДЛЯ ДУБЛИКАТОВ ---
-const dupContainer = document.getElementById('revealDuplicateContainer');
-
-if (dupContainer) {
-    dupContainer.innerHTML = ''; 
-    const sameCardsCount = collection.filter(c => c.name === player.name && c.season === player.season).length;
-    
-    // Показываем кнопку ТОЛЬКО если карта уже есть в коллекции (дубликат)
-    if (sameCardsCount > 1) {
-        const sellPrice = GAME_CONFIG.sellPrices[player.rarity_num] || 50;
-        
-        dupContainer.innerHTML = `
-            <div style="color: #fbbf24; font-size: 14px; font-weight: bold; margin-bottom: 8px;">
-                В коллекции: ${sameCardsCount} шт.
-            </div>
-            <button id="revealSellBtn" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">
-                💰 Продать за ${sellPrice} 💵
-            </button>
-        `;
-
-        document.getElementById('revealSellBtn').onclick = () => {
-    const idx = collection.findIndex(c => c.name === player.name && c.season === player.season);
-    if (idx !== -1) {
-        collection.splice(idx, 1);
-        userCoins += sellPrice;
-        localStorage.setItem('khl_collection', JSON.stringify(collection));
-        updateUI();
-        
-        document.getElementById('revealSellBtn').style.display = 'none';
-        dupContainer.innerHTML = `<div style="color: #10b981; font-size: 14px; font-weight: bold;">✅ Продано за ${sellPrice} 💵</div>`;
-        
-        // ВОТ ЭТА СТРОЧКА МЕНЯЕТ ТЕКСТ НИЖНЕЙ КНОПКИ:
-        document.getElementById('closeRevealBtn').innerText = 'Продолжить';
-
-        // Вибрация при продаже
-        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
-            Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        }
-    }
-};
-    }
-    }
     
     // --- ПРОГРЕСС КВЕСТОВ ПРИ ОТКРЫТИИ ПАКА ---
     addQuestProgress('open1');
@@ -4861,13 +4818,11 @@ if (savedTourney) {
     }
 
 function showRevealCard(player) {
-    // 1. Объявляем все элементы (их не хватало)
     const revealCard = document.getElementById('revealCard');
     const revealText = document.getElementById('revealText');
     const closeBtn = document.getElementById('closeRevealBtn');
     const revealView = document.getElementById('revealView');
 
-    // 2. Заполняем данные игрока
     document.getElementById('r-name').innerText = player.name;
     document.getElementById('r-season').innerText = player.season;
     document.getElementById('r-position').innerText = player.pos;
@@ -4923,14 +4878,47 @@ function showRevealCard(player) {
     revealCard.style.setProperty('--card-border-color', rarity.color);
     revealCard.style.borderColor = rarity.color;
     
-    // 3. СБРОС КНОПКИ И КОНТЕЙНЕРА ДУБЛИКАТОВ ПЕРЕД ПОКАЗОМ
     closeBtn.innerText = 'Забрать в коллекцию';
-    document.getElementById('revealDuplicateContainer').innerHTML = '';
+    const dupContainer = document.getElementById('revealDuplicateContainer');
+    dupContainer.innerHTML = ''; // Очищаем старые кнопки
+
+    // --- ЛОГИКА ДУБЛИКАТОВ ТЕПЕРЬ ЗДЕСЬ ---
+    const sameCardsCount = collection.filter(c => c.name === player.name && c.season === player.season).length;
     
+    if (sameCardsCount > 1) {
+        const sellPrice = GAME_CONFIG.sellPrices[player.rarity_num] || 50;
+        
+        dupContainer.innerHTML = `
+            <div style="color: #fbbf24; font-size: 14px; font-weight: bold; margin-bottom: 8px;">
+                В коллекции: ${sameCardsCount} шт.
+            </div>
+            <button id="revealSellBtn" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">
+                💰 Продать за ${sellPrice} 💵
+            </button>
+        `;
+
+        document.getElementById('revealSellBtn').onclick = () => {
+            const idx = collection.findIndex(c => c.name === player.name && c.season === player.season);
+            if (idx !== -1) {
+                collection.splice(idx, 1);
+                userCoins += sellPrice;
+                localStorage.setItem('khl_collection', JSON.stringify(collection));
+                updateUI();
+                
+                document.getElementById('revealSellBtn').style.display = 'none';
+                dupContainer.innerHTML = `<div style="color: #10b981; font-size: 14px; font-weight: bold;">✅ Продано за ${sellPrice} 💵</div>`;
+                closeBtn.innerText = 'Продолжить';
+
+                if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+                    Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+            }
+        };
+    }
+
     document.getElementById('globalHomeBtn').style.display = 'none';
     document.getElementById('globalBackBtn').style.display = 'none';
 
-    // 4. Начальное состояние (скрыто)
     revealCard.style.transform = 'scale(0)';
     revealText.style.opacity = '0';
     revealText.style.transform = 'translateY(-50px)';
@@ -4939,7 +4927,6 @@ function showRevealCard(player) {
     revealCard.classList.remove('epic-reveal');
     revealView.style.display = 'flex';
 
-    // 5. Анимация появления карты
     setTimeout(() => {
         revealCard.style.transform = 'scale(1)';
         revealText.style.opacity = '1';
@@ -4948,53 +4935,6 @@ function showRevealCard(player) {
         if (rarity.num >= 4) revealCard.classList.add('epic-reveal');
     }, 100);
 }
-
-    // Переменные для отслеживания свайпа
-let touchStartX = 0;
-let touchStartY = 0;
-let packStage = 0; // 0 - закрыт, 1 - надорван, 2 - карта вытянута
-
-const packContainer = document.getElementById('packContainer');
-
-packContainer.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-    touchStartY = e.changedTouches[0].screenY;
-}, { passive: true });
-
-packContainer.addEventListener('touchend', (e) => {
-    const touchEndX = e.changedTouches[0].screenX;
-    const touchEndY = e.changedTouches[0].screenY;
-    
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
-
-    // Если пак закрыт (0) и свайп вправо (deltaX > 50)
-    if (packStage === 0 && deltaX > 50) {
-        packStage = 1;
-        document.getElementById('packFlap').classList.add('torn-off');
-        document.getElementById('packHint').innerText = "Свайп вверх, чтобы достать карту!";
-        
-        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
-            Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-        }
-    } 
-    // Если пак надорван (1) и свайп вверх (deltaY < -50)
-    else if (packStage === 1 && deltaY < -50) {
-        packStage = 2;
-        document.getElementById('innerCard').classList.add('pulled-out');
-        document.getElementById('packHint').innerText = "";
-        
-        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
-            Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-        }
-
-        // Через секунду (когда карта выехала) показываем настоящую карту
-        setTimeout(() => {
-            document.getElementById('packOpeningView').style.display = 'none';
-            showRevealCard(window.currentRevealPlayer);
-        }, 1000);
-    }
-});
     
  </script>
 
