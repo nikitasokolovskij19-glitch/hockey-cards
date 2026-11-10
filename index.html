@@ -1295,15 +1295,92 @@ window.alert = function(message) {
     let currentViewTeam = null;
     let currentViewSeason = null;
 
-    // --- ПЕРЕМЕННЫЕ КВЕСТОВ ---
-    let questsData = JSON.parse(localStorage.getItem('khl_quests_data')) || {
-        lastDailyUpdate: '', lastWeeklyUpdate: '',
-        daily: { play: 0, open1: 0, sell1: 0, squad: 0, open3: 0, mainClaimed: false, rewardsTaken: {} },
-        weekly: { open10: 0, sell5: 0, fullSquad: 0, epicDrop: 0, login3: 0, mainClaimed: false, loginDays: [], rewardsTaken: {} }
-    };
-    if (!questsData.daily.rewardsTaken) questsData.daily.rewardsTaken = {};
-    if (!questsData.weekly.rewardsTaken) questsData.weekly.rewardsTaken = {};
-    if (!questsData.weekly.loginDays) questsData.weekly.loginDays = [];
+    // --- БАЗА КВЕСТОВ ---
+const DAILY_QUESTS_DB = [
+    { id: "d_open_2", text: "Открыть 2 пака", action: "openPack", target: 2, reward: 200, exp: 100 },
+    { id: "d_open_4", text: "Открыть 4 пака", action: "openPack", target: 4, reward: 350, exp: 150 },
+    { id: "d_open_6", text: "Открыть 6 паков", action: "openPack", target: 6, reward: 500, exp: 200 },
+    { id: "d_sell_2", text: "Продать 2 карты", action: "sellCard", target: 2, reward: 100, exp: 50 },
+    { id: "d_sell_5", text: "Продать 5 карт", action: "sellCard", target: 5, reward: 250, exp: 100 },
+    { id: "d_spend_1500", text: "Потратить 1500 монет", action: "spendCoins", target: 1500, reward: 300, exp: 150 },
+    { id: "d_have_coins_5000", text: "Накопить 5000 монет", action: "haveCoins", target: 5000, reward: 300, exp: 150 },
+    { id: "d_build_squad", text: "Собрать полное звено", action: "buildSquad", target: 1, reward: 200, exp: 100 },
+    { id: "d_same_club", text: "Собрать звено (3 из 1 клуба)", action: "sameClub", target: 1, reward: 250, exp: 150 },
+    { id: "d_win_1", text: "Выиграть 1 матч", action: "winMatch", target: 1, reward: 200, exp: 150 },
+    { id: "d_win_2", text: "Выиграть 2 матча", action: "winMatch", target: 2, reward: 350, exp: 200 },
+    { id: "d_win_ot", text: "Выиграть в овертайме", action: "winOT", target: 1, reward: 250, exp: 150 },
+    { id: "d_get_rare", text: "Выбить карту 'Редкая'+", action: "getRare", target: 1, reward: 150, exp: 100 },
+    { id: "d_get_superrare", text: "Выбить карту 'Супер редкая'+", action: "getSuperRare", target: 1, reward: 300, exp: 200 },
+    { id: "d_sell_duplicate", text: "Продать дубликат", action: "sellDuplicate", target: 1, reward: 100, exp: 50 },
+    { id: "d_change_squad", text: "Сменить игрока в звене", action: "changeSquad", target: 1, reward: 50, exp: 50 },
+    { id: "d_login_2x", text: "Зайти в игру второй раз", action: "login2x", target: 1, reward: 100, exp: 50 },
+    { id: "d_add_goalie", text: "Добавить вратаря", action: "addGoalie", target: 1, reward: 100, exp: 50 },
+    { id: "d_add_def_2", text: "Добавить 2 защитников", action: "addDefender", target: 2, reward: 150, exp: 75 },
+    { id: "d_add_fwd_3", text: "Добавить 3 нападающих", action: "addForward", target: 3, reward: 150, exp: 75 },
+    { id: "d_collect_club", text: "Собрать 3 карточки одного клуба", action: "collectClub", target: 3, reward: 150, exp: 100 },
+    { id: "d_collect_country", text: "Собрать 3 карточки одной страны", action: "collectCountry", target: 3, reward: 150, exp: 100 },
+    { id: "d_get_80", text: "Открыть карту OVR 80+", action: "get80", target: 1, reward: 400, exp: 250 },
+    { id: "d_win_by_3", text: "Выиграть матч с разницей 3 шайбы", action: "winBy3", target: 1, reward: 300, exp: 200 },
+    { id: "d_shutout", text: "Выиграть матч 'на ноль'", action: "shutout", target: 1, reward: 300, exp: 200 },
+    { id: "d_score_5", text: "Забить 5 голов за матч", action: "score5", target: 1, reward: 300, exp: 200 },
+    { id: "d_open_quests", text: "Открыть вкладку 'Квесты'", action: "openQuests", target: 1, reward: 50, exp: 20 },
+    { id: "d_sell_low", text: "Продать карту OVR 65 и ниже", action: "sellLow", target: 1, reward: 50, exp: 50 },
+    { id: "d_open_shop", text: "Открыть экран выбора пака", action: "openShop", target: 1, reward: 50, exp: 20 },
+    { id: "d_win_streak", text: "Выиграть 3 матча подряд", action: "winStreak", target: 3, reward: 500, exp: 250 }
+];
+
+const WEEKLY_QUESTS_DB = [
+    { id: "w_open_50", text: "Открыть 50 паков за неделю", action: "openPack", target: 50, reward: 4000, exp: 1500 },
+    { id: "w_open_75", text: "Открыть 75 паков за неделю", action: "openPack", target: 75, reward: 6000, exp: 2000 },
+    { id: "w_sell_100", text: "Продать 100 карт за неделю", action: "sellCard", target: 100, reward: 3000, exp: 1000 },
+    { id: "w_win_tournament", text: "Выиграть турнир", action: "winTournament", target: 1, reward: 2500, exp: 1000 },
+    { id: "w_podium", text: "Занять 2 или 3 место", action: "podium", target: 1, reward: 1000, exp: 500 },
+    { id: "w_play_50", text: "Сыграть 50 матчей в турнирах", action: "playMatches", target: 50, reward: 3000, exp: 1500 },
+    { id: "w_squad_85", text: "Собрать 5 звеньев с рейтингом 85+", action: "buildSquad85", target: 5, reward: 5000, exp: 2000 },
+    { id: "w_new_unique", text: "Увеличить коллекцию на 20 карт", action: "newUnique", target: 20, reward: 1200, exp: 600 },
+    { id: "w_legend_epic", text: "Выбить 2 карты 'Легендарная' или 'Эпическая'", action: "getLegendEpic", target: 2, reward: 2000, exp: 800 },
+    { id: "w_have_coins_15000", text: "Накопить 15000 монет", action: "haveCoins", target: 15000, reward: 3000, exp: 1000 },
+    { id: "w_gain_exp_10000", text: "Получить 10000 опыта", action: "gainExp", target: 10000, reward: 5000, exp: 0 },
+    { id: "w_login_4days", text: "Зайти в игру 4 дня из 7", action: "loginDays", target: 4, reward: 1000, exp: 500 },
+    { id: "w_same_country", text: "Звено из 6 карт одной страны", action: "sameCountry", target: 1, reward: 1500, exp: 500 },
+    { id: "w_same_club", text: "Звено из 6 карт одного клуба", action: "sameClub", target: 1, reward: 1500, exp: 500 },
+    { id: "w_sell_high", text: "Продать 5 карт с OVR 80+", action: "sellHigh", target: 5, reward: 2500, exp: 800 }
+];
+
+let questsData = JSON.parse(localStorage.getItem('khl_quests_data')) || {};
+if (questsData.daily) { questsData = {}; } // Очистка старой структуры
+
+function checkQuestResets() {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay(); 
+    const startOfWeek = new Date(now.setDate(now.getDate() - dayOfWeek + 1));
+    const currentWeek = startOfWeek.toISOString().split('T')[0];
+
+    let changed = false;
+
+    if (questsData.lastDailyUpdate !== today) {
+        questsData.lastDailyUpdate = today;
+        let shuffled = [...DAILY_QUESTS_DB].sort(() => 0.5 - Math.random());
+        questsData.activeDaily = shuffled.slice(0, 5).map(q => q.id);
+        questsData.dailyProgress = {};
+        questsData.dailyRewardsTaken = {};
+        questsData.dailyMainClaimed = false;
+        changed = true;
+    }
+
+    if (questsData.lastWeeklyUpdate !== currentWeek) {
+        questsData.lastWeeklyUpdate = currentWeek;
+        let shuffled = [...WEEKLY_QUESTS_DB].sort(() => 0.5 - Math.random());
+        questsData.activeWeekly = shuffled.slice(0, 5).map(q => q.id);
+        questsData.weeklyProgress = {};
+        questsData.weeklyRewardsTaken = {};
+        questsData.weeklyMainClaimed = false;
+        changed = true;
+    }
+
+    if (changed) localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+    }
 
     const ALL_KHL_CLUBS = [
 { club: "Адмирал", logo: "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Admiral_Logo.svg.jpg" },
@@ -1558,40 +1635,33 @@ function updateQuestAlert() {
     if (!alertEl) return;
 
     let hasUnclaimed = false;
-
-    // Проверяем ежедневные
-    const dQuests = [
-        { id: 'play', target: 1 }, { id: 'open1', target: 1 }, 
-        { id: 'sell1', target: 1 }, { id: 'squad', target: 1 }, { id: 'open3', target: 3 }
-    ];
-    let allDailyDone = true;
-    dQuests.forEach(q => {
-        const progress = questsData.daily[q.id] || 0;
-        if (progress >= q.target && !questsData.daily.rewardsTaken[q.id]) hasUnclaimed = true;
-        if (progress < q.target) allDailyDone = false;
+    
+    const activeD = questsData.activeDaily || [];
+    let allDDone = true;
+    activeD.forEach(id => {
+        const q = DAILY_QUESTS_DB.find(x => x.id === id);
+        if(!q) return;
+        let prog = questsData.dailyProgress[id] || 0;
+        if (q.action === 'haveCoins') prog = userCoins;
+        if (prog >= q.target && !questsData.dailyRewardsTaken[id]) hasUnclaimed = true;
+        if (prog < q.target) allDDone = false;
     });
-    if (allDailyDone && !questsData.daily.mainClaimed) hasUnclaimed = true;
+    if (allDDone && !questsData.dailyMainClaimed) hasUnclaimed = true;
 
-    // Проверяем еженедельные
-    const wQuests = [
-        { id: 'open10', target: 10 }, { id: 'sell5', target: 5 }, 
-        { id: 'fullSquad', target: 6 }, { id: 'epicDrop', target: 1 }, { id: 'login3', target: 3 }
-    ];
-    let allWeeklyDone = true;
-    wQuests.forEach(q => {
-        const progress = questsData.weekly[q.id] || 0;
-        if (progress >= q.target && !questsData.weekly.rewardsTaken[q.id]) hasUnclaimed = true;
-        if (progress < q.target) allWeeklyDone = false;
+    const activeW = questsData.activeWeekly || [];
+    let allWDone = true;
+    activeW.forEach(id => {
+        const q = WEEKLY_QUESTS_DB.find(x => x.id === id);
+        if(!q) return;
+        let prog = questsData.weeklyProgress[id] || 0;
+        if (q.action === 'haveCoins') prog = userCoins;
+        if (prog >= q.target && !questsData.weeklyRewardsTaken[id]) hasUnclaimed = true;
+        if (prog < q.target) allWDone = false;
     });
-    if (allWeeklyDone && !questsData.weekly.mainClaimed) hasUnclaimed = true;
+    if (allWDone && !questsData.weeklyMainClaimed) hasUnclaimed = true;
 
-    // Показываем или скрываем восклицательный знак
-    if (hasUnclaimed) {
-        alertEl.style.display = 'flex';
-    } else {
-        alertEl.style.display = 'none';
+    alertEl.style.display = hasUnclaimed ? 'flex' : 'none';
     }
-}
 
 // --- ПРОФИЛЬ ---
 function adjustNicknameSize() {
@@ -1906,19 +1976,36 @@ function checkQuestResets() {
 
 function addQuestProgress(action, amount = 1) {
     checkQuestResets();
-    if (questsData.daily[action] !== undefined) questsData.daily[action] += amount;
-    
-    const weeklyMap = { 'open1': 'open10', 'open3': 'open10', 'sell1': 'sell5', 'epicDrop': 'epicDrop', 'squad': 'fullSquad' };
-    if (weeklyMap[action] && questsData.weekly[weeklyMap[action]] !== undefined) {
-        questsData.weekly[weeklyMap[action]] += amount;
-    }
-    localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
-    
-    if (document.getElementById('questsView') && document.getElementById('questsView').style.display === 'flex') {
-        renderQuests();
-    }
-}
+    let needsRender = false;
 
+    const activeD = questsData.activeDaily || [];
+    const activeW = questsData.activeWeekly || [];
+
+    activeD.forEach(qId => {
+        const q = DAILY_QUESTS_DB.find(x => x.id === qId);
+        if (q && q.action === action) {
+            questsData.dailyProgress[qId] = (questsData.dailyProgress[qId] || 0) + amount;
+            needsRender = true;
+        }
+    });
+
+    activeW.forEach(qId => {
+        const q = WEEKLY_QUESTS_DB.find(x => x.id === qId);
+        if (q && q.action === action) {
+            questsData.weeklyProgress[qId] = (questsData.weeklyProgress[qId] || 0) + amount;
+            needsRender = true;
+        }
+    });
+
+    if (needsRender) {
+        localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+        if (document.getElementById('questsView') && document.getElementById('questsView').style.display === 'flex') {
+            renderQuests();
+        }
+        updateQuestAlert();
+    }
+    }
+    
 document.getElementById('questsBtn').onclick = () => {
     document.getElementById('shopView').style.display = 'none';
     document.getElementById('questsView').style.display = 'flex';
@@ -1946,32 +2033,25 @@ function renderQuests() {
     if (!list) return;
     list.innerHTML = '';
 
-    const dailyQuests = [
-    { id: 'play', title: 'Зайти в игру', target: 1, reward: 50 },
-    { id: 'open1', title: 'Открыть 1 пак', target: 1, reward: 100 },
-    { id: 'sell1', title: 'Продать 1 карточку', target: 1, reward: 50 },
-    { id: 'squad', title: 'Собрать звено', target: 1, reward: 150 },
-    { id: 'open3', title: 'Открыть 3 пака', target: 3, reward: 200 }
-];
-    const weeklyQuests = [
-    { id: 'login3', title: 'Заходить 3 дня подряд', target: 3, reward: 300 },
-    { id: 'open10', title: 'Открыть 10 паков', target: 10, reward: 500 },
-    { id: 'sell5', title: 'Продать 5 карточек', target: 5, reward: 200 },
-    { id: 'fullSquad', title: 'Собрать звено из одноклубников', target: 1, reward: 500 },
-    { id: 'legendDrop', title: 'Выбить Легендарную (80+)', target: 1, reward: 800 },
-    { id: 'epicDrop', title: 'Выбить Эпическую (90+)', target: 1, reward: 1500 }
-];
-
-    const currentList = currentQuestTab === 'daily' ? dailyQuests : weeklyQuests;
-    const currentData = currentQuestTab === 'daily' ? questsData.daily : questsData.weekly;
-    const mainClaimed = currentData.mainClaimed;
+    const isDaily = currentQuestTab === 'daily';
+    const db = isDaily ? DAILY_QUESTS_DB : WEEKLY_QUESTS_DB;
+    const activeIds = isDaily ? (questsData.activeDaily || []) : (questsData.activeWeekly || []);
+    const progressData = isDaily ? (questsData.dailyProgress || {}) : (questsData.weeklyProgress || {});
+    const rewardsTaken = isDaily ? (questsData.dailyRewardsTaken || {}) : (questsData.weeklyRewardsTaken || {});
+    const mainClaimed = isDaily ? questsData.dailyMainClaimed : questsData.weeklyMainClaimed;
+    
     let allCompleted = true;
 
-    currentList.forEach(q => {
-        let progress = currentData[q.id] || 0;
+    activeIds.forEach(id => {
+        const q = db.find(x => x.id === id);
+        if (!q) return;
+
+        let progress = progressData[id] || 0;
+        if (q.action === 'haveCoins') progress = userCoins; // Для квеста на валюту
+
         if (progress > q.target) progress = q.target;
         const isDone = progress >= q.target;
-        const isClaimed = currentData.rewardsTaken[q.id];
+        const isClaimed = rewardsTaken[id];
         if (!isDone) allCompleted = false;
 
         const item = document.createElement('div');
@@ -1980,57 +2060,69 @@ function renderQuests() {
         let rightSide = '';
         if (isClaimed) rightSide = `<div style="font-size: 20px;">✅</div>`;
         else if (isDone) {
-const rewardAmt = q.reward || 50;
-            rightSide = `<button onclick="claimSmallReward('${q.id}', ${rewardAmt})" style="background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Забрать ${rewardAmt} 💵</button>`;
+            rightSide = `<button onclick="claimSmallReward('${q.id}')" style="background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Забрать ${q.reward} 💵</button>`;
         } else rightSide = `<div style="font-size: 20px;">⏳</div>`;
 
-        item.innerHTML = `<div style="display: flex; flex-direction: column; gap: 5px;"><div style="font-weight: 700; font-size: 14px; color: ${isClaimed ? '#64748b' : (isDone ? '#10b981' : 'white')};">${q.title}</div><div style="font-size: 12px; color: #94a3b8;">${progress} / ${q.target}</div></div>${rightSide}`;
+        item.innerHTML = `<div style="display: flex; flex-direction: column; gap: 5px;"><div style="font-weight: 700; font-size: 14px; color: ${isClaimed ? '#64748b' : (isDone ? '#10b981' : 'white')};">${q.text}</div><div style="font-size: 12px; color: #94a3b8;">${progress} / ${q.target}</div></div>${rightSide}`;
         list.appendChild(item);
     });
 
     const rewardBtn = document.createElement('div');
-    rewardBtn.style.cssText = `margin-top: 20px; padding: 20px; border-radius: 16px; text-align: center; font-weight: 800; background: ${mainClaimed ? 'rgba(16, 185, 129, 0.2)' : (allCompleted ? 'linear-gradient(135deg, #fbbf24, #d97706)' : 'rgba(51, 65, 85, 0.5)')}; color: ${mainClaimed ? '#10b981' : (allCompleted ? '#000' : '#64748b')}; cursor: ${(!allCompleted || mainClaimed) ? 'not-allowed' : 'pointer'};`;
+    rewardBtn.style.cssText = `margin-top: 20px; padding: 20px; border-radius: 16px; text-align: center; font-weight: 800; transition: 0.3s; background: ${mainClaimed ? 'rgba(16, 185, 129, 0.2)' : (allCompleted ? 'linear-gradient(135deg, #fbbf24, #d97706)' : 'rgba(51, 65, 85, 0.5)')}; color: ${mainClaimed ? '#10b981' : (allCompleted ? '#000' : '#64748b')}; cursor: ${(!allCompleted || mainClaimed) ? 'not-allowed' : 'pointer'}; box-shadow: ${(!allCompleted || mainClaimed) ? 'none' : '0 4px 15px rgba(251, 191, 36, 0.4)'};`;
     
-    if (mainClaimed) rewardBtn.innerText = '🎁 ГЛАВНАЯ НАГРАДА ПОЛУЧЕНА';
+    if (mainClaimed) rewardBtn.innerText = isDaily ? '🎁 ГЛАВНАЯ НАГРАДА ПОЛУЧЕНА' : '🏆 ГЛАВНАЯ НАГРАДА ПОЛУЧЕНА';
     else if (allCompleted) {
-rewardBtn.innerText = currentQuestTab === 'daily' ? `🎁 Забрать 400 💵` : `🏆 Забрать 2000 💵`;
+        rewardBtn.innerText = isDaily ? '🎁 Забрать 300 💵' : '🏆 Забрать 1000 💵 + Карту';
         rewardBtn.onclick = claimMainQuestReward;
     } else rewardBtn.innerText = '🔒 Выполните все квесты';
 
     list.appendChild(rewardBtn);
     updateQuestAlert();
-}
+    }
 
-function claimSmallReward(questId, amount) {
-    const currentData = currentQuestTab === 'daily' ? questsData.daily : questsData.weekly;
-    if (currentData.rewardsTaken[questId]) return;
-    currentData.rewardsTaken[questId] = true;
-    userCoins += amount;
+function claimSmallReward(questId) {
+    const isDaily = currentQuestTab === 'daily';
+    const db = isDaily ? DAILY_QUESTS_DB : WEEKLY_QUESTS_DB;
+    const q = db.find(x => x.id === questId);
+    if (!q) return;
+
+    const rewardsTaken = isDaily ? questsData.dailyRewardsTaken : questsData.weeklyRewardsTaken;
+    if (rewardsTaken[questId]) return;
+
+    rewardsTaken[questId] = true;
+    userCoins += q.reward;
+    if (typeof addExp === 'function') addExp(q.exp || 50); 
+    
     updateUI();
-    addExp(200); // Даем 200 опыта за квест
     localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
     renderQuests();
 }
 
 function claimMainQuestReward() {
-    const currentData = currentQuestTab === 'daily' ? questsData.daily : questsData.weekly;
-    if (currentData.mainClaimed) return;
-    currentData.mainClaimed = true;
+    const isDaily = currentQuestTab === 'daily';
+    const mainClaimed = isDaily ? questsData.dailyMainClaimed : questsData.weeklyMainClaimed;
+    if (mainClaimed) return;
     
-    if (currentQuestTab === 'daily') {
-    userCoins += 400; // или твоя сумма
-    addExp(2000);     // <--- ДОБАВИТЬ СЮДА
-    showAlert(`Вы получили 400 💵!`);
-} else {
-    userCoins += 2000; // или твоя сумма
-    addExp(5000);      // <--- ДОБАВИТЬ СЮДА
-    showAlert(`Вы получили 2000 💵 и Премиум-пак!`);
-    // ... код выдачи пака
+    if (isDaily) questsData.dailyMainClaimed = true;
+    else questsData.weeklyMainClaimed = true;
+    
+    if (isDaily) {
+        userCoins += 300;
+        showAlert('Вы получили 300 💵!');
+    } else {
+        userCoins += 1000;
+        showAlert('Вы получили 1000 💵 и карточку 75+ OVR!');
+        let available = PLAYERS.filter(p => {
+            const ovr = Math.round((p.sc + p.br + p.ps + p.si + p.end + p.skate) / 6);
+            return ovr >= 75 && ovr <= 84;
+        });
+        if (available.length > 0) collection.push(available[Math.floor(Math.random() * available.length)]);
+        localStorage.setItem('khl_collection', JSON.stringify(collection));
     }
     localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
     updateUI();
     renderQuests();
-  }
+    }
     
    function getPlayerOVR(player) {
     if (player.pos === "Вратарь") {
@@ -2129,6 +2221,7 @@ function openSquadSelection(requiredPos, slotIndex) {
             squad[slotIndex] = null;
             localStorage.setItem('khl_squad', JSON.stringify(squad));
             document.getElementById('squadSelectView').style.display = 'none';
+            addQuestProgress('changeSquad'); 
             renderSquad(); updateProfile();
         };
         removeContainer.appendChild(removeBtn);
@@ -2180,12 +2273,19 @@ function openSquadSelection(requiredPos, slotIndex) {
             cardWrapper.onclick = () => {
                 squad[slotIndex] = player;
                 localStorage.setItem('khl_squad', JSON.stringify(squad));
-                document.getElementById('squadSelectView').style.display = 'none';
-                renderSquad();
-                updateProfile();
-                addQuestProgress('squad');
-                if (squad.every(s => s !== null)) addQuestProgress('fullSquad', 1);
-            };
+                    document.getElementById('squadSelectView').style.display = 'none';
+    renderSquad();
+    updateProfile();
+    
+    // ВСТАВЬ ВОТ ЭТО ВМЕСТО СТАРЫХ СТРОК:
+    addQuestProgress('changeSquad'); 
+    
+    if (player.pos === "Вратарь") addQuestProgress('addGoalie');
+    if (player.pos === "Защитник") addQuestProgress('addDefender');
+    if (player.pos === "Нападающий") addQuestProgress('addForward');
+    
+    if (squad.every(s => s !== null)) addQuestProgress('buildSquad');
+};
             
             listContainer.appendChild(cardWrapper);
         });
@@ -2322,12 +2422,17 @@ packStage = 0;
 document.getElementById('packOpeningView').style.display = 'flex';
     
     // --- ПРОГРЕСС КВЕСТОВ ПРИ ОТКРЫТИИ ПАКА ---
-    addQuestProgress('open1');
-    addQuestProgress('open3');
-    const overall = getPlayerOVR(player);
-if (overall >= 80 && overall < 90) addQuestProgress('legendDrop');
-if (overall >= 90) addQuestProgress('epicDrop');
-}
+addQuestProgress('openPack'); // Засчитывает открытие любого пака
+
+const overall = getPlayerOVR(player);
+
+// Проверки на редкость (для новых квестов)
+if (overall >= 65) addQuestProgress('getRare');
+if (overall >= 70) addQuestProgress('getSuperRare');
+if (overall >= 80) addQuestProgress('get80');
+if (overall >= 80 && overall < 90) addQuestProgress('getLegendEpic'); // Для еженедельного
+if (overall >= 90) addQuestProgress('getLegendEpic'); // Для еженедельного
+    }
 
 document.getElementById('closeRevealBtn').addEventListener('click', function() {
     document.getElementById('revealView').style.display = 'none';
@@ -2852,7 +2957,17 @@ const totalPrice = countToSell * singlePrice;
             localStorage.setItem('khl_collection', JSON.stringify(collection));
             localStorage.setItem('khl_coins', userCoins);
             
-            addQuestProgress('sell1'); // Прогресс квеста на продажу
+            // --- ПРОГРЕСС КВЕСТОВ ПРИ ПРОДАЖЕ ---
+addQuestProgress('sellCard', countToSell); // Засчитываем продажу (и сразу пачку, если продали несколько)
+
+// Проверка на продажу дешевых карт (до 65 OVR)
+if (overall < 65) {
+    addQuestProgress('sellLow', countToSell);
+}
+// Проверка на продажу дорогих карт (от 80 OVR)
+if (overall >= 80) {
+    addQuestProgress('sellHigh', countToSell);
+}
             
             updateUI();
             updateProfile(); 
@@ -4120,7 +4235,8 @@ function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, sc
             updateStandings(m.teamA, matchData.scoreA, m.teamB, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
         }
     });
-    showDayResults(roundResults, playerTeam);
+    addQuestProgress('playMatches'); // Засчитываем сыгранный матч
+showDayResults(roundResults, playerTeam);
 }
 
     function updateStandings(teamA, scoreA, teamB, scoreB, regA, regB) {
@@ -4209,14 +4325,17 @@ function closeDayResults() {
     alert(`🏆 ПОБЕДА В ТУРНИРЕ!\nВаша команда заняла 1 место. Награда: 10000 💵`);
     userCoins += 10000;
     addExp(5000);
+    addQuestProgress('winTournament'); // <--- ДОБАВИЛИ (Выиграл турнир)
 } else if (playerPos === 2) {
     alert(`🥈 Вы на 2 месте! Награда: 5000 💵`);
     userCoins += 5000;
     addExp(3000);
+    addQuestProgress('podium'); // <--- ДОБАВИЛИ (Попал в призы)
 } else if (playerPos === 3) {
     alert(`🥉 Вы на 3 месте! Награда: 2500 💵`);
     userCoins += 2500;
     addExp(1500);
+    addQuestProgress('podium'); // <--- ДОБАВИЛИ (Попал в призы)
 } else {
     alert(`😔 Ваша команда на ${playerPos} месте. Попробуйте усилить состав!`);
     }
