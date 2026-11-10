@@ -2323,7 +2323,17 @@ function openSquadSelection(requiredPos, slotIndex) {
     if (player.pos === "Защитник") addQuestProgress('addDefender');
     if (player.pos === "Нападающий") addQuestProgress('addForward');
     
-    if (squad.every(s => s !== null)) addQuestProgress('buildSquad');
+    if (squad.every(s => s !== null)) {
+    addQuestProgress('buildSquad');
+    
+    // Проверяем, все ли из одной страны
+    const allSameCountry = squad.every(p => p.flag === squad[0].flag);
+    if (allSameCountry) addQuestProgress('sameCountry');
+    
+    // Проверяем, все ли из одного клуба
+    const allSameClub = squad.every(p => p.club === squad[0].club);
+    if (allSameClub) addQuestProgress('sameClub');
+    }
 };
             
             listContainer.appendChild(cardWrapper);
