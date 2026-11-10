@@ -2007,21 +2007,7 @@ function addQuestProgress(action, amount = 1) {
     const activeD = questsData.activeDaily || [];
     const activeW = questsData.activeWeekly || [];
 
-    activeD.forEach(qId => {
-        const q = DAILY_QUESTS_DB.find(x => x.id === qId);
-        if (q && q.action === action) {
-            questsData.dailyProgress[qId] = (questsData.dailyProgress[qId] || 0) + amount;
-            needsRender = true;
-        }
-    });
-
-    activeW.forEach(qId => {
-        const q = WEEKLY_QUESTS_DB.find(x => x.id === qId);
-        if (q && q.action === action) {
-            questsData.weeklyProgress[qId] = (questsData.weeklyProgress[qId] || 0) + amount;
-            needsRender = true;
-        }
-    });
+    // ... (циклы activeD и activeW) ...
 
     if (needsRender) {
         localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
@@ -2030,29 +2016,7 @@ function addQuestProgress(action, amount = 1) {
         }
         updateQuestAlert();
     }
-    
-    // --- СЧИТАЕМ ДАТУ ---
-const nowDate = new Date();
-const mskTime = new Date(nowDate.getTime() + (3 * 60 * 60 * 1000));
-const todayStr = mskTime.toISOString().split('T')[0];
-
-// --- ПРОВЕРЯЕМ ВХОД ---
-const lastLogin = localStorage.getItem('khl_last_login_date');
-if (lastLogin !== todayStr) {
-    localStorage.setItem('khl_last_login_date', todayStr);
-    addQuestProgress('loginDays');
-    
-    // ДОБАВЬ СЮДА:
-    const secondLogin = localStorage.getItem('khl_second_login_date');
-    if (secondLogin === todayStr) {
-        addQuestProgress('login2x');
-    }
-} else {
-    // Если зашел второй раз за сегодня
-    localStorage.setItem('khl_second_login_date', todayStr);
-    addQuestProgress('login2x');
-}
-    }
+} // <--- ФУНКЦИЯ ЗАКАНЧИВАЕТСЯ ЗДЕСЬ
     
 document.getElementById('questsBtn').onclick = () => {
     document.getElementById('shopView').style.display = 'none';
@@ -5030,17 +4994,30 @@ if (savedTourney) {
     }
 }
 
-        // ЗАСЧИТЫВАЕМ ВХОД В ИГРУ (1 раз в день)
+        // --- СЧИТАЕМ ДАТУ ---
 const nowDate = new Date();
 const mskTime = new Date(nowDate.getTime() + (3 * 60 * 60 * 1000)); // Время Минска
 const todayStr = mskTime.toISOString().split('T')[0];
+
+// --- ПРОВЕРЯЕМ ВХОД ---
 const lastLoginDate = localStorage.getItem('khl_last_login_date');
 
 if (lastLoginDate !== todayStr) {
-    // Если сегодня еще не заходил — сохраняем дату и начисляем прогресс
+    // Первый вход за сегодня
     localStorage.setItem('khl_last_login_date', todayStr);
+    localStorage.removeItem('khl_second_login_date'); // Сбрасываем счетчик второго входа
     addQuestProgress('loginDays');
+} else {
+    // Второй (или более) вход за сегодня
+    const secondLoginDate = localStorage.getItem('khl_second_login_date');
+    if (secondLoginDate !== todayStr) {
+        localStorage.setItem('khl_second_login_date', todayStr);
+        addQuestProgress('login2x'); // Датчик для квеста "Зайти второй раз"
+    }
 }
+
+// ВОТ ЗДЕСЬ МЫ ЗАПУСКАЕМ ЗАГРУЗКУ КАРТИНОК И ЖДЕМ ЕЕ ОКОНЧАНИЯ
+return preloadGameAssets(data);
 
         // ВОТ ЗДЕСЬ МЫ ЗАПУСКАЕМ ЗАГРУЗКУ КАРТИНОК И ЖДЕМ ЕЁ ОКОНЧАНИЯ
         return preloadGameAssets(data);
