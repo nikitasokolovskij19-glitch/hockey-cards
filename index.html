@@ -1359,7 +1359,8 @@ function checkQuestResets() {
 
     let changed = false;
 
-    if (questsData.lastDailyUpdate !== today) {
+    // Проверяем дату ИЛИ отсутствие самих квестов (если их нет или они пустые)
+    if (questsData.lastDailyUpdate !== today || !questsData.activeDaily || questsData.activeDaily.length === 0) {
         questsData.lastDailyUpdate = today;
         let shuffled = [...DAILY_QUESTS_DB].sort(() => 0.5 - Math.random());
         questsData.activeDaily = shuffled.slice(0, 5).map(q => q.id);
@@ -1369,7 +1370,7 @@ function checkQuestResets() {
         changed = true;
     }
 
-    if (questsData.lastWeeklyUpdate !== currentWeek) {
+    if (questsData.lastWeeklyUpdate !== currentWeek || !questsData.activeWeekly || questsData.activeWeekly.length === 0) {
         questsData.lastWeeklyUpdate = currentWeek;
         let shuffled = [...WEEKLY_QUESTS_DB].sort(() => 0.5 - Math.random());
         questsData.activeWeekly = shuffled.slice(0, 5).map(q => q.id);
@@ -1717,7 +1718,8 @@ function showConfirm(message, callback) {
         localStorage.removeItem('khl_nickname');
         
         // 3. Принудительная перезагрузка
-        location.reload();
+questsData = {}; // <--- Вот эта страховка
+location.reload();
     });
     }
 
