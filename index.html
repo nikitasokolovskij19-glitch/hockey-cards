@@ -4231,30 +4231,57 @@ function simulateVisualMatch(teamA, teamB, onComplete) {
 
 function processRoundResults(roundMatches, playerTeam, opponent, scorePlayer, scoreOpp, regScorePlayer, regScoreOpp) {
     let roundResults = [];
+    
     roundMatches.forEach(m => {
         if (m.teamA === playerTeam || m.teamB === playerTeam) {
             if (m.teamA === playerTeam) {
                 m.scoreA = scorePlayer; m.scoreB = scoreOpp;
                 roundResults.push({ teamA: playerTeam, scoreA: scorePlayer, teamB: opponent, scoreB: scoreOpp });
                 updateStandings(playerTeam, scorePlayer, opponent, scoreOpp, regScorePlayer, regScoreOpp);
-                if (scorePlayer > scoreOpp) addExp(200);
+                
+                // --- ЛОГИКА КВЕСТОВ ПРИ ПОБЕДЕ ---
+                if (scorePlayer > scoreOpp) {
+                    addExp(200); // Награда опытом
+                    
+                    addQuestProgress('winMatch');
+                    addQuestProgress('winStreak'); 
+                    
+                    if (scoreOpp === 0) addQuestProgress('shutout'); // Сухарь
+                    if (scorePlayer - scoreOpp >= 3) addQuestProgress('winBy3'); // Разница 3+
+                    if (scorePlayer >= 5) addQuestProgress('score5'); // 5+ голов
+                }
             } else {
                 m.scoreA = scoreOpp; m.scoreB = scorePlayer;
                 roundResults.push({ teamA: opponent, scoreA: scoreOpp, teamB: playerTeam, scoreB: scorePlayer });
                 updateStandings(opponent, scoreOpp, playerTeam, scorePlayer, regScoreOpp, regScorePlayer);
-                if (scorePlayer > scoreOpp) addExp(200);
+                
+                // --- ЛОГИКА КВЕСТОВ ПРИ ПОБЕДЕ ---
+                if (scorePlayer > scoreOpp) {
+                    addExp(200); // Награда опытом
+                    
+                    addQuestProgress('winMatch');
+                    addQuestProgress('winStreak'); 
+                    
+                    if (scoreOpp === 0) addQuestProgress('shutout'); // Сухарь
+                    if (scorePlayer - scoreOpp >= 3) addQuestProgress('winBy3'); // Разница 3+
+                    if (scorePlayer >= 5) addQuestProgress('score5'); // 5+ голов
+                }
             }
         } else {
+            // Матч ботов (не затрагивает игрока)
             const matchData = generateMatchData(m.teamA, m.teamB);
             m.scoreA = matchData.scoreA; m.scoreB = matchData.scoreB;
             roundResults.push({ teamA: m.teamA, scoreA: matchData.scoreA, teamB: m.teamB, scoreB: matchData.scoreB });
             updateStandings(m.teamA, matchData.scoreA, m.teamB, matchData.scoreB, matchData.regScoreA, matchData.regScoreB);
         }
     });
-    addQuestProgress('playMatches'); // Засчитываем сыгранный матч
-showDayResults(roundResults, playerTeam);
+    
+    // Засчитываем сыгранный матч для еженедельного квеста
+    addQuestProgress('playMatches');
+    
+    // Показываем результаты дня
+    showDayResults(roundResults, playerTeam);
 }
-
     function updateStandings(teamA, scoreA, teamB, scoreB, regA, regB) {
     let rA = tournamentData.find(t => t.team === teamA);
     let rB = tournamentData.find(t => t.team === teamB);
