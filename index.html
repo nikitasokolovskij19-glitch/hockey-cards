@@ -4960,20 +4960,8 @@ if (savedTourney) {
     }
 }
 
-        // Засчитываем вход и логин
-        addQuestProgress('play');
-        const now = new Date();
-        const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
-        const todayStr = mskTime.toISOString().split('T')[0];
-
-        if (!questsData.weekly.loginDays.includes(todayStr)) {
-            questsData.weekly.loginDays.push(todayStr);
-            if (questsData.weekly.loginDays.length > 3) {
-                questsData.weekly.loginDays.shift();
-            }
-            addQuestProgress('login3', 1);
-        }
-        localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+        // ЗАСЧИТЫВАЕМ ВХОД В ИГРУ
+addQuestProgress('loginDays');
 
         // ВОТ ЗДЕСЬ МЫ ЗАПУСКАЕМ ЗАГРУЗКУ КАРТИНОК И ЖДЕМ ЕЁ ОКОНЧАНИЯ
         return preloadGameAssets(data);
