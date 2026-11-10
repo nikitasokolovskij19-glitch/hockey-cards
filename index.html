@@ -1956,25 +1956,38 @@ function checkQuestResets() {
     // Переводим на время Минска (UTC+3)
     const mskTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
     const today = mskTime.toISOString().split('T')[0];
-    
+
     // Получаем понедельник текущей недели (тоже по Минску)
-    const dayOfWeek = mskTime.getDay() === 0 ? 7 : mskTime.getDay(); 
+    const dayOfWeek = mskTime.getDay() === 0 ? 7 : mskTime.getDay();
     const startOfWeek = new Date(mskTime.setDate(mskTime.getDate() - dayOfWeek + 1));
     const currentWeek = startOfWeek.toISOString().split('T')[0];
 
     let changed = false;
-    if (questsData.lastDailyUpdate !== today) {
-        questsData.daily = { play: 0, open1: 0, sell1: 0, squad: 0, open3: 0, mainClaimed: false, rewardsTaken: {} };
+
+    // Генерируем ежедневные квесты
+    if (questsData.lastDailyUpdate !== today || !questsData.activeDaily || questsData.activeDaily.length === 0) {
         questsData.lastDailyUpdate = today;
+        let shuffled = [...DAILY_QUESTS_DB].sort(() => 0.5 - Math.random());
+        questsData.activeDaily = shuffled.slice(0, 5).map(q => q.id);
+        questsData.dailyProgress = {};
+        questsData.dailyRewardsTaken = {};
+        questsData.dailyMainClaimed = false;
         changed = true;
     }
-    if (questsData.lastWeeklyUpdate !== currentWeek) {
-        questsData.weekly = { open10: 0, sell5: 0, fullSquad: 0, epicDrop: 0, login3: 0, mainClaimed: false, loginDays: [], rewardsTaken: {} };
+
+    // Генерируем еженедельные квесты
+    if (questsData.lastWeeklyUpdate !== currentWeek || !questsData.activeWeekly || questsData.activeWeekly.length === 0) {
         questsData.lastWeeklyUpdate = currentWeek;
+        let shuffled = [...WEEKLY_QUESTS_DB].sort(() => 0.5 - Math.random());
+        questsData.activeWeekly = shuffled.slice(0, 5).map(q => q.id);
+        questsData.weeklyProgress = {};
+        questsData.weeklyRewardsTaken = {};
+        questsData.weeklyMainClaimed = false;
         changed = true;
     }
+
     if (changed) localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
-}
+    }
 
 function addQuestProgress(action, amount = 1) {
     checkQuestResets();
