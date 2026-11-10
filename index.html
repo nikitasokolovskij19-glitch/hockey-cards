@@ -2007,16 +2007,33 @@ function addQuestProgress(action, amount = 1) {
     const activeD = questsData.activeDaily || [];
     const activeW = questsData.activeWeekly || [];
 
-    // ... (циклы activeD и activeW) ...
+    // Проверяем ежедневные квесты
+    activeD.forEach(qId => {
+        const q = DAILY_QUESTS_DB.find(x => x.id === qId);
+        if (q && q.action === action) {
+            questsData.dailyProgress[qId] = (questsData.dailyProgress[qId] || 0) + amount;
+            needsRender = true;
+        }
+    });
+
+    // Проверяем еженедельные квесты
+    activeW.forEach(qId => {
+        const q = WEEKLY_QUESTS_DB.find(x => x.id === qId);
+        if (q && q.action === action) {
+            questsData.weeklyProgress[qId] = (questsData.weeklyProgress[qId] || 0) + amount;
+            needsRender = true;
+        }
+    });
 
     if (needsRender) {
         localStorage.setItem('khl_quests_data', JSON.stringify(questsData));
+        // Если вкладка квестов открыта, обновляем её визуально
         if (document.getElementById('questsView') && document.getElementById('questsView').style.display === 'flex') {
             renderQuests();
         }
         updateQuestAlert();
     }
-} // <--- ФУНКЦИЯ ЗАКАНЧИВАЕТСЯ ЗДЕСЬ
+    }
     
 document.getElementById('questsBtn').onclick = () => {
     document.getElementById('shopView').style.display = 'none';
