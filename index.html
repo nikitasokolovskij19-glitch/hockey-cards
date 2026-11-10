@@ -1348,6 +1348,7 @@ const WEEKLY_QUESTS_DB = [
 ];
 
 let questsData = JSON.parse(localStorage.getItem('khl_quests_data')) || {};
+    if (!questsData.weekly) questsData.weekly = { loginDays: [] };
 if (questsData.daily) { questsData = {}; } // Очистка старой структуры
 
 function checkQuestResets() {
