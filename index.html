@@ -3002,9 +3002,17 @@ const totalPrice = countToSell * singlePrice;
             localStorage.setItem('khl_coins', userCoins);
             
             // --- ПРОГРЕСС КВЕСТОВ ПРИ ПРОДАЖЕ ---
-addQuestProgress('sellCard', countToSell); // Засчитываем продажу (и сразу пачку, если продали несколько)
 
-// Проверки на особые квесты продажи
+// 1. Проверка на продажу дубликата
+const remainingCount = collection.filter(c => c.name === player.name && c.season === player.season).length;
+if (countToSell > 1 || remainingCount > 0) {
+    addQuestProgress('sellDuplicate', countToSell);
+}
+
+// 2. Основной прогресс за продажу
+addQuestProgress('sellCard', countToSell);
+
+// 3. Проверки на особые квесты (дешевые/дорогие карты)
 if (overall < 65) addQuestProgress('sellLow', countToSell);
 if (overall >= 80) addQuestProgress('sellHigh', countToSell);
             
@@ -5151,6 +5159,9 @@ function showRevealCard(player) {
                 userCoins += sellPrice;
                 localStorage.setItem('khl_collection', JSON.stringify(collection));
                 updateUI();
+
+                addQuestProgress('sellCard', 1); 
+                addQuestProgress('sellDuplicate', 1);
                 
                 document.getElementById('revealSellBtn').style.display = 'none';
                 dupContainer.innerHTML = `<div style="color: #10b981; font-size: 14px; font-weight: bold;">✅ Продано за ${sellPrice} 💵</div>`;
