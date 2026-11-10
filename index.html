@@ -2030,7 +2030,14 @@ function addQuestProgress(action, amount = 1) {
         }
         updateQuestAlert();
     }
-    const lastLogin = localStorage.getItem('khl_last_login_date');
+    
+    // --- СЧИТАЕМ ДАТУ ---
+const nowDate = new Date();
+const mskTime = new Date(nowDate.getTime() + (3 * 60 * 60 * 1000));
+const todayStr = mskTime.toISOString().split('T')[0];
+
+// --- ПРОВЕРЯЕМ ВХОД ---
+const lastLogin = localStorage.getItem('khl_last_login_date');
 if (lastLogin !== todayStr) {
     localStorage.setItem('khl_last_login_date', todayStr);
     addQuestProgress('loginDays');
