@@ -1548,6 +1548,7 @@ initBackgroundCanvas();
         shopView.style.display = 'none';
         packsView.style.display = 'flex';
         document.getElementById('globalHomeBtn').style.display = 'flex';
+        addQuestProgress('openShop');
         renderPackButtons(); 
     });
 
@@ -1591,6 +1592,7 @@ userCoins += reward;
         alert(`🎉 Уровень повышен до ${newLevel}!\nНаграда: +${reward} ${GAME_CONFIG.currency}`);
     }
     updateProfile();
+    addQuestProgress('gainExp', amount);
 }
 
     function sanitizeUserData() {
@@ -1798,6 +1800,14 @@ while (ratingContainer.scrollWidth > ratingContainer.clientWidth && parseInt(rat
     document.getElementById('profile-exp-text').innerText = `${levelData.currentExp} / ${levelData.expNeeded}`;
     document.getElementById('profile-exp-bar').style.width = `${(levelData.currentExp / levelData.expNeeded) * 100}%`;
 
+    // Проверка на коллекции клубов/стран
+for (let club in clubCounts) {
+    if (clubCounts[club] >= 3) addQuestProgress('collectClub'); // Сработает, если есть 3 карты клуба
+}
+for (let country in countryCounts) {
+    if (countryCounts[country] >= 3) addQuestProgress('collectCountry');
+}
+    
     renderSquad();
     renderAvatarOptions();
 }
@@ -2020,6 +2030,21 @@ function addQuestProgress(action, amount = 1) {
         }
         updateQuestAlert();
     }
+    const lastLogin = localStorage.getItem('khl_last_login_date');
+if (lastLogin !== todayStr) {
+    localStorage.setItem('khl_last_login_date', todayStr);
+    addQuestProgress('loginDays');
+    
+    // ДОБАВЬ СЮДА:
+    const secondLogin = localStorage.getItem('khl_second_login_date');
+    if (secondLogin === todayStr) {
+        addQuestProgress('login2x');
+    }
+} else {
+    // Если зашел второй раз за сегодня
+    localStorage.setItem('khl_second_login_date', todayStr);
+    addQuestProgress('login2x');
+}
     }
     
 document.getElementById('questsBtn').onclick = () => {
@@ -2027,6 +2052,7 @@ document.getElementById('questsBtn').onclick = () => {
     document.getElementById('questsView').style.display = 'flex';
     document.getElementById('globalHomeBtn').style.display = 'flex';
     checkQuestResets();
+    addQuestProgress('openQuests');
     renderQuests();
 };
 
@@ -2218,6 +2244,15 @@ function renderSquad() {
             slot.innerHTML = `<span class="slot-pos">${posName}</span><div class="slot-plus">+</div>`;
         }
     }
+    // Проверка на сбор звена из одного клуба/страны
+const activePlayers = squad.filter(p => p !== null);
+if (activePlayers.length === 6) {
+    const allSameClub = activePlayers.every(p => p.club === activePlayers[0].club);
+    const allSameCountry = activePlayers.every(p => p.flag === activePlayers[0].flag);
+    
+    if (allSameClub) addQuestProgress('sameClub');
+    if (allSameCountry) addQuestProgress('sameCountry');
+}
 }
 
 function openSquadSelection(requiredPos, slotIndex) {
@@ -2391,6 +2426,7 @@ const rarityWeights = {
 
     // Дальше идет твой старый код выдачи карточки:
     userCoins -= price;
+    addQuestProgress('spendCoins', price);
     updateUI();
     
     collection.push(player);
@@ -2441,13 +2477,17 @@ document.getElementById('packOpeningView').style.display = 'flex';
 addQuestProgress('openPack'); // Засчитывает открытие любого пака
 
 const overall = getPlayerOVR(player);
+    // Проверка на новые карты и коллекцию
+if (copies === 1) { // Если карта выпала впервые (мы считали это выше)
+    addQuestProgress('newUnique'); // Увеличить коллекцию
+    }
 
 // Проверки на редкость (для новых квестов)
 if (overall >= 65) addQuestProgress('getRare');
 if (overall >= 70) addQuestProgress('getSuperRare');
 if (overall >= 80) addQuestProgress('get80');
-if (overall >= 80 && overall < 90) addQuestProgress('getLegendEpic'); // Для еженедельного
-if (overall >= 90) addQuestProgress('getLegendEpic'); // Для еженедельного
+if (overall >= 80 && overall < 90) addQuestProgress('getLegendEpic');
+if (overall >= 90) addQuestProgress('getLegendEpic');
     }
 
 document.getElementById('closeRevealBtn').addEventListener('click', function() {
@@ -2976,14 +3016,9 @@ const totalPrice = countToSell * singlePrice;
             // --- ПРОГРЕСС КВЕСТОВ ПРИ ПРОДАЖЕ ---
 addQuestProgress('sellCard', countToSell); // Засчитываем продажу (и сразу пачку, если продали несколько)
 
-// Проверка на продажу дешевых карт (до 65 OVR)
-if (overall < 65) {
-    addQuestProgress('sellLow', countToSell);
-}
-// Проверка на продажу дорогих карт (от 80 OVR)
-if (overall >= 80) {
-    addQuestProgress('sellHigh', countToSell);
-}
+// Проверки на особые квесты продажи
+if (overall < 65) addQuestProgress('sellLow', countToSell);
+if (overall >= 80) addQuestProgress('sellHigh', countToSell);
             
             updateUI();
             updateProfile(); 
