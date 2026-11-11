@@ -1305,7 +1305,7 @@ const DAILY_QUESTS_DB = [
     { id: "d_spend_1500", text: "Потратить 1500 монет", action: "spendCoins", target: 1500, reward: 300, exp: 150 },
     { id: "d_have_coins_5000", text: "Накопить 5000 монет", action: "haveCoins", target: 5000, reward: 300, exp: 150 },
     { id: "d_build_squad", text: "Собрать полное звено", action: "buildSquad", target: 1, reward: 200, exp: 100 },
-    { id: "d_same_club", text: "Собрать звено (3 из 1 клуба)", action: "sameClub", target: 1, reward: 250, exp: 150 },
+{ id: "d_same_club", text: "Собрать звено (3 из 1 клуба)", action: "sameClub3", target: 1, reward: 250, exp: 150 },
     { id: "d_win_1", text: "Выиграть 1 матч", action: "winMatch", target: 1, reward: 200, exp: 150 },
     { id: "d_win_2", text: "Выиграть 2 матча", action: "winMatch", target: 2, reward: 350, exp: 200 },
     { id: "d_win_ot", text: "Выиграть в овертайме", action: "winOT", target: 1, reward: 250, exp: 150 },
@@ -1343,7 +1343,7 @@ const WEEKLY_QUESTS_DB = [
     { id: "w_gain_exp_10000", text: "Получить 10000 опыта", action: "gainExp", target: 10000, reward: 5000, exp: 0 },
     { id: "w_login_4days", text: "Зайти в игру 4 дня из 7", action: "loginDays", target: 4, reward: 1000, exp: 500 },
     { id: "w_same_country", text: "Звено из 6 карт одной страны", action: "sameCountry", target: 1, reward: 1500, exp: 500 },
-    { id: "w_same_club", text: "Звено из 6 карт одного клуба", action: "sameClub", target: 1, reward: 1500, exp: 500 },
+{ id: "w_same_club", text: "Звено из 6 карт одного клуба", action: "sameClub6", target: 1, reward: 1500, exp: 500 },
     { id: "w_sell_high", text: "Продать 5 карт с OVR 80+", action: "sellHigh", target: 5, reward: 2500, exp: 800 }
 ];
 
@@ -1762,6 +1762,24 @@ for (let i = 0; i < 6; i++) {
         countryCounts[country] = (countryCounts[country] || 0) + 1;
     }
 }
+
+    // --- ДАТЧИКИ ДЛЯ КВЕСТОВ НА ХИМИЮ ЗВЕНА ---
+let maxClubCount = 0;
+for (let club in clubCounts) {
+    if (clubCounts[club] > maxClubCount) maxClubCount = clubCounts[club];
+}
+
+let maxCountryCount = 0;
+for (let country in countryCounts) {
+    if (countryCounts[country] > maxCountryCount) maxCountryCount = countryCounts[country];
+}
+
+// Проверяем условия для квестов
+if (maxClubCount >= 3) addQuestProgress('sameClub3'); // Ежедневный (3 из 1 клуба)
+if (maxClubCount === 6) addQuestProgress('sameClub6'); // Еженедельный (6 из 1 клуба)
+
+if (maxCountryCount >= 3) addQuestProgress('collectCountry'); // Ежедневный (3 карточки страны)
+if (maxCountryCount === 6) addQuestProgress('sameCountry'); // Еженедельный (6 карт страны)2
 
 // Считаем бонусы для ВСЕХ связок
 let clubBonus = 0;
