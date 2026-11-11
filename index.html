@@ -2409,37 +2409,39 @@ function openSquadSelection(requiredPos, slotIndex) {
                 
 function renderPackButtons() {
     const container = document.getElementById('seasonsListContainer');
+    if (!container) return;
     container.innerHTML = '';
-    
+
     ALL_SEASONS.forEach(season => {
         // Считаем, сколько игроков в этом сезоне
         const playerCount = PLAYERS.filter(p => p.season === season).length;
         
-        // Если игроков нет, пропускаем этот сезон (не создаем для него пак)
-        if (playerCount === 0) return; 
+        // Если игроков нет, пропускаем этот сезон
+        if (playerCount === 0) return;
 
         const btn = document.createElement('div');
-btn.className = 'pack-card';
-if (season === "2025/26") btn.classList.add('new-season');
+        btn.className = 'pack-card';
+        if (season === "2025/26") btn.classList.add('new-season');
 
-// Берем картинку пака (если для сезона нет своей, ставим дефолтную)
-const packImg = (typeof PACK_IMAGES !== 'undefined' && PACK_IMAGES[season]) 
-                ? PACK_IMAGES[season] 
-                : "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Puck13_14.webp";
+        // Берем картинку пака (если нет в базе, ставим картинку 13/14)
+        let packImg = "https://nikitasokolovskij19-glitch.github.io/hockey-cards/Puck13_14.webp";
+        if (typeof PACK_IMAGES !== 'undefined' && PACK_IMAGES[season]) {
+            packImg = PACK_IMAGES[season];
+        }
 
-btn.innerHTML = `
-    <div style="width: 100%; height: 160px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; overflow: hidden; border-radius: 12px; background: rgba(0,0,0,0.3);">
-        <img src="${packImg}" style="height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));">
-    </div>
-    <div class="pack-season">${season}</div>
-    <div class="pack-count">${playerCount} карточек</div>
-    <div class="pack-price">${GAME_CONFIG.packPrice} ${GAME_CONFIG.currency}</div>
-`;
+        btn.innerHTML = `
+            <div style="width: 100%; height: 160px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; overflow: hidden; border-radius: 12px; background: rgba(0,0,0,0.4);">
+                <img src="${packImg}" style="height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8));">
+            </div>
+            <div class="pack-season">${season}</div>
+            <div class="pack-count">${playerCount} карточек</div>
+            <div class="pack-price">${GAME_CONFIG.packPrice} ${GAME_CONFIG.currency}</div>
+        `;
 
-btn.addEventListener('click', () => buyPack(season, GAME_CONFIG.packPrice));
-container.appendChild(btn);
+        btn.addEventListener('click', () => buyPack(season, GAME_CONFIG.packPrice));
+        container.appendChild(btn);
     });
-}
+    }
 
     // Функция для показа красивого окна
 function showAlert(message) {
